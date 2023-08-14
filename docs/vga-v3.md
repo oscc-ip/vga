@@ -24,7 +24,7 @@ VGA设计文档第三版
 3. VGA通过<u>AXI总线</u>，作为master从SDRAM内部读取数据
 4. VGA读取到的数据放到其内部数据寄存器中，供RGB显示
 5. SoC Core通过<u>APB总线</u>读写VGA内部的控制寄存器
-6. TODO: 详细设计了时序相关的部分，例如跨时钟域的问题
+<!-- 6. TODO: 详细设计了时序相关的部分，例如跨时钟域的问题 -->
 
 ## 规格设计
 
@@ -67,7 +67,6 @@ VGA设计文档第三版
 <!-- ![vga-v1](https://s2.loli.net/2023/07/27/2Mqdg78YAphLjQI.png) -->
 <!-- ![vga-v2](https://s2.loli.net/2023/07/31/6LrcjlnaOQKi7T9.png) -->
 
-
 VGA模块内部设计如上图所示，主要分为3大模块，各模块功能如下：
 
 1. VGA Ctrl(VC)：主要负责计算需要输出到屏幕的rgb信号跟同步信号
@@ -76,8 +75,9 @@ VGA模块内部设计如上图所示，主要分为3大模块，各模块功能�
 
 ### 顶层接口
 
-![vga-v3](https://s2.loli.net/2023/08/07/stKHcC31azYFRTL.png)
-TODO: 顶层接口只用说明AXI、APB总线即可，具体信号线在详细设计部分里给出
+<!-- ![](https://s2.loli.net/2023/08/07/stKHcC31azYFRTL.png) -->
+
+![vga-v3](https://s2.loli.net/2023/08/10/AaeduZH4ODlFUkS.png)
 
 > input and output design
 
