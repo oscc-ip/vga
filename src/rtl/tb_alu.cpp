@@ -15,13 +15,13 @@ enum Operation { add = 0, sub = 1, nop = 2 };
 
 void dut_reset(Valu *dut, vluint64_t sim_time) {
   dut->resetn = 1;
-  if (sim_time > 1 && sim_time < 5) {
-    dut->resetn = 0;
-    dut->a_in = 0;
-    dut->b_in = 0;
-    dut->valid_in = 0;
-    dut->op_in = nop;
-  }
+  // if (sim_time > 1 && sim_time < 4) {
+  //   dut->resetn = 0;
+  //   dut->a_in = 0;
+  //   dut->b_in = 0;
+  //   dut->valid_in = 0;
+  //   dut->op_in = nop;
+  // }
 }
 
 class AluInTx {
@@ -37,14 +37,12 @@ public:
 };
 
 AluInTx *randAluInTx() {
-  if (rand() % 5) {
-    AluInTx *tx = new AluInTx;
-    tx->a = rand() & 0xff;
-    tx->b = rand() & 0xff;
-    tx->op = rand() & 1;
-    return tx;
-  }
-  return NULL;
+  AluInTx *tx = new AluInTx;
+  tx->a = rand() & 0xff;
+  tx->b = rand() & 0xff;
+  tx->op = 0;
+  // tx->op = rand() & 1;
+  return tx;
 }
 
 class AluInDrv {
@@ -155,7 +153,7 @@ int main(int argc, char **argv) {
 
   sim_time = 0;
   while (sim_time < MAX_SIM_TIME) {
-    printf("time=%ld\n",sim_time);
+    printf("time=%ld\n", sim_time);
     dut_reset(dut, sim_time);
     dut->clk ^= 1;
     dut->eval();
