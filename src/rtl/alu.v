@@ -1,6 +1,6 @@
 module alu
 #(
-    parameter WIDTH=32
+    parameter WIDTH=4
 )
 (
     input wire clk,
@@ -25,12 +25,12 @@ module alu
 
     always @(posedge clk ) begin 
         if(~resetn) begin
-            calculation_reg <= 32'h0;
+            calculation_reg <= 4'h0;
         end
         else if(valid_in) begin
             case(op_in) 
-                1'b0:       calculation_reg <= a_in + b_in;
-                1'b1: calculation_reg <= a_in - b_in;
+                1'b0: calculation_reg <= a_in;
+                1'b1: calculation_reg <= b_in;
             endcase    
         end
     end

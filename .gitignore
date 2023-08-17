@@ -1,1 +1,3 @@
 src/rtl/obj_dir/
+.nvim/
+*.vcd

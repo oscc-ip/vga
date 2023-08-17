@@ -8,20 +8,17 @@
 #include <verilated.h>
 #include <verilated_vcd_c.h>
 
-#define MAX_SIM_TIME 10
+#define MAX_SIM_TIME 20
 uint64_t sim_time;
+uint64_t posedge_cnt;
 
 enum Operation { add = 0, sub = 1, nop = 2 };
 
 void dut_reset(Valu *dut, vluint64_t sim_time) {
   dut->resetn = 1;
-  // if (sim_time > 1 && sim_time < 4) {
-  //   dut->resetn = 0;
-  //   dut->a_in = 0;
-  //   dut->b_in = 0;
-  //   dut->valid_in = 0;
-  //   dut->op_in = nop;
-  // }
+  if (sim_time >= 0 && sim_time <= 1) {
+    dut->resetn = 0;
+  }
 }
 
 class AluInTx {
@@ -37,12 +34,14 @@ public:
 };
 
 AluInTx *randAluInTx() {
-  AluInTx *tx = new AluInTx;
-  tx->a = rand() & 0xff;
-  tx->b = rand() & 0xff;
-  tx->op = 0;
-  // tx->op = rand() & 1;
-  return tx;
+  if ((rand() & 5) == 0) {
+    AluInTx *tx = new AluInTx;
+    tx->a = rand() & 0xff;
+    tx->b = rand() & 0xff;
+    tx->op = rand() & 1;
+    return tx;
+  }
+  return NULL;
 }
 
 class AluInDrv {
@@ -76,16 +75,19 @@ public:
     AluInTx *in = queue.front();
     queue.pop_front();
 
-    printf("a=%d, b= %d, op=%d\n", in->a, in->b, in->op);
-    printf("result_out = %d\n\n", tx->result);
-    switch (in->op) {
-    case 0:
-      if (in->a + in->b != tx->result) {
-        printf("Wrong !!! Get: %d, Expected: %d\n", tx->result, in->a + in->b);
+    // printf("a=%d, b= %d, op=%d\n", in->a, in->b, in->op);
+    // printf("result_out = %d\n\n", tx->result);
+    if (in->op == 0) {
+      if (in->a != tx->result) {
+        printf("Wrong !!! Get: %d, Expected: %d\n", tx->result, in->a);
+      } else {
+        printf("Match\n");
       }
-    case 1:
-      if (in->a - in->b != tx->result) {
-        printf("Wrong !!! Get: %d, Expected: %d\n", tx->result, in->a - in->b);
+    } else if (in->op == 1) {
+      if (in->b != tx->result) {
+        printf("Wrong !!! Get: %d, Expected: %d\n", tx->result, in->b);
+      } else {
+        printf("Match\n");
       }
     }
   }
@@ -152,12 +154,16 @@ int main(int argc, char **argv) {
   m_trace->open("waveform.vcd");
 
   sim_time = 0;
+  posedge_cnt = 0;
   while (sim_time < MAX_SIM_TIME) {
-    printf("time=%ld\n", sim_time);
+    // printf("time=%ld\n", sim_time);
     dut_reset(dut, sim_time);
     dut->clk ^= 1;
     dut->eval();
+
     if (dut->clk == 1) {
+      posedge_cnt++;
+      // printf("cnt=%ld\n", posedge_cnt);
       tx = randAluInTx();
       drv->drive(tx);
       inMon->monitor();
