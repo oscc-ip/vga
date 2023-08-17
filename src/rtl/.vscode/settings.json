@@ -1,9 +1,0 @@
-{
-    "files.watcherExclude": {
-        "**/target": true
-    },
-    "files.associations": {
-        "verilated.h": "c",
-        "verilated_vcd_c.h": "c"
-    }
-}
