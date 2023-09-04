@@ -7,7 +7,7 @@ default: sim # specify the default Makefile target
 .PHONY: build sim clean lint wave
 
 build: $(MODULE).v tb_$(MODULE).cpp
-	@echo "### verilating ###"
+	@echo "### building executable top ###"
 	verilator --trace --cc $(MODULE).v --exe tb_$(MODULE).cpp
 	@echo "### building executable file ###"
 	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
