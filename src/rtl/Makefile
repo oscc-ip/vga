@@ -1,14 +1,17 @@
 # pre defines
 # MODULE=add
-MODULE=alu
+MODULE=vga_ctrl
+# MODULE=alu
 # build targets
 default: sim # specify the default Makefile target
 
 .PHONY: build sim clean lint wave
 
-build: $(MODULE).v tb_$(MODULE).cpp
-	@echo "### building executable top ###"
+verilating: $(MODULE).v tb_$(MODULE).cpp
+	@echo "### verilating ###"
 	verilator --trace --cc $(MODULE).v --exe tb_$(MODULE).cpp
+
+build: verilating
 	@echo "### building executable file ###"
 	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
 
