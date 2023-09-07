@@ -38,7 +38,7 @@ module config_unit
 // ============================ variables =============================
 // =========================================================================
     reg [63:0] resolution [3:0]; // resolution config registers
-    reg [31:0] base_addr, top_addr;
+    reg [31:0] base_addr, top_addr; // TODO: address may change to 2*32 bits
     reg [ 1:0] resolution_sel;
 
 
@@ -48,6 +48,7 @@ module config_unit
     // pre-defined resolution 
     always @(posedge clk ) begin 
         if(~resetn) begin
+            // TOOD: add hardware resolution in resetn
             resolution[0] <= 64'h0;    
             resolution[1] <= 64'h0;    
             resolution[2] <= 64'h0;    
@@ -55,20 +56,15 @@ module config_unit
         end
     end
 
-    // resolution choose
-    always @(posedge clk ) begin 
-        if(~resetn) begin
-            resolution_sel <= 2'h0;    
-        end
-        //TODO: add resolution_sel write logic
-    end
-
     // APB signals
     always @(posedge clk ) begin 
         if(~resetn) begin
-            pready_o  <= 1'h0;    
-            pslverr_o <= 1'h0;
-            prdata_o  <=32'h0;
+            pready_o       <=  1'h0;    
+            pslverr_o      <=  1'h0;
+            prdata_o       <= 32'h0;
+            base_addr      <= 32'h0;
+            top_addr       <= 32'h0;
+            resolution_sel <=  2'h0;
         end
         else if(psel_i && penable_i) begin
             pready_o  <= 1'h1;    
@@ -84,7 +80,11 @@ module config_unit
                         resolution_sel <= pwdata_i[1:0];
                     end
                 endcase
+                pready_o <= 1'h1;    
             end
+        end
+        else begin
+            pready_o <= 1'h0;    
         end
     end
 

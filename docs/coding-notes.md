@@ -30,3 +30,12 @@
 # VC相关的问题
 
 # CU相关的问题
+
+1. Config Unit内部寄存器的地址，在整个地址空间里是如何划分的？
+   CU内部目前有3类寄存器：
+
+   - base_addr: SDRAM访存base address
+   - top_addr: SDRAM访存的top address，跟base_address一起指定VGA数据在SDRAM内部的分布位置
+   - resolution_sel: 选择某个分辨率的配置信息
+
+   Q: 上述3类寄存器被通过APB写入时，其MMIO地址是多少？
