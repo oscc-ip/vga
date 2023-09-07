@@ -1,3 +1,5 @@
+`ifndef __PING_PONG_REGISTER__
+`define __PING_PONG_REGISTER__
 module ping_pong_register
 #(
     parameter ADDR_WIDTH=64,
@@ -138,3 +140,4 @@ reg [ 4:0] write_cnt;
         end
     end
 endmodule
+`endif

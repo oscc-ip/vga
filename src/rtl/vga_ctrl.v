@@ -1,3 +1,5 @@
+`ifndef __VGA_CTRL__
+`define __VGA_CTRL__
 module vga_ctrl(
     input  wire        clk,
     input  wire        resetn,
@@ -96,3 +98,4 @@ module vga_ctrl(
     end
     
 endmodule
+`endif
