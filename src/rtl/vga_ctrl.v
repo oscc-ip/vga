@@ -1,5 +1,6 @@
 `ifndef __VGA_CTRL__
 `define __VGA_CTRL__
+// TODO: 增加测试模式、可以输出固定的测试图像，例如显示彩条、黑白画面等
 module vga_ctrl(
     input  wire        clk,
     input  wire        resetn,
