@@ -374,3 +374,6 @@ TODO
 - [x] SoC 速度 vs VGA 读取速度：可以通过 SDRAM 将 SoC 跟 VGA 解耦，从而 VGA 在读取数据的时候，不用直接跟 SoC 交互。  
        但是 SoC 往 VGA 配置寄存器里写入配置信息的时候，还是需要考虑时钟问题。
 - [ ] Core写数据到SDRAM时，如何知道哪些数据是被VGA显示过的（可以被覆盖）；VGA从SDRAM读数据时，如何知道哪些地址的数据是Core写入的（有效数据）？
+
+# 参考资料
+1. [12 bits颜色](https://studio.code.org/projects/applab/qiyLvNCBDuOYbaBB8oe0isTwNDYTOeGA5cpWlhHNTzM)

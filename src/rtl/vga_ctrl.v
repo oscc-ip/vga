@@ -14,9 +14,9 @@ module vga_ctrl(
     input  wire [ 8:0] vdata_end_i,
     input  wire [11:0] data_i,
     output wire        data_req_o, // request data from ping pong register
-    output reg  [ 3:0] red_o,      // rea color
-    output reg  [ 3:0] green_o,    // green color
-    output reg  [ 3:0] blue_o,     // blue color
+    output wire [ 3:0] red_o,      // rea color
+    output wire [ 3:0] green_o,    // green color
+    output wire [ 3:0] blue_o,     // blue color
     output reg         vsync_o,    // vertical sync
     output reg         hsync_o,    // horizontal sync
     output reg         blank_o     // vga has valid color output
@@ -81,18 +81,22 @@ module vga_ctrl(
                         ((vcount >= {5'h0, vdata_begin_i}-1) && (vcount <= {1'h0, vdata_end_i}-1))) ? 1 : 0;
 
     // output rgb
-    always @(posedge clk ) begin 
-        if(data_req_o) begin
-            red_o   <= data_i[ 3:0];    
-            green_o <= data_i[ 7:4];    
-            blue_o  <= data_i[11:8];    
-        end
-        else begin
-            red_o   <= 4'h0;    
-            green_o <= 4'h0;    
-            blue_o  <= 4'h0;    
-        end
-    end
+    // TODO: change back to real logic
+    assign red_o   = data_i[ 3:0];    
+    assign green_o = data_i[ 7:4];    
+    assign blue_o  = data_i[11:8];    
+    // always @(posedge clk ) begin 
+        // if(data_req_o) begin
+        //     red_o   <= data_i[ 3:0];    
+        //     green_o <= data_i[ 7:4];    
+        //     blue_o  <= data_i[11:8];    
+        // end
+        // else begin
+        //     red_o   <= 4'h0;    
+        //     green_o <= 4'h0;    
+        //     blue_o  <= 4'h0;    
+        // end
+    // end
 
     always @(posedge clk ) begin 
         blank_o <= data_req_o;

@@ -9,7 +9,7 @@ default: sim # specify the default Makefile target
 
 verilating: $(MODULE).v tb_$(MODULE).cpp
 	@echo "### verilating ###"
-	verilator --trace --cc $(MODULE).v --exe tb_$(MODULE).cpp
+	verilator --trace --cc $(MODULE).v --exe tb_$(MODULE).cpp $(MODULE).cpp
 
 build: verilating
 	@echo "### building executable file ###"
@@ -22,6 +22,9 @@ sim:build
 wave:sim
 	@echo "### show the waveform ###"
 	gtkwave waveform.vcd & 
+
+copy_wave: sim
+	scp ./waveform.vcd fujie@10.20.63.34:~/Developer/git_repos/temp/
 
 lint: $(MODULE).v
 	@echo "### check rtl file errors"
