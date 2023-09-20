@@ -30,7 +30,8 @@ module config_unit
     output wire [ 8:0] vdata_end_o,
     // address signals, used by Ping Pong Register
     output wire [ADDR_WIDTH-1:0] base_addr_o,
-    output wire [ADDR_WIDTH-1:0] top_addr_o
+    output wire [ADDR_WIDTH-1:0] top_addr_o,
+    output wire                  self_test_o
 );
 
 
@@ -38,8 +39,9 @@ module config_unit
 // ============================ variables =============================
 // =========================================================================
     reg [63:0] resolution [3:0]; // resolution config registers
-    reg [31:0] base_addr, top_addr; // TODO: address may change to 2*32 bits
+    reg [31:0] base_addr, offset; // TODO: address may change to 2*32 bits
     reg [ 1:0] resolution_sel;
+    reg        self_test;       // self test mode
 
 
 // =========================================================================
@@ -63,8 +65,9 @@ module config_unit
             pslverr_o      <=  1'h0;
             prdata_o       <= 32'h0;
             base_addr      <= 32'h0;
-            top_addr       <= 32'h0;
+            offset         <= 32'h0;
             resolution_sel <=  2'h0;
+            self_test      <=  1'h0;
         end
         else if(psel_i && penable_i) begin
             pready_o  <= 1'h1;    
@@ -74,7 +77,10 @@ module config_unit
                         base_addr <= pwdata_i;
                     end
                     32'h1: begin
-                        top_addr  <= pwdata_i;
+                        offset    <= pwdata_i;
+                    end
+                    32'h2: begin
+                        self_test <= pwdata_i[0];
                     end
                     default: begin
                         resolution_sel <= pwdata_i[1:0];
@@ -100,7 +106,8 @@ module config_unit
     
     // output address
     assign base_addr_o = base_addr;
-    assign top_addr_o  = top_addr;
+    assign top_addr_o  = base_addr+offset;
+    assign self_test_o = self_test;
     
 endmodule
 `endif
