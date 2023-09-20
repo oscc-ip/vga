@@ -10,6 +10,7 @@ module ping_pong_register
     input  wire                  clk_v,      // clock with vga block
     input  wire                  resetn_v,
     input  wire                  data_reg_i, // data request from VC
+    input  wire                  self_test_i, // VGA self test mode
     output reg  [11:0]           data_o,
     // signals with CU(config unit)
     input  wire [ADDR_WIDTH-1:0] base_addr_i,      // SDRAM read base addr
@@ -35,6 +36,7 @@ module ping_pong_register
 // =========================================================================
 reg [63:0] ping [31:0];
 reg [63:0] pong [31:0];
+reg [11:0] color[ 7:0]; // color register, store self test color data
 reg        read_ping; // currently read from ping register
 reg [ 4:0] reg_count; // which register in ping or pong is read
 reg [ 1:0] byte_count;// which 16bits in a register is read, 64 bits register has 4 16-bits part
@@ -83,7 +85,8 @@ reg [ 4:0] write_cnt;
         end
     end
     
-    // get VGA read data
+    // TODO: get VGA read data
+    // TODO: if self_test_i is asserted, read data from color
     always @(posedge clk_v) begin 
         if(~resetn_v) begin
             data_o <= 12'h0;    
@@ -125,6 +128,21 @@ reg [ 4:0] write_cnt;
             rready_o <= 1'h1; // ready for read data
         end
     end
+
+    // self test color set
+    always @(posedge clk_a) begin 
+        if(~resetn_a) begin
+            color[0] <= 12'h000; // black
+            color[1] <= 12'hfff; // white
+            color[2] <= 12'hf00; // red 
+            color[3] <= 12'h0f0; // green
+            color[4] <= 12'h00f; // blue
+            color[5] <= 12'hff0; // yellow 
+            color[6] <= 12'h0ff; // cyan
+            color[7] <= 12'hf0f; // magenta
+        end
+    end
+    
     // write AXI data into memory
     always @(posedge clk_a ) begin 
         if(~resetn_a) begin
