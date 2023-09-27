@@ -1,6 +1,7 @@
 # pre defines
 # MODULE=add
 MODULE=vga_ctrl
+gtkwave=/Applications/gtkwave.app/Contents/Resources/bin/gtkwave  # mac config
 # MODULE=alu
 # build targets
 default: sim # specify the default Makefile target
@@ -21,7 +22,7 @@ sim:build
 
 wave:sim
 	@echo "### show the waveform ###"
-	gtkwave waveform.vcd & 
+	${gtkwave} waveform.vcd & 
 
 copy_wave: sim
 	scp ./waveform.vcd fujie@10.20.63.34:~/Developer/git_repos/temp/
