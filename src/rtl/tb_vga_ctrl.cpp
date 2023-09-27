@@ -8,16 +8,20 @@
 #include <verilated.h>
 #include <verilated_vcd_c.h>
 
-#include "vga_ctrl.h"
 #include "config.h"
+#include "vga_ctrl.h"
 
-#define MAX_SIM_TIME 20
+// #define MAX_SIM_TIME 20
+// #define MAX_SIM_TIME 102
+#define MAX_SIM_TIME 200
+// #define MAX_SIM_TIME 2000
 uint64_t sim_time;
 uint64_t posedge_cnt;
 
 class VgaCtrlInTx {
 public:
   int data_i;
+  int resetn;
 };
 class VgaCtrlOutTx {
 public:
@@ -46,24 +50,53 @@ private:
 
 public:
   vga_ctrl *c_model;
+
+  void display(VgaCtrlOutTx *dut, vga_ctrl *c_model) {
+    printf("output format: dut : ref\n");
+    printf("red  : %2d : %2d\n", dut->red_o, c_model->red_o);
+    printf("green: %2d : %2d\n", dut->green_o, c_model->green_o);
+    printf("blue : %2d : %2d\n", dut->blue_o, c_model->blue_o);
+    printf("hsync: %2d : %2d\n", dut->hsync_o, c_model->hsync_o);
+    printf("vsync: %2d : %2d\n", dut->vsync_o, c_model->vsync_o);
+    printf("blank: %2d : %2d\n", dut->blank_o, c_model->blank_o);
+  }
   void write_in(VgaCtrlInTx *tx) { queue.push_back(tx); }
   void write_out(VgaCtrlOutTx *tx) {
+
+    // declare variables
+    bool color_mismatch, sync_mismatch;
+
+    // implementations
     if (queue.empty()) {
       Log("Error, queue is empty\n");
       _exit(1);
     }
     VgaCtrlInTx *in = queue.front();
-    c_model->eval(in->data_i);
+    c_model->eval(in->data_i, in->resetn);
     queue.pop_front();
-// TODO: add compare logic
+
+    // TODO: add compare logic
     Log("dut     value: red=0x%x, green=0x%x, blue=0x%x\n", tx->red_o,
-           tx->green_o, tx->blue_o);
+        tx->green_o, tx->blue_o);
     Log("c_model value: red=0x%x, green=0x%x, blue=0x%x\n", c_model->red_o,
-           c_model->green_o, c_model->blue_o);
-    if (tx->red_o != c_model->red_o || tx->green_o != c_model->green_o ||
-        tx->blue_o != c_model->blue_o) {
-      printf("mismatch\n");
-      _exit(1);
+        c_model->green_o, c_model->blue_o);
+    Log("dut hsync_o = %d <=> c_model hsync_o =%d\n", tx->hsync_o,
+        c_model->hsync_o);
+
+    color_mismatch = tx->red_o != c_model->red_o ||
+                     tx->green_o != c_model->green_o ||
+                     tx->blue_o != c_model->blue_o;
+    sync_mismatch = tx->hsync_o != c_model->hsync_o ||
+                    tx->vsync_o != c_model->vsync_o ||
+                    tx->blank_o != c_model->blank_o;
+    // printf("ref-> hsync_o = %d, dut->hsync_o = %d\n", c_model->hsync_o,
+    // tx->hsync_o);
+
+    // if (color_mismatch) {
+    if (color_mismatch || sync_mismatch) {
+      printf("mismatch at sim_time=%ld\n", sim_time);
+      display(tx, c_model);
+      // _exit(1);
     } else {
       printf("match\n");
     }
@@ -83,8 +116,9 @@ public:
     // TODO: add condition control for in_moniter
     VgaCtrlInTx *tx = new VgaCtrlInTx;
     tx->data_i = dut->data_i;
+    tx->resetn = dut->resetn;
     scb->write_in(tx);
-    dut->eval();
+    // dut->eval();
   }
 };
 class VgaCtrlOutMonitor {
@@ -101,9 +135,14 @@ public:
   void monitor() {
     VgaCtrlOutTx *tx = new VgaCtrlOutTx;
     // TODO: add out value
+    // color data
     tx->red_o = dut->red_o;
     tx->green_o = dut->green_o;
     tx->blue_o = dut->blue_o;
+    // sync data
+    tx->hsync_o = dut->hsync_o;
+    tx->vsync_o = dut->vsync_o;
+    tx->blank_o = dut->blank_o;
     scb->write_out(tx);
   }
 };
@@ -157,20 +196,18 @@ int main(int argc, char **argv) {
   sim_time = 0;
   posedge_cnt = 0;
   while (sim_time < MAX_SIM_TIME) {
-    // Log("time=%ld\n", sim_time);
     dut_reset(dut, sim_time);
     dut->clk ^= 1;
-    // dut->eval();
 
-    if (dut->clk == 1) {
-      posedge_cnt++;
-      // Log("cnt=%ld\n", posedge_cnt);
-      tx = randVgaInTx();
-      drv->drive(tx);
-      Log("dut->data_i=0x%x\n", dut->data_i);
-      inMon->monitor();
-      outMon->monitor();
-    }
+    // if (dut->clk == 1) {
+    posedge_cnt++;
+    tx = randVgaInTx();
+    drv->drive(tx);
+    Log("dut->data_i=0x%x\n", dut->data_i);
+    inMon->monitor();  // input to dut
+    dut->eval();       // dut evaluate
+    outMon->monitor(); // dut output
+    // }
 
     m_trace->dump(sim_time);
     sim_time++;

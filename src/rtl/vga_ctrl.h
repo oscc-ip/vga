@@ -11,6 +11,8 @@ private:
   int vdata_begin_i;
   int vdata_end_i;
 
+  int vcount, hcount;
+
 public:
   int data_i;
   int red_o, green_o, blue_o;
@@ -20,5 +22,5 @@ public:
                       int hdata_end_i, int vsync_end_i, int vpulse_end_i,
                       int vdata_begin_i, int vdata_end_i);
 
-  void eval(int data_i); // dut step
+  void eval(int data_i, int resetn); // dut step
 };
