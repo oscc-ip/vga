@@ -1,3 +1,5 @@
+#ifndef __VGA_CTRL__
+#define __VGA_CTRL__
 class vga_ctrl {
 
 private:
@@ -24,3 +26,4 @@ public:
 
   void eval(int data_i, int resetn); // dut step
 };
+#endif

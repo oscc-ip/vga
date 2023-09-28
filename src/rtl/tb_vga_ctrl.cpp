@@ -13,8 +13,8 @@
 
 // #define MAX_SIM_TIME 20
 // #define MAX_SIM_TIME 102
-#define MAX_SIM_TIME 200
-// #define MAX_SIM_TIME 2000
+// #define MAX_SIM_TIME 200
+#define MAX_SIM_TIME 2000
 uint64_t sim_time;
 uint64_t posedge_cnt;
 
@@ -92,11 +92,11 @@ public:
     // printf("ref-> hsync_o = %d, dut->hsync_o = %d\n", c_model->hsync_o,
     // tx->hsync_o);
 
-    // if (color_mismatch) {
-    if (color_mismatch || sync_mismatch) {
-      printf("mismatch at sim_time=%ld\n", sim_time);
+    if (color_mismatch) {
+    // if (color_mismatch || sync_mismatch) {
+      // printf("mismatch at sim_time=%lld\n", sim_time);
       display(tx, c_model);
-      // _exit(1);
+      _exit(1);
     } else {
       printf("match\n");
     }
@@ -204,8 +204,11 @@ int main(int argc, char **argv) {
     tx = randVgaInTx();
     drv->drive(tx);
     Log("dut->data_i=0x%x\n", dut->data_i);
-    inMon->monitor();  // input to dut
-    dut->eval();       // dut evaluate
+    inMon->monitor(); // input to dut
+    dut->eval();      // dut evaluate
+    // if (dut->clk == 1) {
+    //   c_model->eval(tx->data_i, tx->resetn);
+    // }
     outMon->monitor(); // dut output
     // }
 
