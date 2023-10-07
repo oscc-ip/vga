@@ -24,8 +24,8 @@ void vga_ctrl::eval(int data_i, int resetn) {
   green_o = (data_i >> 4) & 0xf;
   blue_o = (data_i >> 8) & 0xf;
 
-  // TODO: calculate sync data
-  if (resetn==0) {
+  // calculate sync signal
+  if (resetn == 0) {
     vcount = 0;
     hcount = 0;
   } else {
@@ -33,6 +33,10 @@ void vga_ctrl::eval(int data_i, int resetn) {
     hcount += 1;
   }
   hsync_o = hcount <= hpulse_end_i ? 0 : 1;
-  Log("hcount=%d, vcount=%d\n",hcount, vcount);
-  Log("hsync_end_i=%d\n",hsync_end_i);
+  vsync_o = vcount <= vpulse_end_i ? 0 : 1;
+  blank_o = ((hcount >= hdata_begin_i - 1) && (hcount <= hdata_end_i - 1)) &&
+            ((vcount >= vdata_begin_i - 1) && (vcount <= hdata_end_i - 1));
+
+  Log("hcount=%d, vcount=%d\n", hcount, vcount);
+  Log("hsync_end_i=%d\n", hsync_end_i);
 }

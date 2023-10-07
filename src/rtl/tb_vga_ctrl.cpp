@@ -14,7 +14,8 @@
 // #define MAX_SIM_TIME 20
 // #define MAX_SIM_TIME 102
 // #define MAX_SIM_TIME 200
-#define MAX_SIM_TIME 2000
+// #define MAX_SIM_TIME 2000
+#define MAX_SIM_TIME 20000000
 uint64_t sim_time;
 uint64_t posedge_cnt;
 
@@ -74,7 +75,6 @@ public:
     VgaCtrlInTx *in = queue.front();
     queue.pop_front();
 
-    // TODO: add compare logic
     Log("dut     value: red=0x%x, green=0x%x, blue=0x%x\n", tx->red_o,
         tx->green_o, tx->blue_o);
     Log("c_model value: red=0x%x, green=0x%x, blue=0x%x\n", c_model->red_o,
@@ -108,7 +108,6 @@ public:
     this->scb = scb;
   }
   void monitor() {
-    // TODO: add condition control for in_moniter
     VgaCtrlInTx *tx = new VgaCtrlInTx;
     tx->data_i = dut->data_i;
     tx->resetn = dut->resetn;
@@ -128,7 +127,6 @@ public:
   }
   void monitor() {
     VgaCtrlOutTx *tx = new VgaCtrlOutTx;
-    // TODO: add out value
     // color data
     tx->red_o = dut->red_o;
     tx->green_o = dut->green_o;
