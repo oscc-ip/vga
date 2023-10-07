@@ -53,12 +53,12 @@ public:
 
   void display(VgaCtrlOutTx *dut, vga_ctrl *c_model) {
     printf("output format: dut : ref\n");
-    printf("red  : %2d : %2d\n", dut->red_o, c_model->red_o);
-    printf("green: %2d : %2d\n", dut->green_o, c_model->green_o);
-    printf("blue : %2d : %2d\n", dut->blue_o, c_model->blue_o);
-    printf("hsync: %2d : %2d\n", dut->hsync_o, c_model->hsync_o);
-    printf("vsync: %2d : %2d\n", dut->vsync_o, c_model->vsync_o);
-    printf("blank: %2d : %2d\n", dut->blank_o, c_model->blank_o);
+    printf("red  : %2x : %2x\n", dut->red_o, c_model->red_o);
+    printf("green: %2x : %2x\n", dut->green_o, c_model->green_o);
+    printf("blue : %2x : %2x\n", dut->blue_o, c_model->blue_o);
+    printf("hsync: %2x : %2x\n", dut->hsync_o, c_model->hsync_o);
+    printf("vsync: %2x : %2x\n", dut->vsync_o, c_model->vsync_o);
+    printf("blank: %2x : %2x\n", dut->blank_o, c_model->blank_o);
   }
   void write_in(VgaCtrlInTx *tx) { queue.push_back(tx); }
   void write_out(VgaCtrlOutTx *tx) {
@@ -72,7 +72,6 @@ public:
       _exit(1);
     }
     VgaCtrlInTx *in = queue.front();
-    c_model->eval(in->data_i, in->resetn);
     queue.pop_front();
 
     // TODO: add compare logic
@@ -89,12 +88,8 @@ public:
     sync_mismatch = tx->hsync_o != c_model->hsync_o ||
                     tx->vsync_o != c_model->vsync_o ||
                     tx->blank_o != c_model->blank_o;
-    // printf("ref-> hsync_o = %d, dut->hsync_o = %d\n", c_model->hsync_o,
-    // tx->hsync_o);
 
-    if (color_mismatch) {
-    // if (color_mismatch || sync_mismatch) {
-      // printf("mismatch at sim_time=%lld\n", sim_time);
+    if (color_mismatch || sync_mismatch) {
       display(tx, c_model);
       _exit(1);
     } else {
@@ -118,7 +113,6 @@ public:
     tx->data_i = dut->data_i;
     tx->resetn = dut->resetn;
     scb->write_in(tx);
-    // dut->eval();
   }
 };
 class VgaCtrlOutMonitor {
@@ -143,7 +137,8 @@ public:
     tx->hsync_o = dut->hsync_o;
     tx->vsync_o = dut->vsync_o;
     tx->blank_o = dut->blank_o;
-    scb->write_out(tx);
+    if (dut->clk == 1) // only write_out in posedge
+      scb->write_out(tx);
   }
 };
 
@@ -168,59 +163,70 @@ VgaCtrlInTx *randVgaInTx() {
   return tx;
 };
 
-int main(int argc, char **argv) {
+// implementations
+// declare variables
+Vvga_ctrl *dut = new Vvga_ctrl;
+VerilatedVcdC *m_trace = new VerilatedVcdC;
+// get C referrence model, init c_model
+vga_ctrl *c_model = new vga_ctrl;
+// Here we create the driver, scoreboard, input and output monitor blocks
+VgaCtrlInTx *tx;
+VgaCtrlInDrv *drv = new VgaCtrlInDrv(dut);
+VgaCtrlSCB *scb = new VgaCtrlSCB();
+VgaCtrlInMonitor *inMon = new VgaCtrlInMonitor(dut, scb);
+VgaCtrlOutMonitor *outMon = new VgaCtrlOutMonitor(dut, scb);
 
-  // declare variables
-  Vvga_ctrl *dut = new Vvga_ctrl;
-  VerilatedVcdC *m_trace = new VerilatedVcdC;
-
-  VgaCtrlInTx *tx;
-
-  // Here we create the driver, scoreboard, input and output monitor blocks
-  VgaCtrlInDrv *drv = new VgaCtrlInDrv(dut);
-  VgaCtrlSCB *scb = new VgaCtrlSCB();
-  VgaCtrlInMonitor *inMon = new VgaCtrlInMonitor(dut, scb);
-  VgaCtrlOutMonitor *outMon = new VgaCtrlOutMonitor(dut, scb);
-
-  // get C referrence model
-  vga_ctrl *c_model = new vga_ctrl;
+// init dut, c_model and verilator
+void init() {
+  // init dut
+  dut_reset(dut, sim_time);
+  // init c_model
   c_model->set_resolution(800, 96, 144, 784, 525, 2, 35, 515);
   scb->c_model = c_model;
-
-  // implementations
+  // init verilator
   Verilated::traceEverOn(true);
   srand(time(NULL));
   dut->trace(m_trace, 0);
   m_trace->open("waveform.vcd");
-
   sim_time = 0;
   posedge_cnt = 0;
+}
+
+// step 1 cycle and compare
+void step() {
   while (sim_time < MAX_SIM_TIME) {
-    dut_reset(dut, sim_time);
     dut->clk ^= 1;
 
-    // if (dut->clk == 1) {
-    posedge_cnt++;
     tx = randVgaInTx();
     drv->drive(tx);
     Log("dut->data_i=0x%x\n", dut->data_i);
-    inMon->monitor(); // input to dut
-    dut->eval();      // dut evaluate
-    // if (dut->clk == 1) {
-    //   c_model->eval(tx->data_i, tx->resetn);
-    // }
+    inMon->monitor();    // input to dut
+    dut->eval();         // dut evaluate
+    if (dut->clk == 1) { // c_model eval at posedge
+      c_model->eval(tx->data_i, tx->resetn);
+    }
     outMon->monitor(); // dut output
-    // }
-
     m_trace->dump(sim_time);
     sim_time++;
   }
-  m_trace->close();
+}
 
+// destroy all pointers to free memory
+void destroy() {
+  m_trace->close();
   delete dut;
   delete m_trace;
   delete outMon;
   delete inMon;
   delete scb;
   delete drv;
+}
+
+int main(int argc, char **argv) {
+  // init dut, c_model and verilator
+  init();
+  // step and compare
+  step();
+  // destroy pointers
+  destroy();
 }
