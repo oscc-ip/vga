@@ -10,6 +10,9 @@
 
 #include "config.h"
 #include "vga_ctrl.h"
+// set dut and c_model macros
+#define DUT Vvga_ctrl 
+#define REF vga_ctrl
 
 // #define MAX_SIM_TIME 20
 // #define MAX_SIM_TIME 102
@@ -35,10 +38,10 @@ public:
 };
 class VgaCtrlInDrv {
 private:
-  Vvga_ctrl *dut;
+  DUT *dut;
 
 public:
-  VgaCtrlInDrv(Vvga_ctrl *dut) { this->dut = dut; }
+  VgaCtrlInDrv(DUT *dut) { this->dut = dut; }
   void drive(VgaCtrlInTx *tx) {
     dut->data_i = tx->data_i;
     Log("In driver: data_i = 0x%x\n", tx->data_i);
@@ -50,9 +53,9 @@ private:
   std::deque<VgaCtrlInTx *> queue;
 
 public:
-  vga_ctrl *c_model;
+  REF *c_model;
 
-  void display(VgaCtrlOutTx *dut, vga_ctrl *c_model) {
+  void display(VgaCtrlOutTx *dut, REF *c_model) {
     printf("output format: dut : ref\n");
     printf("red  : %2x : %2x\n", dut->red_o, c_model->red_o);
     printf("green: %2x : %2x\n", dut->green_o, c_model->green_o);
@@ -99,11 +102,11 @@ public:
 };
 class VgaCtrlInMonitor {
 private:
-  Vvga_ctrl *dut;
+  DUT *dut;
   VgaCtrlSCB *scb;
 
 public:
-  VgaCtrlInMonitor(Vvga_ctrl *dut, VgaCtrlSCB *scb) {
+  VgaCtrlInMonitor(DUT *dut, VgaCtrlSCB *scb) {
     this->dut = dut;
     this->scb = scb;
   }
@@ -117,11 +120,11 @@ public:
 class VgaCtrlOutMonitor {
 
 private:
-  Vvga_ctrl *dut;
+  DUT *dut;
   VgaCtrlSCB *scb;
 
 public:
-  VgaCtrlOutMonitor(Vvga_ctrl *dut, VgaCtrlSCB *scb) {
+  VgaCtrlOutMonitor(DUT *dut, VgaCtrlSCB *scb) {
     this->dut = dut;
     this->scb = scb;
   }
@@ -140,7 +143,7 @@ public:
   }
 };
 
-void dut_reset(Vvga_ctrl *dut, vluint64_t sim_time) {
+void dut_reset(DUT *dut, vluint64_t sim_time) {
   dut->resetn = 1;
   if (sim_time >= 0 && sim_time <= 1) {
     dut->resetn = 0;
@@ -163,10 +166,10 @@ VgaCtrlInTx *randVgaInTx() {
 
 // implementations
 // declare variables
-Vvga_ctrl *dut = new Vvga_ctrl;
+DUT *dut = new DUT;
 VerilatedVcdC *m_trace = new VerilatedVcdC;
 // get C referrence model, init c_model
-vga_ctrl *c_model = new vga_ctrl;
+REF *c_model = new REF;
 // Here we create the driver, scoreboard, input and output monitor blocks
 VgaCtrlInTx *tx;
 VgaCtrlInDrv *drv = new VgaCtrlInDrv(dut);
