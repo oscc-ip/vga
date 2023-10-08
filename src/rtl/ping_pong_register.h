@@ -4,7 +4,7 @@
 #define PONG false
 
 // IO input
-class InIO{
+class InIO {
 public:
   bool data_reg_i;  // request color data
   bool self_test_i; // seft test enable
@@ -35,10 +35,14 @@ private:
 
 public:
   // IO
-  InIO* in;
-  OutIO* out;
+  InIO *in;
+  OutIO *out;
   // functions
-  void resetn();      // reset ppr c_model
-  void eval(); // step one cycle
+  void resetn(); // reset ppr c_model
+  void eval();   // step one cycle
+  ping_pong_register(InIO *i, OutIO *o) {
+    in = i;
+    out = o;
+  }
 };
 #endif

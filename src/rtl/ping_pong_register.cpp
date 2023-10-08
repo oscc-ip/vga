@@ -1,4 +1,5 @@
 #include "ping_pong_register.h"
+#include <cstdio>
 
 void ping_pong_register::resetn() {
 

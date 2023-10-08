@@ -1,3 +1,5 @@
+CPPFLAGS= -g
+LDFLAGS= -g
 # pre defines
 # MODULE=add
 # MODULE=vga_ctrl
@@ -7,7 +9,7 @@ gtkwave=/Applications/gtkwave.app/Contents/Resources/bin/gtkwave  # mac config
 # build targets
 default: sim # specify the default Makefile target
 
-.PHONY: build sim clean lint wave
+.PHONY: build sim clean lint wave gdb
 
 verilating: $(MODULE).v tb_$(MODULE).cpp
 	@echo "### verilating ###"
@@ -24,6 +26,11 @@ sim:build
 wave:sim
 	@echo "### show the waveform ###"
 	${gtkwave} waveform.vcd & 
+
+gdb: $(MODULE).v tb_$(MODULE).cpp
+	@echo "### debug project ###"
+	verilator --debug --gdbbt --trace --cc $(MODULE).v --exe tb_$(MODULE).cpp $(MODULE).cpp
+	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
 
 copy_wave: sim
 	scp ./waveform.vcd fujie@10.20.63.34:~/Developer/git_repos/temp/

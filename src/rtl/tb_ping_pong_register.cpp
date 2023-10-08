@@ -150,7 +150,7 @@ public:
     dut->rresp_i = in->rresp_i;
     dut->rdata_i = in->rdata_i;
     // copy input signal to ref
-    ref->in = *in;
+    ref->in = in;
   }
   // constructor: connect to dut and ref
   InDriver(DUT *d, REF *r) {
@@ -194,7 +194,7 @@ private:
   REF *ref;
 
 public:
-  monitor() { s->compare; }
+  void monitor() { scb->compare(); }
   OutMonitor(SCB *s, DUT *d, REF *r) {
     scb = s;
     dut = d;
@@ -203,24 +203,26 @@ public:
 };
 
 // get random input data
-InIO *tx=randInIO(){
-    InIO *tx=new InIO;
-    return tx;
+InIO *randInIO() {
+  InIO *in = new InIO;
+  return in;
 }
 
 // implementations
 // declare variables
 VerilatedVcdC *m_trace = new VerilatedVcdC;
-DUT *dut = new DUT;
-REF *ref = new REF;
 // Here we create the driver, scoreboard, input and output monitor blocks
-InIO *tx;
+InIO *in;
+OutIO *out=new OutIO;
+DUT *dut = new DUT;
+REF *ref = new REF(in, out);
 InDriver *drv = new InDriver(dut, ref);
 SCB *scb = new SCB(dut, ref);
 OutMonitor *outMon = new OutMonitor(scb, dut, ref);
 
 // init dut, ref and verilator
 void init() {
+  printf("init\n");
   // init verilator
   Verilated::traceEverOn(true);
   srand(time(NULL));
@@ -236,12 +238,13 @@ void init() {
 
 // step 1 cycle and compare
 void step() {
+    printf("step\n");
   while (sim_time < MAX_SIM_TIME) {
-    dut->clk ^= 1;
+    dut->clk_v ^= 1;
+    in = randInIO();
 
-    tx = randInIO();
-    drv->drive(tx);
-    dut->eval();         // dut evaluate
+    drv->drive(in);
+    dut->eval(); // dut evaluate
     ref->eval();
     outMon->monitor(); // dut output
     m_trace->dump(sim_time);
@@ -251,11 +254,11 @@ void step() {
 
 // destroy all pointers to free memory
 void destroy() {
+  printf("destroy\n");
   m_trace->close();
   delete dut;
   delete m_trace;
   delete outMon;
-  delete inMon;
   delete scb;
   delete drv;
 }
