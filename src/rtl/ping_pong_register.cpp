@@ -35,4 +35,5 @@ void ping_pong_register::eval() {
   }
 
   // TODO: calculate AXI signals
+  
 };

@@ -1,5 +1,3 @@
-CPPFLAGS= -g
-LDFLAGS= -g
 # pre defines
 # MODULE=add
 # MODULE=vga_ctrl
