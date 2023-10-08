@@ -13,7 +13,7 @@ default: sim # specify the default Makefile target
 
 verilating: $(MODULE).v tb_$(MODULE).cpp
 	@echo "### verilating ###"
-	verilator --trace --cc $(MODULE).v --exe tb_$(MODULE).cpp $(MODULE).cpp
+	verilator --top-module ${MODULE} --trace --cc $(MODULE).v --exe tb_$(MODULE).cpp $(MODULE).cpp
 
 build: verilating
 	@echo "### building executable file ###"
@@ -29,8 +29,9 @@ wave:sim
 
 gdb: $(MODULE).v tb_$(MODULE).cpp
 	@echo "### debug project ###"
-	verilator --debug --gdbbt --trace --cc $(MODULE).v --exe tb_$(MODULE).cpp $(MODULE).cpp
+	verilator -CFLAGS -g --trace --cc $(MODULE).v --exe tb_$(MODULE).cpp $(MODULE).cpp
 	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
+	gdb ./obj_dir/V${MODULE} -silent
 
 copy_wave: sim
 	scp ./waveform.vcd fujie@10.20.63.34:~/Developer/git_repos/temp/
