@@ -192,7 +192,8 @@ VGA模块内部设计如上图所示，主要分为3大模块，各模块功能�
    ![PPR](https://s2.loli.net/2023/08/14/xRBIZypbSaDzF8k.png)
 2. 功能
    - 根据VC数据读取需求，返回色彩数据
-     - 令ping pong register每2B存储一组色彩信息，一个64bits的寄存器可以存储4个像素点信息
+     - 令ping pong register每2B存储一组色彩信息，一个64bits的寄存器可以存储4个像素点信息<u>(该设计只是待定)</u>
+       ![SDRAM line](https://s2.loli.net/2023/10/07/V7iXfPR3qhZw5aO.png)
      - Control Unit在接收到VC的数据请求信号`data_reg`之后，会根据`write_enable`信号选择
        读寄存器，会根据`byte_select`信号从读寄存器里选择2B的数据，**但是发送给VC的数据是
        12bits，以避免无效数据传输**
@@ -376,4 +377,5 @@ TODO
 - [ ] Core写数据到SDRAM时，如何知道哪些数据是被VGA显示过的（可以被覆盖）；VGA从SDRAM读数据时，如何知道哪些地址的数据是Core写入的（有效数据）？
 
 # 参考资料
+
 1. [12 bits颜色](https://studio.code.org/projects/applab/qiyLvNCBDuOYbaBB8oe0isTwNDYTOeGA5cpWlhHNTzM)

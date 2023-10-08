@@ -1,6 +1,7 @@
 # pre defines
 # MODULE=add
-MODULE=vga_ctrl
+# MODULE=vga_ctrl
+MODULE=ping_pong_register
 gtkwave=/Applications/gtkwave.app/Contents/Resources/bin/gtkwave  # mac config
 # MODULE=alu
 # build targets

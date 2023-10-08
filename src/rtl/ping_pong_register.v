@@ -34,8 +34,8 @@ module ping_pong_register
 // =========================================================================
 // ============================ variables =============================
 // =========================================================================
-reg [63:0] ping [31:0];
-reg [63:0] pong [31:0];
+reg [DATA_WIDTH-1:0] ping [31:0];
+reg [DATA_WIDTH-1:0] pong [31:0];
 reg [11:0] color[ 7:0]; // color register, store self test color data
 reg        read_ping; // currently read from ping register
 reg [ 4:0] reg_count; // which register in ping or pong is read
@@ -85,15 +85,51 @@ reg [ 4:0] write_cnt;
         end
     end
     
-    // TODO: get VGA read data
-    // TODO: if self_test_i is asserted, read data from color
     always @(posedge clk_v) begin 
         if(~resetn_v) begin
             data_o <= 12'h0;    
         end
         else if(data_reg_i) begin
-            if(read_ping) begin
-                    
+            if(self_test_i) begin
+                data_o <= color[3]; //TODO: correntlly only support self test of red color
+            end
+            else begin
+                if(read_ping) begin // read data from ping register
+                    case(byte_count) 
+                        2'h0: begin
+                            data_o <= ping[reg_count][11:0];
+                        end
+                        2'h1: begin
+                            data_o <= ping[reg_count][27:16];
+                        end
+                        2'h2: begin
+                            data_o <= ping[reg_count][43:32];
+                        end
+                        2'h3: begin
+                            data_o <= ping[reg_count][59:48];
+                        end
+                        default: begin
+                        end
+                    endcase
+                end
+                else begin // read data from pong register
+                    case(byte_count) 
+                        2'h0: begin
+                            data_o <= pong[reg_count][11:0];
+                        end
+                        2'h1: begin
+                            data_o <= pong[reg_count][27:16];
+                        end
+                        2'h2: begin
+                            data_o <= pong[reg_count][43:32];
+                        end
+                        2'h3: begin
+                            data_o <= pong[reg_count][59:48];
+                        end
+                        default: begin
+                        end
+                    endcase
+                end
             end
         end
         else begin
