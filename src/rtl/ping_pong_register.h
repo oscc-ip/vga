@@ -6,13 +6,14 @@
 // IO input
 class InIO {
 public:
-  bool data_reg_i;  // request color data
+  bool data_req_i;  // request color data
   bool self_test_i; // seft test enable
   bool resetn_v;
   // signals with AXI bus
   bool arready_i, rvalid_i;
   int rresp_i, rdata_i;
   bool resetn_a;
+  int base_addr_i, top_addr_i;
 };
 // IO output
 class OutIO {

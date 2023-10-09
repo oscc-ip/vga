@@ -9,7 +9,7 @@ module ping_pong_register
     // signals with VC(VGA Control)
     input  wire                  clk_v,      // clock with vga block
     input  wire                  resetn_v,
-    input  wire                  data_reg_i, // data request from VC
+    input  wire                  data_req_i, // data request from VC
     input  wire                  self_test_i, // VGA self test mode
     output reg  [11:0]           data_o,
     // signals with CU(config unit)
@@ -55,7 +55,7 @@ reg [ 4:0] write_cnt;
         if(~resetn_v) begin
             byte_count <= 2'b0;    
         end
-        else if(data_reg_i) begin
+        else if(data_req_i) begin
             byte_count <= byte_count + 1;    
         end
         else begin
@@ -67,7 +67,7 @@ reg [ 4:0] write_cnt;
         if(~resetn_v) begin
             reg_count <= 5'h0;    
         end
-        else if(data_reg_i && byte_count == 2'b11) begin
+        else if(data_req_i && byte_count == 2'b11) begin
             reg_count <= reg_count + 1;    
         end
         else begin
@@ -89,7 +89,7 @@ reg [ 4:0] write_cnt;
         if(~resetn_v) begin
             data_o <= 12'h0;    
         end
-        else if(data_reg_i) begin
+        else if(data_req_i) begin
             if(self_test_i) begin
                 data_o <= color[3]; //TODO: correntlly only support self test of red color
             end
