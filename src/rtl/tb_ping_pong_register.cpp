@@ -16,8 +16,8 @@
 
 // #define MAX_SIM_TIME 20
 // #define MAX_SIM_TIME 102
-// #define MAX_SIM_TIME 200
-#define MAX_SIM_TIME 2000
+#define MAX_SIM_TIME 200
+// #define MAX_SIM_TIME 2000
 // #define MAX_SIM_TIME 20000000
 uint64_t sim_time;
 uint64_t posedge_cnt;
@@ -170,7 +170,22 @@ private:
   REF *ref;
 
 public:
-  void compare() { Log("compare dut with ref\n"); }
+  void compare() {
+    Log("compare dut with ref\n");
+    bool match = dut->data_o == ref->out->data_o &&
+                 dut->araddr_o == ref->out->araddr_o &&
+                 dut->arburst_o == ref->out->arburst_o &&
+                 dut->arlen_o == ref->out->arlen_o &&
+                 dut->arsize_o == ref->out->arsize_o &&
+                 dut->arvalid_o == ref->out->arvalid_o &&
+                 dut->rready_o == ref->out->rready_o;
+
+    if (match) {
+      Log("match\n");
+    } else {
+      Log("mismatch\n");
+    }
+  }
   // constructor: connect to dut and ref
   SCB(DUT *d, REF *r) {
     dut = d;
@@ -213,7 +228,7 @@ InIO *randInIO() {
 VerilatedVcdC *m_trace = new VerilatedVcdC;
 // Here we create the driver, scoreboard, input and output monitor blocks
 InIO *in;
-OutIO *out=new OutIO;
+OutIO *out = new OutIO;
 DUT *dut = new DUT;
 REF *ref = new REF(in, out);
 InDriver *drv = new InDriver(dut, ref);
@@ -238,7 +253,7 @@ void init() {
 
 // step 1 cycle and compare
 void step() {
-    printf("step\n");
+  printf("step\n");
   while (sim_time < MAX_SIM_TIME) {
     dut->clk_v ^= 1;
     in = randInIO();
@@ -246,7 +261,7 @@ void step() {
     drv->drive(in);
     dut->eval(); // dut evaluate
     ref->eval();
-    outMon->monitor(); // dut output
+    outMon->monitor(); // compare dut with ref
     m_trace->dump(sim_time);
     sim_time++;
   }

@@ -22,6 +22,7 @@ public:
   int araddr_o;
   int arburst_o, arlen_o, arsize_o;
   bool arvalid_o, rready_o;
+  // compare if OutIO is equal
 };
 class ping_pong_register {
 private:
