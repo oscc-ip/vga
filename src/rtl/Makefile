@@ -2,7 +2,7 @@
 # MODULE=add
 # MODULE=vga_ctrl
 MODULE=ping_pong_register
-gtkwave=/Applications/gtkwave.app/Contents/Resources/bin/gtkwave  # mac config
+# gtkwave=/Applications/gtkwave.app/Contents/Resources/bin/gtkwave  # mac config
 # MODULE=alu
 # build targets
 default: sim # specify the default Makefile target
@@ -11,19 +11,19 @@ default: sim # specify the default Makefile target
 
 verilating: $(MODULE).v tb_$(MODULE).cpp
 	@echo "### verilating ###"
-	verilator --top-module ${MODULE} --trace --cc $(MODULE).v --exe tb_$(MODULE).cpp $(MODULE).cpp
+	@verilator --top-module ${MODULE} --trace --cc $(MODULE).v --exe tb_$(MODULE).cpp $(MODULE).cpp
 
 build: verilating
 	@echo "### building executable file ###"
-	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
+	@make -C obj_dir -f V$(MODULE).mk V$(MODULE) 2>&1 > /dev/null
 
 sim:build
 	@echo "### do the simulation ###"
-	./obj_dir/V$(MODULE)
+	@./obj_dir/V$(MODULE)
 
 wave:sim
 	@echo "### show the waveform ###"
-	${gtkwave} waveform.vcd & 
+	gtkwave waveform.vcd & 
 
 gdb: $(MODULE).v tb_$(MODULE).cpp
 	@echo "### debug project ###"

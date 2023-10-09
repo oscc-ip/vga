@@ -33,7 +33,6 @@ void ping_pong_register::eval() {
       out->data_o = ((pong[reg_count]) >> byte_count) & 0xfff;
     }
   }
-
   // TODO: calculate AXI signals
   
 };

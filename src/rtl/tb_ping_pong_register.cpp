@@ -16,8 +16,8 @@
 
 // #define MAX_SIM_TIME 20
 // #define MAX_SIM_TIME 102
-#define MAX_SIM_TIME 200
-// #define MAX_SIM_TIME 2000
+// #define MAX_SIM_TIME 200
+#define MAX_SIM_TIME 2000
 // #define MAX_SIM_TIME 20000000
 uint64_t sim_time;
 uint64_t posedge_cnt;
@@ -82,7 +82,7 @@ uint64_t posedge_cnt;
 //       display(tx, c_model);
 //       _exit(1);
 //     } else {
-//       printf("match\n");
+//       Log("match\n");
 //     }
 //   };
 // };
@@ -172,6 +172,8 @@ private:
 public:
   void compare() {
     Log("compare dut with ref\n");
+
+    printf("arsize_o: dut=%x , ref=%x\n", dut->arsize_o, ref->out->arsize_o);
     bool match = dut->data_o == ref->out->data_o &&
                  dut->araddr_o == ref->out->araddr_o &&
                  dut->arburst_o == ref->out->arburst_o &&
@@ -184,6 +186,7 @@ public:
       Log("match\n");
     } else {
       Log("mismatch\n");
+      _exit(-1);
     }
   }
   // constructor: connect to dut and ref
@@ -220,6 +223,12 @@ public:
 // get random input data
 InIO *randInIO() {
   InIO *in = new InIO;
+
+  if (sim_time > 0 && sim_time < 2) {
+    in->resetn_a = 0;
+  } else {
+    in->resetn_a = 1;
+  }
   return in;
 }
 
@@ -237,7 +246,7 @@ OutMonitor *outMon = new OutMonitor(scb, dut, ref);
 
 // init dut, ref and verilator
 void init() {
-  printf("init\n");
+  Log("init\n");
   // init verilator
   Verilated::traceEverOn(true);
   srand(time(NULL));
@@ -247,17 +256,19 @@ void init() {
   posedge_cnt = 0;
   // TODO: add init logic
   // init dut
+  dut->clk_a = 0;
+  dut->clk_v = 0;
   // init ref
   // init UVM test class
 }
 
 // step 1 cycle and compare
 void step() {
-  printf("step\n");
+  Log("step\n");
   while (sim_time < MAX_SIM_TIME) {
     dut->clk_v ^= 1;
+    dut->clk_a ^= 1;
     in = randInIO();
-
     drv->drive(in);
     dut->eval(); // dut evaluate
     ref->eval();
@@ -269,7 +280,7 @@ void step() {
 
 // destroy all pointers to free memory
 void destroy() {
-  printf("destroy\n");
+  Log("destroy\n");
   m_trace->close();
   delete dut;
   delete m_trace;
@@ -285,6 +296,4 @@ int main(int argc, char **argv) {
   step();
   // destroy pointers
   destroy();
-
-  printf("hello world\n");
 }

@@ -1,5 +1,5 @@
 #include <stdio.h>
-// #define DISPLAY
+#define DISPLAY
 
 #ifdef DISPLAY
     #define Log(...) printf(__VA_ARGS__)
