@@ -15,120 +15,13 @@
 #define DUT Vping_pong_register
 #define REF ping_pong_register
 
-#define MAX_SIM_TIME 8
+// #define MAX_SIM_TIME 8
 // #define MAX_SIM_TIME 102
 // #define MAX_SIM_TIME 200
-// #define MAX_SIM_TIME 2000
+#define MAX_SIM_TIME 2000
 // #define MAX_SIM_TIME 20000000
 uint64_t sim_time;
 uint64_t posedge_cnt;
-
-// class InDrv {
-// private:
-//   DUT *dut;
-
-// public:
-//   InDrv(DUT *dut) { this->dut = dut; }
-//   void drive(InIO *tx) {
-//     // dut->data_i = tx->data_i;
-//     Log("In driver: data_i = 0x%x\n", tx->data_i);
-//   }
-// };
-// class VgaCtrlSCB {
-
-// private:
-//   std::deque<InIO *> queue;
-
-// public:
-//   REF *c_model;
-
-//   void display(OutIO *dut, REF *c_model) {
-//     Log("output format: dut : ref\n");
-//     Log("red  : %2x : %2x\n", dut->red_o, c_model->red_o);
-//     Log("green: %2x : %2x\n", dut->green_o, c_model->green_o);
-//     Log("blue : %2x : %2x\n", dut->blue_o, c_model->blue_o);
-//     Log("hsync: %2x : %2x\n", dut->hsync_o, c_model->hsync_o);
-//     Log("vsync: %2x : %2x\n", dut->vsync_o, c_model->vsync_o);
-//     Log("blank: %2x : %2x\n", dut->blank_o, c_model->blank_o);
-//   }
-//   void write_in(InIO *tx) { queue.push_back(tx); }
-//   void write_out(OutIO *tx) {
-
-//     // declare variables
-//     bool color_mismatch, sync_mismatch;
-
-//     // implementations
-//     if (queue.empty()) {
-//       Log("Error, queue is empty\n");
-//       _exit(1);
-//     }
-//     InIO *in = queue.front();
-//     queue.pop_front();
-
-//     Log("dut     value: red=0x%x, green=0x%x, blue=0x%x\n", tx->red_o,
-//         tx->green_o, tx->blue_o);
-//     Log("c_model value: red=0x%x, green=0x%x, blue=0x%x\n", c_model->red_o,
-//         c_model->green_o, c_model->blue_o);
-//     Log("dut hsync_o = %d <=> c_model hsync_o =%d\n", tx->hsync_o,
-//         c_model->hsync_o);
-
-//     color_mismatch = tx->red_o != c_model->red_o ||
-//                      tx->green_o != c_model->green_o ||
-//                      tx->blue_o != c_model->blue_o;
-//     sync_mismatch = tx->hsync_o != c_model->hsync_o ||
-//                     tx->vsync_o != c_model->vsync_o ||
-//                     tx->blank_o != c_model->blank_o;
-
-//     if (color_mismatch || sync_mismatch) {
-//       display(tx, c_model);
-//       _exit(1);
-//     } else {
-//       Log("match\n");
-//     }
-//   };
-// };
-// class VgaCtrlInMonitor {
-// private:
-//   DUT *dut;
-//   VgaCtrlSCB *scb;
-
-// public:
-//   VgaCtrlInMonitor(DUT *dut, VgaCtrlSCB *scb) {
-//     this->dut = dut;
-//     this->scb = scb;
-//   }
-//   void monitor() {
-//     InIO *tx = new InIO;
-//     tx->data_i = dut->data_i;
-//     tx->resetn = dut->resetn;
-//     scb->write_in(tx);
-//   }
-// };
-// class VgaCtrlOutMonitor {
-
-// private:
-//   DUT *dut;
-//   VgaCtrlSCB *scb;
-
-// public:
-//   VgaCtrlOutMonitor(DUT *dut, VgaCtrlSCB *scb) {
-//     this->dut = dut;
-//     this->scb = scb;
-//   }
-//   void monitor() {
-//     OutIO *tx = new OutIO;
-//     // color data
-//     tx->red_o = dut->red_o;
-//     tx->green_o = dut->green_o;
-//     tx->blue_o = dut->blue_o;
-//     // sync data
-//     tx->hsync_o = dut->hsync_o;
-//     tx->vsync_o = dut->vsync_o;
-//     tx->blank_o = dut->blank_o;
-//     if (dut->clk == 1) // only write_out in posedge
-//       scb->write_out(tx);
-//   }
-// };
 
 /*
 1. get random input for dut and ref
@@ -151,6 +44,8 @@ public:
     dut->rvalid_i = in->rvalid_i;
     dut->rresp_i = in->rresp_i;
     dut->rdata_i = in->rdata_i;
+    dut->clk_a = in->clk_a;
+    dut->clk_v = in->clk_v;
     // copy input signal to ref
     ref->in = in;
     Log("resetn_a: dut=%d, ref=%d\n", dut->resetn_a, ref->in->resetn_a);
@@ -174,9 +69,9 @@ private:
 
 public:
   void display() {
-    printf("display dut and ref OutIO\n");
-    printf("data_o   -> dut: %d, ref: %d\n", dut->data_o, ref->out->data_o);
-    printf("araddr_o -> dut: %ld, ref: %d\n", dut->araddr_o,
+    printf("display dut and ref OutIO at time=%ld\n", sim_time);
+    printf("data_o   -> dut: 0x%x, ref: 0x%x\n", dut->data_o, ref->out->data_o);
+    printf("araddr_o -> dut: 0x%lx, ref: 0x%lx\n", dut->araddr_o,
            ref->out->araddr_o);
     printf("arburst_o-> dut: %d, ref: %d\n", dut->arburst_o,
            ref->out->arburst_o);
@@ -188,8 +83,8 @@ public:
   }
   bool compare() {
     Log("compare dut with ref\n");
+    ref->in->display();
     display();
-
     Log("arsize_o: dut=%x , ref=%x\n", dut->arsize_o, ref->out->arsize_o);
     bool match = dut->data_o == ref->out->data_o &&
                  dut->araddr_o == ref->out->araddr_o &&
@@ -245,7 +140,7 @@ public:
 InIO *randInIO() {
   InIO *in = new InIO;
 
-  if (sim_time > 0 && sim_time < 4) {
+  if (sim_time >= 0 && sim_time < 4) {
     in->data_req_i = 0;
     in->self_test_i = 0;
     in->base_addr_i = 0;
@@ -258,6 +153,8 @@ InIO *randInIO() {
     in->resetn_v = 0;
   } else {
     in->resetn_a = 1;
+    in->resetn_v = 1;
+    in->arready_i = rand() & 1; // sdram ready for read
   }
   Log("resetn_a=%d\n", in->resetn_a);
   return in;
@@ -267,7 +164,7 @@ InIO *randInIO() {
 // declare variables
 VerilatedVcdC *m_trace = new VerilatedVcdC;
 // Here we create the driver, scoreboard, input and output monitor blocks
-InIO *in;
+InIO *in = new InIO;
 OutIO *out = new OutIO;
 DUT *dut = new DUT;
 REF *ref = new REF(in, out);
@@ -310,9 +207,10 @@ void step() {
   Log("step\n");
   while (sim_time < MAX_SIM_TIME) {
     Log("\nsim_time=%ld\n", sim_time);
-    dut->clk_v ^= 1;
-    dut->clk_a ^= 1;
-    in = randInIO();
+    // dut->clk_v ^= 1;
+    // dut->clk_a ^= 1;
+    // in = randInIO();
+    in->randInIO(sim_time);
     Log("in resetn_a=%d\n", in->resetn_a);
     drv->drive(in);
     dut->eval(); // dut evaluate

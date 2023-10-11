@@ -41,7 +41,7 @@ reg        read_ping; // currently read from ping register
 reg [ 4:0] reg_count; // which register in ping or pong is read
 reg [ 1:0] byte_count;// which 16bits in a register is read, 64 bits register has 4 16-bits part
 reg [63:0] next_addr;
-reg [ 4:0] write_cnt;
+reg [ 4:0] write_count;
 
 
 // =========================================================================
@@ -165,6 +165,22 @@ reg [ 4:0] write_cnt;
         end
     end
 
+    // write AXI data into memory
+    always @(posedge clk_a ) begin 
+        if(~resetn_a) begin
+            write_count <= 5'h0;    
+        end
+        else if(rvalid_i && (rresp_i==2'h0)) begin
+            if(read_ping) begin
+                pong[write_count] <= rdata_i;
+            end    
+            else begin
+                ping[write_count] <= rdata_i;    
+            end
+            write_count <= write_count+5'h1; // increase write_count
+        end
+    end
+
     // self test color set
     always @(posedge clk_a) begin 
         if(~resetn_a) begin
@@ -179,19 +195,5 @@ reg [ 4:0] write_cnt;
         end
     end
     
-    // write AXI data into memory
-    always @(posedge clk_a ) begin 
-        if(~resetn_a) begin
-            write_cnt <= 5'h0;    
-        end
-        else if(rvalid_i && (rresp_i==2'h0)) begin
-            if(read_ping) begin
-                pong[write_cnt] <= rdata_i;
-            end    
-            else begin
-                ping[write_cnt] <= rdata_i;    
-            end
-        end
-    end
 endmodule
 `endif
