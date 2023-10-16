@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <stdlib.h>
 #define PING false
-#define PONG false
+#define PONG true
 
 // IO input
 class InIO {
@@ -55,9 +55,16 @@ public:
     } else {
       resetn_a = 1;
       resetn_v = 1;
-      arready_i = rand() & 1; // sdram ready for read
-      self_test_i = 1;        // enable self_test
-      data_req_i = 1;         // vga require data
+      // arready_i = rand() & 1; // sdram ready for read
+      arready_i = 1; // sdram ready for read
+      // self_test_i = 1;        // enable self_test
+      data_req_i = 1; // vga require data
+      // get data from SDRAM through AXI
+      self_test_i = 0; // disable self_test
+      rvalid_i = 1;
+      rresp_i = 0;
+      // rdata_i = 0x012356789abcdef;
+      rdata_i = rand();
     }
     // calculate clock
     if (sim_time == 0) {
@@ -91,7 +98,8 @@ private:
 
   int next_addr;
   bool read_ping;
-  int byte_count, reg_count, write_count;
+  int byte_count, read_count, write_count;
+  bool ppr_write_finish, vga_read_finish;
 
 public:
   // IO

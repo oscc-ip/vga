@@ -18,7 +18,9 @@
 // #define MAX_SIM_TIME 8
 // #define MAX_SIM_TIME 102
 // #define MAX_SIM_TIME 200
+// #define MAX_SIM_TIME 270
 #define MAX_SIM_TIME 2000
+// #define MAX_SIM_TIME 200000
 // #define MAX_SIM_TIME 20000000
 uint64_t sim_time;
 uint64_t posedge_cnt;
@@ -68,23 +70,21 @@ private:
 
 public:
   void display() {
-    Log("display dut and ref OutIO at time=%ld\n", sim_time);
-    Log("data_o   -> dut: 0x%x, ref: 0x%x\n", dut->data_o, ref->out->data_o);
-    Log("araddr_o -> dut: 0x%lx, ref: 0x%lx\n", dut->araddr_o,
+    printf("display dut and ref OutIO at time=%ld\n", sim_time);
+    printf("data_o   -> dut: 0x%x, ref: 0x%x\n", dut->data_o, ref->out->data_o);
+    printf("araddr_o -> dut: 0x%lx, ref: 0x%lx\n", dut->araddr_o,
            ref->out->araddr_o);
-    Log("arburst_o-> dut: %d, ref: %d\n", dut->arburst_o,
+    printf("arburst_o-> dut: %d, ref: %d\n", dut->arburst_o,
            ref->out->arburst_o);
-    Log("arlen_o  -> dut: %d, ref: %d\n", dut->arlen_o, ref->out->arlen_o);
-    Log("arsize_o -> dut: %d, ref: %d\n", dut->arsize_o, ref->out->arsize_o);
-    Log("arvalid_o-> dut: %d, ref: %d\n", dut->arvalid_o,
+    printf("arlen_o  -> dut: %d, ref: %d\n", dut->arlen_o, ref->out->arlen_o);
+    printf("arsize_o -> dut: %d, ref: %d\n", dut->arsize_o, ref->out->arsize_o);
+    printf("arvalid_o-> dut: %d, ref: %d\n", dut->arvalid_o,
            ref->out->arvalid_o);
-    Log("rready_o -> dut: %d, ref: %d\n", dut->rready_o, ref->out->rready_o);
+    printf("rready_o -> dut: %d, ref: %d\n", dut->rready_o, ref->out->rready_o);
   }
   bool compare() {
-    Log("compare dut with ref\n");
-    ref->in->display();
+    // ref->in->display();
     display();
-    Log("arsize_o: dut=%x , ref=%x\n", dut->arsize_o, ref->out->arsize_o);
     bool match = dut->data_o == ref->out->data_o &&
                  dut->araddr_o == ref->out->araddr_o &&
                  dut->arburst_o == ref->out->arburst_o &&
@@ -94,9 +94,9 @@ public:
                  dut->rready_o == ref->out->rready_o;
 
     if (match) {
-      Log("match\n");
+      printf("match\n");
     } else {
-      Log("mismatch\n");
+      printf("mismatch\n");
     }
     return match;
   }
@@ -162,7 +162,7 @@ void init() {
   // dut->clk_a = 0;
   // dut->clk_v = 0;
   // init ref
-  ref->resetn(); 
+  ref->resetn();
   // init UVM test class
 }
 
@@ -183,6 +183,7 @@ void step() {
   Log("step\n");
   while (sim_time < MAX_SIM_TIME) {
     Log("\nsim_time=%ld\n", sim_time);
+    printf("\n\nsim_time=%ld\n", sim_time);
     // dut->clk_v ^= 1;
     // dut->clk_a ^= 1;
     // in = randInIO();

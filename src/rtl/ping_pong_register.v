@@ -38,10 +38,12 @@ reg [DATA_WIDTH-1:0] ping [31:0];
 reg [DATA_WIDTH-1:0] pong [31:0];
 reg [11:0] color[ 7:0]; // color register, store self test color data
 reg        read_ping; // currently read from ping register
-reg [ 4:0] reg_count; // which register in ping or pong is read
+reg [ 4:0] read_count; // which register in ping or pong is read
 reg [ 1:0] byte_count;// which 16bits in a register is read, 64 bits register has 4 16-bits part
 reg [63:0] next_addr;
 reg [ 4:0] write_count;
+wire       vga_read_finish;  // finish read ping or pong
+reg        ppr_write_finish; // finish write ping or pong
 
 
 // =========================================================================
@@ -65,22 +67,24 @@ reg [ 4:0] write_count;
 
     always @(posedge clk_v ) begin 
         if(~resetn_v) begin
-            reg_count <= 5'h0;    
+            read_count <= 5'h0;    
         end
         else if(data_req_i && byte_count == 2'b11) begin
-            reg_count <= reg_count + 1;    
+            read_count <= read_count + 1;    
         end
         else begin
-            reg_count <= reg_count;    
+            read_count <= read_count;    
         end
     end
+
+    assign vga_read_finish = (read_count==5'h1f) & (byte_count==2'b11); 
     
     always @(posedge clk_v) begin 
         if(~resetn_v) begin
             read_ping <= 1'b0;    
         end
-        else if(reg_count == 5'h1f && byte_count == 2'b11) begin
-            // finish read whole register group
+        else if(vga_read_finish & ppr_write_finish) begin
+            // finish read whole register grou
             read_ping <= ~read_ping;
         end
     end
@@ -97,16 +101,16 @@ reg [ 4:0] write_count;
                 if(read_ping) begin // read data from ping register
                     case(byte_count) 
                         2'h0: begin
-                            data_o <= ping[reg_count][11:0];
+                            data_o <= ping[read_count][11:0];
                         end
                         2'h1: begin
-                            data_o <= ping[reg_count][27:16];
+                            data_o <= ping[read_count][27:16];
                         end
                         2'h2: begin
-                            data_o <= ping[reg_count][43:32];
+                            data_o <= ping[read_count][43:32];
                         end
                         2'h3: begin
-                            data_o <= ping[reg_count][59:48];
+                            data_o <= ping[read_count][59:48];
                         end
                         default: begin
                         end
@@ -115,16 +119,16 @@ reg [ 4:0] write_count;
                 else begin // read data from pong register
                     case(byte_count) 
                         2'h0: begin
-                            data_o <= pong[reg_count][11:0];
+                            data_o <= pong[read_count][11:0];
                         end
                         2'h1: begin
-                            data_o <= pong[reg_count][27:16];
+                            data_o <= pong[read_count][27:16];
                         end
                         2'h2: begin
-                            data_o <= pong[reg_count][43:32];
+                            data_o <= pong[read_count][43:32];
                         end
                         2'h3: begin
-                            data_o <= pong[reg_count][59:48];
+                            data_o <= pong[read_count][59:48];
                         end
                         default: begin
                         end
@@ -161,9 +165,35 @@ reg [ 4:0] write_count;
             arlen_o  <= 8'h1f;// 31+1=32 transfers 
             arsize_o <= 3'h3; // 8 byte for 1 transaction
             arvalid_o<= 1'h1; // read addrss valid
-            rready_o <= 1'h1; // ready for read data
         end
     end
+
+    // calculate if PPR write finish
+    always @(posedge clk_a ) begin 
+        if(~resetn_a) begin
+            ppr_write_finish <= 1'b0;    
+        end
+        else if(write_count==5'h1f) begin
+            if(vga_read_finish==1'b0 ) begin
+                ppr_write_finish <=1'b1;    
+            end
+            else begin
+                ppr_write_finish <=1'b0;    
+            end
+        end
+    end
+    
+    always @(posedge clk_a) begin 
+        if(~resetn_a) begin
+            arvalid_o <= 1'h0;    
+            rready_o  <= 1'h0;
+        end
+        else if(~ppr_write_finish) begin
+            arvalid_o <= 1'b1; // address valid
+            rready_o  <= 1'h1; // ready for read data
+        end
+    end
+    
 
     // write AXI data into memory
     always @(posedge clk_a ) begin 
