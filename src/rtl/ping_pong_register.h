@@ -1,7 +1,8 @@
 #ifndef __PING_PONG_REGISTER__
 #define __PING_PONG_REGISTER__
-#include <stdlib.h>
+#include "config.h"
 #include <cstdio>
+#include <stdlib.h>
 #define PING false
 #define PONG false
 
@@ -32,9 +33,10 @@ public:
     top_addr_i = 0;
   }
   void display() {
-    printf("InIO data:\n");
-    printf("clk_v=%d, clk_a=%d\n", clk_v, clk_a);
-    printf("arready_i=%d\n", arready_i);
+    Log("\nInIO data:\n");
+    Log("clk_v=%d, clk_a=%d\n", clk_v, clk_a);
+    Log("arready_i=%d\n", arready_i);
+    Log("data_req_i=%d, self_test_i=%d\n", data_req_i, self_test_i);
   }
 
   // get randome InIO
@@ -50,14 +52,20 @@ public:
       rdata_i = 0;
       resetn_a = 0;
       resetn_v = 0;
+    } else {
+      resetn_a = 1;
+      resetn_v = 1;
+      arready_i = rand() & 1; // sdram ready for read
+      self_test_i = 1;        // enable self_test
+      data_req_i = 1;         // vga require data
+    }
+    // calculate clock
+    if (sim_time == 0) {
       clk_a = 0;
       clk_v = 0;
     } else {
       clk_a ^= 1;
       clk_v ^= 1;
-      resetn_a = 1;
-      resetn_v = 1;
-      arready_i = rand() & 1; // sdram ready for read
     }
   }
 };

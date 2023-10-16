@@ -91,7 +91,7 @@ reg [ 4:0] write_count;
         end
         else if(data_req_i) begin
             if(self_test_i) begin
-                data_o <= color[3]; //TODO: correntlly only support self test of red color
+                data_o <= color[2]; //TODO: correntlly only support self test of red color
             end
             else begin
                 if(read_ping) begin // read data from ping register

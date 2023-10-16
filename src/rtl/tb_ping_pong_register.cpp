@@ -48,7 +48,6 @@ public:
     dut->clk_v = in->clk_v;
     // copy input signal to ref
     ref->in = in;
-    Log("resetn_a: dut=%d, ref=%d\n", dut->resetn_a, ref->in->resetn_a);
   }
   // constructor: connect to dut and ref
   InDriver(DUT *d, REF *r) {
@@ -69,17 +68,17 @@ private:
 
 public:
   void display() {
-    printf("display dut and ref OutIO at time=%ld\n", sim_time);
-    printf("data_o   -> dut: 0x%x, ref: 0x%x\n", dut->data_o, ref->out->data_o);
-    printf("araddr_o -> dut: 0x%lx, ref: 0x%lx\n", dut->araddr_o,
+    Log("display dut and ref OutIO at time=%ld\n", sim_time);
+    Log("data_o   -> dut: 0x%x, ref: 0x%x\n", dut->data_o, ref->out->data_o);
+    Log("araddr_o -> dut: 0x%lx, ref: 0x%lx\n", dut->araddr_o,
            ref->out->araddr_o);
-    printf("arburst_o-> dut: %d, ref: %d\n", dut->arburst_o,
+    Log("arburst_o-> dut: %d, ref: %d\n", dut->arburst_o,
            ref->out->arburst_o);
-    printf("arlen_o  -> dut: %d, ref: %d\n", dut->arlen_o, ref->out->arlen_o);
-    printf("arsize_o -> dut: %d, ref: %d\n", dut->arsize_o, ref->out->arsize_o);
-    printf("arvalid_o-> dut: %d, ref: %d\n", dut->arvalid_o,
+    Log("arlen_o  -> dut: %d, ref: %d\n", dut->arlen_o, ref->out->arlen_o);
+    Log("arsize_o -> dut: %d, ref: %d\n", dut->arsize_o, ref->out->arsize_o);
+    Log("arvalid_o-> dut: %d, ref: %d\n", dut->arvalid_o,
            ref->out->arvalid_o);
-    printf("rready_o -> dut: %d, ref: %d\n", dut->rready_o, ref->out->rready_o);
+    Log("rready_o -> dut: %d, ref: %d\n", dut->rready_o, ref->out->rready_o);
   }
   bool compare() {
     Log("compare dut with ref\n");
@@ -136,30 +135,6 @@ public:
   }
 };
 
-// get random input data
-InIO *randInIO() {
-  InIO *in = new InIO;
-
-  if (sim_time >= 0 && sim_time < 4) {
-    in->data_req_i = 0;
-    in->self_test_i = 0;
-    in->base_addr_i = 0;
-    in->top_addr_i = 0;
-    in->arready_i = 0;
-    in->rvalid_i = 0;
-    in->rresp_i = 0;
-    in->rdata_i = 0;
-    in->resetn_a = 0;
-    in->resetn_v = 0;
-  } else {
-    in->resetn_a = 1;
-    in->resetn_v = 1;
-    in->arready_i = rand() & 1; // sdram ready for read
-  }
-  Log("resetn_a=%d\n", in->resetn_a);
-  return in;
-}
-
 // implementations
 // declare variables
 VerilatedVcdC *m_trace = new VerilatedVcdC;
@@ -184,9 +159,10 @@ void init() {
   posedge_cnt = 0;
   // TODO: add init logic
   // init dut
-  dut->clk_a = 0;
-  dut->clk_v = 0;
+  // dut->clk_a = 0;
+  // dut->clk_v = 0;
   // init ref
+  ref->resetn(); 
   // init UVM test class
 }
 
@@ -211,7 +187,6 @@ void step() {
     // dut->clk_a ^= 1;
     // in = randInIO();
     in->randInIO(sim_time);
-    Log("in resetn_a=%d\n", in->resetn_a);
     drv->drive(in);
     dut->eval(); // dut evaluate
     ref->eval();
