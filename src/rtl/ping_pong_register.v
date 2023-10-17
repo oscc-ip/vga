@@ -197,19 +197,28 @@ reg        ppr_write_finish; // finish write ping or pong
 
     // write AXI data into memory
     always @(posedge clk_a ) begin 
-        if(~resetn_a) begin
-            write_count <= 5'h0;    
-        end
-        else if(rvalid_i && (rresp_i==2'h0)) begin
+        if(rvalid_i && (rresp_i==2'h0) && (~ppr_write_finish)) begin
             if(read_ping) begin
                 pong[write_count] <= rdata_i;
             end    
             else begin
                 ping[write_count] <= rdata_i;    
             end
-            write_count <= write_count+5'h1; // increase write_count
         end
     end
+
+    always @(posedge clk_a) begin 
+        if(~resetn_a) begin
+            write_count<=5'h0;    
+        end
+        else if(vga_read_finish && ppr_write_finish) begin
+            write_count <= 5'h0;    
+        end
+        else if(write_count<=5'h1e) begin
+            write_count <= write_count + 5'h1;    
+        end
+    end
+    
 
     // self test color set
     always @(posedge clk_a) begin 

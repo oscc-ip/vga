@@ -64,6 +64,7 @@ public:
       rvalid_i = 1;
       rresp_i = 0;
       // rdata_i = 0x012356789abcdef;
+      // rdata_i = sim_time;
       rdata_i = rand();
     }
     // calculate clock

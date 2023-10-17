@@ -16,9 +16,9 @@
 #define REF ping_pong_register
 
 // #define MAX_SIM_TIME 8
-// #define MAX_SIM_TIME 102
-// #define MAX_SIM_TIME 200
-// #define MAX_SIM_TIME 270
+// #define MAX_SIM_TIME 71
+// #define MAX_SIM_TIME 265
+// #define MAX_SIM_TIME 500
 #define MAX_SIM_TIME 2000
 // #define MAX_SIM_TIME 200000
 // #define MAX_SIM_TIME 20000000
