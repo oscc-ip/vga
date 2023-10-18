@@ -8,10 +8,10 @@ module vga_ctrl(
     input  wire [ 7:0] hpulse_end_i,
     input  wire [ 7:0] hdata_begin_i,
     input  wire [ 9:0] hdata_end_i,
-    input  wire [ 8:0] vsync_end_i,
+    input  wire [ 9:0] vsync_end_i,
     input  wire [ 2:0] vpulse_end_i,
-    input  wire [ 4:0] vdata_begin_i,
-    input  wire [ 8:0] vdata_end_i,
+    input  wire [ 6:0] vdata_begin_i,
+    input  wire [ 9:0] vdata_end_i,
     input  wire [11:0] data_i,
     output wire        data_req_o, // request data from ping pong register
     output wire [ 3:0] red_o,      // rea color
@@ -34,7 +34,8 @@ module vga_ctrl(
 // =========================================================================
 
     // horizontal counter
-    always @(posedge clk or negedge resetn) begin 
+    always @(posedge clk) begin 
+    // always @(posedge clk or negedge resetn) begin 
         if(~resetn) begin
             hcount <= 11'h0;    
         end
@@ -51,7 +52,8 @@ module vga_ctrl(
     end
 
     // veritcal counter
-    always @(posedge clk or negedge resetn) begin 
+    always @(posedge clk) begin 
+    // always @(posedge clk or negedge resetn) begin 
         if(~resetn) begin
             vcount <= 10'h0;    
         end
@@ -78,7 +80,7 @@ module vga_ctrl(
     //                    ((vcount >= {5'h0, vdata_begin_i}-1) && (vcount <= {1'h0, vdata_end_i}-1))) ? 1 : 0;
     // end
     assign data_req_o = (((hcount >= {3'h0, hdata_begin_i}-1) && (hcount <= {1'h0, hdata_end_i}-1))&&
-                        ((vcount >= {5'h0, vdata_begin_i}-1) && (vcount <= {1'h0, vdata_end_i}-1))) ? 1 : 0;
+                        ((vcount >= {3'h0, vdata_begin_i}-1) && (vcount <= vdata_end_i-1))) ? 1 : 0;
 
     // output rgb
     // TODO: change back to real logic
