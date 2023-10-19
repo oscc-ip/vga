@@ -1,8 +1,8 @@
 # pre defines
 # MODULE=add
 # MODULE=vga_ctrl
-MODULE=ping_pong_register
-# MODULE=vga_top
+# MODULE=ping_pong_register
+MODULE=vga_top
 # gtkwave=/Applications/gtkwave.app/Contents/Resources/bin/gtkwave  # mac config
 # MODULE=alu
 # build targets
@@ -12,7 +12,7 @@ default: sim # specify the default Makefile target
 
 verilating: $(MODULE).v tb_$(MODULE).cpp
 	@echo "### verilating ###"
-	@verilator --top-module ${MODULE} --trace --cc $(MODULE).v --exe tb_$(MODULE).cpp $(MODULE).cpp
+	@verilator --top-module ${MODULE} --trace --cc $(MODULE).v --exe tb_$(MODULE).cpp $(MODULE).cpp vga_ctrl.cpp ping_pong_register.cpp
 
 build: verilating
 	@echo "### building executable file ###"

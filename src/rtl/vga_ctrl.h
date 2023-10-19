@@ -38,6 +38,8 @@ public:
   vga_ctrl() {
     in = new vc_in_io;
     out = new vc_out_io;
+    vcount = 0;
+    hcount = 0;
   }
 };
 #endif

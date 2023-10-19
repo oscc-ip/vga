@@ -3,36 +3,55 @@
 
 #include "ping_pong_register.h"
 #include "vga_ctrl.h"
+#include <cstdio>
 
-class vga_top_out {
+class top_in_io {
+public:
+  // ppr input
+  ppr_in_io *ppr;
+  // vc input
+  vc_in_io *vc;
+  // get random input testcase
+  void randInIO(unsigned long int sim_time);
+};
+class top_out_io {
 public:
   // vc output
-  int red_o, green_o, blue_o;
-  bool hsync_o, vsync_o, blank_o;
-  // TODO: ppr output
+  vc_out_io *vc;
+  // ppr output
+  ppr_out_io *ppr;
 };
 class vga_top {
 
 public:
+  // ============== variables ===================
   vga_ctrl *vc;
   ping_pong_register *ppr;
-  vga_top_out *out;
-  vga_top(vga_ctrl *v, ping_pong_register *p) {
-    vc = v;
-    ppr = p;
-    // connect ppr with vc
-    vc->data_i = ppr->out->data_o;
-    ppr->in->data_req_i = vc->data_req_o;
-    // connect output
-    out->red_o = vc->red_o;
-    out->green_o = vc->green_o;
-    out->blue_o = vc->blue_o;
-    out->hsync_o = vc->hsync_o;
-    out->vsync_o = vc->vsync_o;
-    out->blank_o = vc->blank_o;
-    // TODO: connect input
+  top_in_io *in;
+  top_out_io *out;
+
+  // ============== functions ===================
+  vga_top() {
+    vc = new vga_ctrl;
+    ppr = new ping_pong_register;
+    in = new top_in_io;
+    out = new top_out_io;
+
+    // connect top with vc
+    in->vc = vc->in;
+    out->vc = vc->out;
+
+    // connect top with ppr
+    in->ppr = ppr->in;
+    out->ppr = ppr->out;
+
+    // connect vc with ppr
+    in->vc->data_i = out->ppr->data_o;
+    in->ppr->data_req_i = out->vc->data_req_o;
   }
-  void resetn();
+  // reset c_model
+  void resetn() { printf("resetn in vga_top\n"); }
+  // step one cycle
   void eval();
 };
 #endif

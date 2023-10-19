@@ -32,7 +32,6 @@ module vga_top
     output reg                   arvalid_o,
     output reg                   rready_o,
     // ======================= vc outputs =======================
-    output wire        data_req_o, // request data from ping pong register
     output wire [ 3:0] red_o,      // rea color
     output wire [ 3:0] green_o,    // green color
     output wire [ 3:0] blue_o,     // blue color
@@ -46,6 +45,7 @@ module vga_top
 // ============================ local variables ============================
 // =========================================================================
     wire [11:0] data_o;
+    wire        data_req_o;// request data from ping pong register
 
 // =========================================================================
 // ============================ implementation =============================

@@ -2,7 +2,6 @@
 // #include <cstdlib>
 #include <deque>
 #include <iostream>
-#include <ping_pong_register.h>
 #include <stdlib.h>
 
 #include "./obj_dir/Vvga_top.h"
@@ -15,13 +14,14 @@
 // set dut and c_model macros
 #define DUT Vvga_top
 #define REF vga_top
-#define InIO ppr_in_io
+#define InIO top_in_io
+#define OutIO top_out_io
 
 // #define MAX_SIM_TIME 8
 // #define MAX_SIM_TIME 71
-// #define MAX_SIM_TIME 265
+// #define MAX_SIM_TIME 202 
 // #define MAX_SIM_TIME 500
-#define MAX_SIM_TIME 2000
+#define MAX_SIM_TIME 20000
 // #define MAX_SIM_TIME 200000
 // #define MAX_SIM_TIME 20000000
 uint64_t sim_time;
@@ -40,18 +40,18 @@ public:
   // get random input signal for dut and ref
   void drive(InIO *in) {
     // copy input signal to ref
-    dut->resetn_a = in->resetn_a;
-    dut->resetn_v = in->resetn_v;
-    dut->data_req_i = in->data_req_i;
-    dut->self_test_i = in->self_test_i;
-    dut->arready_i = in->arready_i;
-    dut->rvalid_i = in->rvalid_i;
-    dut->rresp_i = in->rresp_i;
-    dut->rdata_i = in->rdata_i;
-    dut->clk_a = in->clk_a;
-    dut->clk_v = in->clk_v;
+    dut->resetn_a = in->ppr->resetn_a;
+    dut->resetn_v = in->ppr->resetn_v;
+    // dut->data_req_i = in->ppr->data_req_i;
+    // dut->self_test_i = in->ppr->self_test_i;
+    dut->arready_i = in->ppr->arready_i;
+    dut->rvalid_i = in->ppr->rvalid_i;
+    dut->rresp_i = in->ppr->rresp_i;
+    dut->rdata_i = in->ppr->rdata_i;
+    dut->clk_a = in->ppr->clk_a;
+    dut->clk_v = in->ppr->clk_v;
     // copy input signal to ref
-    ref->in = in;
+    // ref->in = in;
   }
   // constructor: connect to dut and ref
   InDriver(DUT *d, REF *r) {
@@ -73,27 +73,35 @@ private:
 public:
   void display() {
     printf("display dut and ref OutIO at time=%ld\n", sim_time);
-    printf("data_o   -> dut: 0x%x, ref: 0x%x\n", dut->data_o, ref->out->data_o);
-    printf("araddr_o -> dut: 0x%lx, ref: 0x%lx\n", dut->araddr_o,
-           ref->out->araddr_o);
-    printf("arburst_o-> dut: %d, ref: %d\n", dut->arburst_o,
-           ref->out->arburst_o);
-    printf("arlen_o  -> dut: %d, ref: %d\n", dut->arlen_o, ref->out->arlen_o);
-    printf("arsize_o -> dut: %d, ref: %d\n", dut->arsize_o, ref->out->arsize_o);
-    printf("arvalid_o-> dut: %d, ref: %d\n", dut->arvalid_o,
-           ref->out->arvalid_o);
-    printf("rready_o -> dut: %d, ref: %d\n", dut->rready_o, ref->out->rready_o);
+    printf("red_o    -> dut: %d, ref: %d\n", dut->red_o, ref->out->vc->red_o);
+    printf("green_o  -> dut: %d, ref: %d\n", dut->green_o, ref->out->vc->green_o);
+    printf("blue_o   -> dut: %d, ref: %d\n", dut->blue_o, ref->out->vc->blue_o);
+    printf("hsync_o  -> dut: %d, ref: %d\n", dut->hsync_o, ref->out->vc->hsync_o);
+    printf("vsync_o  -> dut: %d, ref: %d\n", dut->vsync_o, ref->out->vc->vsync_o);
+    printf("blank_o  -> dut: %d, ref: %d\n", dut->blank_o, ref->out->vc->blank_o);
+    printf("araddr_o -> dut: %ld, ref: %ld\n", dut->araddr_o, ref->out->ppr->araddr_o);
+    printf("arburst_o-> dut: %d, ref: %d\n", dut->arburst_o, ref->out->ppr->arburst_o);
+    printf("arlen_o  -> dut: %d, ref: %d\n", dut->arlen_o, ref->out->ppr->arlen_o);
+    printf("arsize_o -> dut: %d, ref: %d\n", dut->arsize_o, ref->out->ppr->arsize_o);
+    printf("arvalid_o-> dut: %d, ref: %d\n", dut->arvalid_o, ref->out->ppr->arvalid_o);
+    printf("rready_o -> dut: %d, ref: %d\n", dut->rready_o, ref->out->ppr->rready_o);
   }
   bool compare() {
     // ref->in->display();
     display();
-    bool match = dut->data_o == ref->out->data_o &&
-                 dut->araddr_o == ref->out->araddr_o &&
-                 dut->arburst_o == ref->out->arburst_o &&
-                 dut->arlen_o == ref->out->arlen_o &&
-                 dut->arsize_o == ref->out->arsize_o &&
-                 dut->arvalid_o == ref->out->arvalid_o &&
-                 dut->rready_o == ref->out->rready_o;
+    // both ppr and vc output content should match
+    bool match = dut->araddr_o == ref->out->ppr->araddr_o &&
+                 dut->arburst_o == ref->out->ppr->arburst_o &&
+                 dut->arlen_o == ref->out->ppr->arlen_o &&
+                 dut->arsize_o == ref->out->ppr->arsize_o &&
+                 dut->arvalid_o == ref->out->ppr->arvalid_o &&
+                 dut->rready_o == ref->out->ppr->rready_o &&
+                 dut->red_o == ref->out->vc->red_o &&
+                 dut->green_o == ref->out->vc->green_o &&
+                 dut->blue_o == ref->out->vc->blue_o &&
+                 dut->hsync_o == ref->out->vc->hsync_o &&
+                 dut->vsync_o == ref->out->vc->vsync_o &&
+                 dut->blank_o == ref->out->vc->blank_o;
 
     if (match) {
       printf("match\n");
@@ -141,10 +149,8 @@ public:
 // declare variables
 VerilatedVcdC *m_trace = new VerilatedVcdC;
 // Here we create the driver, scoreboard, input and output monitor blocks
-InIO *in = new InIO;
-OutIO *out = new OutIO;
 DUT *dut = new DUT;
-REF *ref = new REF(in, out);
+REF *ref = new REF();
 InDriver *drv = new InDriver(dut, ref);
 SCB *scb = new SCB(dut, ref);
 OutMonitor *outMon = new OutMonitor(scb, dut, ref);
@@ -157,12 +163,9 @@ void init() {
   srand(time(NULL));
   dut->trace(m_trace, 0);
   m_trace->open("waveform.vcd");
-  sim_time = 0; // TODO: why sim_time=0 not working?
+  sim_time = 0;
   posedge_cnt = 0;
-  // TODO: add init logic
   // init dut
-  // dut->clk_a = 0;
-  // dut->clk_v = 0;
   // init ref
   ref->resetn();
   // init UVM test class
@@ -189,10 +192,11 @@ void step() {
     // dut->clk_v ^= 1;
     // dut->clk_a ^= 1;
     // in = randInIO();
-    in->randInIO(sim_time);
-    drv->drive(in);
+    ref->in->randInIO(sim_time);
+    drv->drive(ref->in);
     dut->eval(); // dut evaluate
     ref->eval();
+    // scb->display();
     // compare dut with ref
     if (outMon->monitor_equal() == 0) {
       m_trace->dump(sim_time);
