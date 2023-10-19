@@ -19,6 +19,7 @@ public:
   int data_i;
   int red_o, green_o, blue_o;
   int vsync_o, hsync_o, blank_o;
+  bool data_req_o;
 
   void set_resolution(int hsync_end_i, int hpulse_end_i, int hdata_begin_i,
                       int hdata_end_i, int vsync_end_i, int vpulse_end_i,

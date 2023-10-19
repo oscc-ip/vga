@@ -36,6 +36,7 @@ void vga_ctrl::eval(int data_i, int resetn) {
   vsync_o = vcount <= vpulse_end_i ? 0 : 1;
   blank_o = ((hcount >= hdata_begin_i - 1) && (hcount <= hdata_end_i - 1)) &&
             ((vcount >= vdata_begin_i - 1) && (vcount <= hdata_end_i - 1));
+  data_req_o = blank_o; //TODO: make sure data_req_o and blank_o is correct in cycle
 
   Log("hcount=%d, vcount=%d\n", hcount, vcount);
   Log("hsync_end_i=%d\n", hsync_end_i);
