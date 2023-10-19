@@ -7,7 +7,7 @@
 #define PONG true
 
 // IO input
-class InIO {
+class ppr_in_io {
 public:
   bool clk_a, clk_v;
   bool data_req_i;  // request color data
@@ -19,7 +19,7 @@ public:
   long rdata_i;
   bool resetn_a;
   long base_addr_i, top_addr_i; // AXI data and address width is 64 bits
-  InIO() {
+  ppr_in_io() {
     clk_a = 0;
     clk_v = 0;
     data_req_i = 0;
@@ -81,7 +81,7 @@ public:
 // initial clock_a
 // int InIO::clock_a = 0;
 
-class OutIO {
+class ppr_out_io {
 public:
   // VC color data
   int data_o;
@@ -104,12 +104,12 @@ private:
 
 public:
   // IO
-  InIO *in;
-  OutIO *out;
+  ppr_in_io *in;
+  ppr_out_io *out;
   // functions
   void resetn(); // reset ppr c_model
   void eval();   // step one cycle
-  ping_pong_register(InIO *i, OutIO *o) {
+  ping_pong_register(ppr_in_io *i, ppr_out_io *o) {
     in = i;
     out = o;
   }

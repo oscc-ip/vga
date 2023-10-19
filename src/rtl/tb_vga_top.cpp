@@ -2,6 +2,7 @@
 // #include <cstdlib>
 #include <deque>
 #include <iostream>
+#include <ping_pong_register.h>
 #include <stdlib.h>
 
 #include "./obj_dir/Vvga_top.h"
@@ -14,6 +15,7 @@
 // set dut and c_model macros
 #define DUT Vvga_top
 #define REF vga_top
+#define InIO ppr_in_io
 
 // #define MAX_SIM_TIME 8
 // #define MAX_SIM_TIME 71

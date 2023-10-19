@@ -14,6 +14,8 @@
 // set dut and c_model macros
 #define DUT Vping_pong_register
 #define REF ping_pong_register
+#define InIO ppr_in_io 
+#define OutIO ppr_out_io
 
 // #define MAX_SIM_TIME 8
 // #define MAX_SIM_TIME 71
