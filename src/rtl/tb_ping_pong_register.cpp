@@ -141,10 +141,8 @@ public:
 // declare variables
 VerilatedVcdC *m_trace = new VerilatedVcdC;
 // Here we create the driver, scoreboard, input and output monitor blocks
-InIO *in = new InIO;
-OutIO *out = new OutIO;
 DUT *dut = new DUT;
-REF *ref = new REF(in, out);
+REF *ref = new REF();
 InDriver *drv = new InDriver(dut, ref);
 SCB *scb = new SCB(dut, ref);
 OutMonitor *outMon = new OutMonitor(scb, dut, ref);
@@ -157,12 +155,9 @@ void init() {
   srand(time(NULL));
   dut->trace(m_trace, 0);
   m_trace->open("waveform.vcd");
-  sim_time = 0; // TODO: why sim_time=0 not working?
+  sim_time = 0;
   posedge_cnt = 0;
-  // TODO: add init logic
   // init dut
-  // dut->clk_a = 0;
-  // dut->clk_v = 0;
   // init ref
   ref->resetn();
   // init UVM test class
@@ -189,8 +184,8 @@ void step() {
     // dut->clk_v ^= 1;
     // dut->clk_a ^= 1;
     // in = randInIO();
-    in->randInIO(sim_time);
-    drv->drive(in);
+    ref->in->randInIO(sim_time);
+    drv->drive(ref->in);
     dut->eval(); // dut evaluate
     ref->eval();
     // compare dut with ref

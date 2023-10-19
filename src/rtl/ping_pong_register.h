@@ -109,9 +109,13 @@ public:
   // functions
   void resetn(); // reset ppr c_model
   void eval();   // step one cycle
-  ping_pong_register(ppr_in_io *i, ppr_out_io *o) {
-    in = i;
-    out = o;
+  ping_pong_register() {
+    in = new ppr_in_io;
+    out = new ppr_out_io;
   }
+  // ping_pong_register(ppr_in_io *i, ppr_out_io *o) {
+  //   in = i;
+  //   out = o;
+  // }
 };
 #endif
