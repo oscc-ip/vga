@@ -17,8 +17,8 @@ module vga_ctrl(
     output wire [ 3:0] red_o,      // rea color
     output wire [ 3:0] green_o,    // green color
     output wire [ 3:0] blue_o,     // blue color
-    output reg         vsync_o,    // vertical sync
-    output reg         hsync_o,    // horizontal sync
+    output wire        vsync_o,    // vertical sync
+    output wire        hsync_o,    // horizontal sync
     output reg         blank_o     // vga has valid color output
 );
 
@@ -47,9 +47,10 @@ module vga_ctrl(
         end
     end
     // horizontal sync
-    always @(posedge clk ) begin 
-        hsync_o <= (hcount <= {3'h0, hpulse_end_i}) ? 0 : 1;
-    end
+    assign hsync_o = (hcount <= {3'h0, hpulse_end_i}) ? 0 : 1;
+    // always @(posedge clk ) begin 
+    //     hsync_o <= (hcount <= {3'h0, hpulse_end_i}) ? 0 : 1;
+    // end
 
     // veritcal counter
     always @(posedge clk) begin 
@@ -70,9 +71,10 @@ module vga_ctrl(
         end
     end
     // veritcal sync 
-    always @(posedge clk ) begin 
-        vsync_o <= (vcount <= {7'h0, vpulse_end_i}) ? 0 : 1;
-    end
+    assign vsync_o = (vcount <= {7'h0, vpulse_end_i}) ? 0 : 1;
+    // always @(posedge clk ) begin 
+    //     vsync_o <= (vcount <= {7'h0, vpulse_end_i}) ? 0 : 1;
+    // end
 
     // data request
     // always @(posedge clk ) begin 

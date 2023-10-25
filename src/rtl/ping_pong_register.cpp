@@ -28,7 +28,11 @@ void ping_pong_register::eval() {
   */
   if (in->clk_v == 1) { // eval at posedge
     Log("vga_read_finish=%d, ppr_write_finish=%d\n", vga_read_finish,
-           ppr_write_finish);
+        ppr_write_finish);
+    /*================== reset logic  ==================*/
+    if (in->resetn_v == 0) {
+      resetn();
+    }
     /*================== ppr read logic  ==================*/
     if (in->resetn_v == 0) {
       out->data_o = 0;
@@ -45,8 +49,9 @@ void ping_pong_register::eval() {
         }
       }
     }
-    Log("read from %s=> ", read_ping ? "ping" : "pong");
-    Log("read_count=%d, byte_count=%d, read_data=%d\n", read_count,
+    printf("data_req_i=%d, self_test_i=%d\n", in->data_req_i, in->self_test_i);
+    printf("read from %s=> ", read_ping ? "ping" : "pong");
+    printf("read_count=%d, byte_count=%d, read_data=%d\n", read_count,
            byte_count, out->data_o);
   }
 
@@ -94,7 +99,7 @@ void ping_pong_register::eval() {
     }
     Log("write to %s => ", read_ping ? "pong" : "ping");
     Log("write_data=%ld, write_count=%d, write_enable=%s\n", in->rdata_i,
-           write_count, ppr_write_finish ? "false" : "true");
+        write_count, ppr_write_finish ? "false" : "true");
   }
   if (in->clk_a) {
     Log("display pong\n");
@@ -104,7 +109,6 @@ void ping_pong_register::eval() {
     for (int i = 0; i < 32; i++)
       Log("ping[%d]=%ld\n", i, ping[i]);
   }
-
 
   /*
   =======================================================
@@ -131,7 +135,7 @@ void ping_pong_register::eval() {
   // calculate write controls
   if (in->clk_a == 1) { // write logic use AXI clock
     Log("-->vga_read_finish=%d, ppr_write_finish=%d, write_count=%d\n",
-           vga_read_finish, ppr_write_finish, write_count);
+        vga_read_finish, ppr_write_finish, write_count);
     if (in->resetn_a == 0) {
       ppr_write_finish = 0;
     } else if (write_count == 31) {
@@ -142,7 +146,7 @@ void ping_pong_register::eval() {
       }
     }
     Log("-->vga_read_finish=%d, ppr_write_finish=%d, write_count=%d\n",
-           vga_read_finish, ppr_write_finish, write_count);
+        vga_read_finish, ppr_write_finish, write_count);
   }
   // calculate write_count
   if (in->clk_a) {
@@ -163,5 +167,4 @@ void ping_pong_register::eval() {
       Log("====> change ppr <====\n");
     }
   }
-
 };

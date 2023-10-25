@@ -19,10 +19,11 @@
 
 // #define MAX_SIM_TIME 8
 // #define MAX_SIM_TIME 71
-// #define MAX_SIM_TIME 202 
+// #define MAX_SIM_TIME 202
 // #define MAX_SIM_TIME 500
-#define MAX_SIM_TIME 20000
-// #define MAX_SIM_TIME 200000
+// #define MAX_SIM_TIME 2000000 
+// #define MAX_SIM_TIME 4807
+#define MAX_SIM_TIME 200000
 // #define MAX_SIM_TIME 20000000
 uint64_t sim_time;
 uint64_t posedge_cnt;
@@ -50,6 +51,7 @@ public:
     dut->rdata_i = in->ppr->rdata_i;
     dut->clk_a = in->ppr->clk_a;
     dut->clk_v = in->ppr->clk_v;
+    dut->self_test_i = in->ppr->self_test_i; // enable self test
     // copy input signal to ref
     // ref->in = in;
   }
@@ -74,17 +76,27 @@ public:
   void display() {
     printf("display dut and ref OutIO at time=%ld\n", sim_time);
     printf("red_o    -> dut: %d, ref: %d\n", dut->red_o, ref->out->vc->red_o);
-    printf("green_o  -> dut: %d, ref: %d\n", dut->green_o, ref->out->vc->green_o);
+    printf("green_o  -> dut: %d, ref: %d\n", dut->green_o,
+           ref->out->vc->green_o);
     printf("blue_o   -> dut: %d, ref: %d\n", dut->blue_o, ref->out->vc->blue_o);
-    printf("hsync_o  -> dut: %d, ref: %d\n", dut->hsync_o, ref->out->vc->hsync_o);
-    printf("vsync_o  -> dut: %d, ref: %d\n", dut->vsync_o, ref->out->vc->vsync_o);
-    printf("blank_o  -> dut: %d, ref: %d\n", dut->blank_o, ref->out->vc->blank_o);
-    printf("araddr_o -> dut: %ld, ref: %ld\n", dut->araddr_o, ref->out->ppr->araddr_o);
-    printf("arburst_o-> dut: %d, ref: %d\n", dut->arburst_o, ref->out->ppr->arburst_o);
-    printf("arlen_o  -> dut: %d, ref: %d\n", dut->arlen_o, ref->out->ppr->arlen_o);
-    printf("arsize_o -> dut: %d, ref: %d\n", dut->arsize_o, ref->out->ppr->arsize_o);
-    printf("arvalid_o-> dut: %d, ref: %d\n", dut->arvalid_o, ref->out->ppr->arvalid_o);
-    printf("rready_o -> dut: %d, ref: %d\n", dut->rready_o, ref->out->ppr->rready_o);
+    printf("hsync_o  -> dut: %d, ref: %d\n", dut->hsync_o,
+           ref->out->vc->hsync_o);
+    printf("vsync_o  -> dut: %d, ref: %d\n", dut->vsync_o,
+           ref->out->vc->vsync_o);
+    printf("blank_o  -> dut: %d, ref: %d\n", dut->blank_o,
+           ref->out->vc->blank_o);
+    printf("araddr_o -> dut: %ld, ref: %ld\n", dut->araddr_o,
+           ref->out->ppr->araddr_o);
+    printf("arburst_o-> dut: %d, ref: %d\n", dut->arburst_o,
+           ref->out->ppr->arburst_o);
+    printf("arlen_o  -> dut: %d, ref: %d\n", dut->arlen_o,
+           ref->out->ppr->arlen_o);
+    printf("arsize_o -> dut: %d, ref: %d\n", dut->arsize_o,
+           ref->out->ppr->arsize_o);
+    printf("arvalid_o-> dut: %d, ref: %d\n", dut->arvalid_o,
+           ref->out->ppr->arvalid_o);
+    printf("rready_o -> dut: %d, ref: %d\n", dut->rready_o,
+           ref->out->ppr->rready_o);
   }
   bool compare() {
     // ref->in->display();
@@ -201,7 +213,7 @@ void step() {
     m_trace->dump(sim_time);
     sim_time++;
     if (outMon->monitor_equal() == 0) {
-      m_trace->dump(sim_time);
+      m_trace->dump(++sim_time);
       destroy();
       _exit(-1);
     };
@@ -216,4 +228,3 @@ int main(int argc, char **argv) {
   // destroy pointers
   destroy();
 }
-
