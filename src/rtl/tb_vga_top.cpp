@@ -198,13 +198,13 @@ void step() {
     ref->eval();
     // scb->display();
     // compare dut with ref
+    m_trace->dump(sim_time);
+    sim_time++;
     if (outMon->monitor_equal() == 0) {
       m_trace->dump(sim_time);
       destroy();
       _exit(-1);
     };
-    m_trace->dump(sim_time);
-    sim_time++;
   }
 }
 
