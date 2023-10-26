@@ -4,6 +4,7 @@
 module vga_ctrl(
     input  wire        clk,
     input  wire        resetn,
+
     input  wire [10:0] hsync_end_i,
     input  wire [ 7:0] hpulse_end_i,
     input  wire [ 7:0] hdata_begin_i,
@@ -12,6 +13,7 @@ module vga_ctrl(
     input  wire [ 2:0] vpulse_end_i,
     input  wire [ 6:0] vdata_begin_i,
     input  wire [ 9:0] vdata_end_i,
+
     input  wire [11:0] data_i,
     output reg        data_req_o, // request data from ping pong register
     output wire [ 3:0] red_o,      // rea color
