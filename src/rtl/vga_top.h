@@ -44,10 +44,6 @@ public:
     // connect top with ppr
     in->ppr = ppr->in;
     out->ppr = ppr->out;
-
-    // connect vc with ppr
-    in->vc->data_i = out->ppr->data_o;
-    in->ppr->data_req_i = out->vc->data_req_o;
   }
   // reset c_model
   void resetn() { printf("resetn in vga_top\n"); }

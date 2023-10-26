@@ -51,7 +51,7 @@ void ping_pong_register::eval() {
     }
     printf("data_req_i=%d, self_test_i=%d\n", in->data_req_i, in->self_test_i);
     printf("read from %s=> ", read_ping ? "ping" : "pong");
-    printf("read_count=%d, byte_count=%d, read_data=%d\n", read_count,
+    printf("read_count=%d, byte_count=%d, read_data=0x%x\n", read_count,
            byte_count, out->data_o);
   }
 

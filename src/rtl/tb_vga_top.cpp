@@ -23,6 +23,7 @@
 // #define MAX_SIM_TIME 500
 // #define MAX_SIM_TIME 2000000 
 // #define MAX_SIM_TIME 4807
+// #define MAX_SIM_TIME 54696
 #define MAX_SIM_TIME 200000
 // #define MAX_SIM_TIME 20000000
 uint64_t sim_time;

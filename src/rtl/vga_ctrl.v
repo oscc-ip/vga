@@ -13,12 +13,12 @@ module vga_ctrl(
     input  wire [ 6:0] vdata_begin_i,
     input  wire [ 9:0] vdata_end_i,
     input  wire [11:0] data_i,
-    output wire        data_req_o, // request data from ping pong register
+    output reg        data_req_o, // request data from ping pong register
     output wire [ 3:0] red_o,      // rea color
     output wire [ 3:0] green_o,    // green color
     output wire [ 3:0] blue_o,     // blue color
-    output wire        vsync_o,    // vertical sync
-    output wire        hsync_o,    // horizontal sync
+    output reg         vsync_o,    // vertical sync
+    output reg         hsync_o,    // horizontal sync
     output reg         blank_o     // vga has valid color output
 );
 
@@ -47,10 +47,10 @@ module vga_ctrl(
         end
     end
     // horizontal sync
-    assign hsync_o = (hcount <= {3'h0, hpulse_end_i}) ? 0 : 1;
-    // always @(posedge clk ) begin 
-    //     hsync_o <= (hcount <= {3'h0, hpulse_end_i}) ? 0 : 1;
-    // end
+    // assign hsync_o = (hcount <= {3'h0, hpulse_end_i}) ? 0 : 1;
+    always @(posedge clk ) begin 
+        hsync_o <= (hcount <= {3'h0, hpulse_end_i}) ? 0 : 1;
+    end
 
     // veritcal counter
     always @(posedge clk) begin 
@@ -71,18 +71,18 @@ module vga_ctrl(
         end
     end
     // veritcal sync 
-    assign vsync_o = (vcount <= {7'h0, vpulse_end_i}) ? 0 : 1;
-    // always @(posedge clk ) begin 
-    //     vsync_o <= (vcount <= {7'h0, vpulse_end_i}) ? 0 : 1;
-    // end
+    // assign vsync_o = (vcount <= {7'h0, vpulse_end_i}) ? 0 : 1;
+    always @(posedge clk ) begin 
+        vsync_o <= (vcount <= {7'h0, vpulse_end_i}) ? 0 : 1;
+    end
 
     // data request
-    // always @(posedge clk ) begin 
-    //     data_req_o <= (((hcount >= {3'h0, hdata_begin_i}-1) && (hcount <= {1'h0, hdata_end_i}-1))&&
-    //                    ((vcount >= {5'h0, vdata_begin_i}-1) && (vcount <= {1'h0, vdata_end_i}-1))) ? 1 : 0;
-    // end
-    assign data_req_o = (((hcount >= {3'h0, hdata_begin_i}-1) && (hcount <= {1'h0, hdata_end_i}-1))&&
-                        ((vcount >= {3'h0, vdata_begin_i}-1) && (vcount <= vdata_end_i-1))) ? 1 : 0;
+    always @(posedge clk ) begin 
+        data_req_o <= (((hcount >= {3'h0, hdata_begin_i}-1) && (hcount <= {1'h0, hdata_end_i}-1))&&
+                       ((vcount >= {3'h0, vdata_begin_i}-1) && (vcount <= vdata_end_i-1))) ? 1 : 0;
+    end
+    // assign data_req_o = (((hcount >= {3'h0, hdata_begin_i}-1) && (hcount <= {1'h0, hdata_end_i}-1))&&
+    //                     ((vcount >= {3'h0, vdata_begin_i}-1) && (vcount <= vdata_end_i-1))) ? 1 : 0;
 
     // output rgb
     // TODO: change back to real logic

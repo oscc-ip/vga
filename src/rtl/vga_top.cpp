@@ -38,6 +38,8 @@ void top_in_io::randInIO(unsigned long int sim_time) {
 
 void vga_top::eval() {
   printf("eval in vga_top\n");
-  ppr->eval();
   vc->eval();
+  in->ppr->data_req_i = vc->out->data_req_o;
+  ppr->eval();
+  in->vc->data_i = out->ppr->data_o;
 }
