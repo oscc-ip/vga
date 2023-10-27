@@ -52,7 +52,7 @@ public:
     dut->rdata_i = in->ppr->rdata_i;
     dut->clk_a = in->ppr->clk_a;
     dut->clk_v = in->ppr->clk_v;
-    dut->self_test_i = in->ppr->self_test_i; // enable self test
+    // dut->self_test_i = in->ppr->self_test_i; // enable self test
     // copy input signal to ref
     // ref->in = in;
   }
