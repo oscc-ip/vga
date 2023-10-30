@@ -110,3 +110,4 @@ module vga_ctrl(
     
 endmodule
 `endif
+

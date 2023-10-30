@@ -44,7 +44,7 @@ void config_unit::eval() {
       base_addr = 0;
       offset = 0;
       resolution_sel = 0;
-      self_test = 0;
+      self_test = 1; // enable self_test in default
       for (int i = 0; i < 3; i++)
         resolution[i] = 0;
       self_test_resolution = 0x8106c1b884830320;
@@ -125,7 +125,7 @@ void config_unit::eval() {
         out->vdata_begin_o= self_test?((self_test_resolution & 0x003e000000000000)>> 49): ((resolution[resolution_sel] & 0x003e000000000000) >> 49);
         out->vdata_end_o  = self_test?((self_test_resolution & 0x7fc0000000000000)>> 54): ((resolution[resolution_sel] & 0x7fc0000000000000) >> 54);
 
-        printf("hsync_end_o=0x%d\n", out->hsync_end_o);
+        printf("cu>>>>> hsync_end_o=0x%d\n", out->hsync_end_o);
     // output address
     out->base_addr_o = base_addr;
     out->top_addr_o = base_addr + offset;

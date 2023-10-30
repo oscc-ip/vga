@@ -4,6 +4,8 @@
 
 void vga_ctrl::eval() {
 
+    printf("vga_ctrl: clk=%d, resetn=%d\n",in->clk, in->resetn);
+    printf("hsync_end_i=%d\n", in->hsync_end_i);
   // calculate sync signal
   if (in->clk) { // only eval at posedge
 
@@ -38,11 +40,14 @@ void vga_ctrl::eval() {
     // calculate hcount: must put behind vcount calculation
     if (in->resetn == 0) {
       hcount = 0;
+      printf("resetn==1, hcount = 0\n");
     } else {
       if (hcount >= in->hsync_end_i - 1) {
         hcount = 0;
+        printf("hcount = hsync_end_i, hcount = 0\n");
       } else {
         hcount++;
+        printf("hcount too small, hcount ++\n");
       }
     }
   }

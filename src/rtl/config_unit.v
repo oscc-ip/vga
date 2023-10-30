@@ -57,7 +57,7 @@ module config_unit
             base_addr      <= 32'h0;
             offset         <= 32'h0;
             resolution_sel <=  2'h0;
-            self_test      <=  1'h0;
+            self_test      <=  1'h1; // enable self_test by default
             resolution[0]  <= 64'h0;    
             resolution[1]  <= 64'h0;    
             resolution[2]  <= 64'h0;    
