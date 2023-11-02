@@ -9,10 +9,10 @@ module vga_ctrl(
     input  wire [ 7:0] hpulse_end_i,
     input  wire [ 7:0] hdata_begin_i,
     input  wire [ 9:0] hdata_end_i,
-    input  wire [ 8:0] vsync_end_i,
-    input  wire [ 2:0] vpulse_end_i,
-    input  wire [ 4:0] vdata_begin_i,
-    input  wire [ 8:0] vdata_end_i,
+    input  wire [ 9:0] vsync_end_i,
+    input  wire [ 3:0] vpulse_end_i,
+    input  wire [ 5:0] vdata_begin_i,
+    input  wire [ 9:0] vdata_end_i,
 
     input  wire [11:0] data_i,
     output reg         data_req_o, // request data from ping pong register
@@ -75,13 +75,13 @@ module vga_ctrl(
     // veritcal sync 
     // assign vsync_o = (vcount <= {7'h0, vpulse_end_i}) ? 0 : 1;
     always @(posedge clk ) begin 
-        vsync_o <= (vcount <= {7'h0, vpulse_end_i}) ? 0 : 1;
+        vsync_o <= (vcount <= {6'h0, vpulse_end_i}) ? 0 : 1;
     end
 
     // data request
     always @(posedge clk ) begin 
         data_req_o <= (((hcount >= {3'h0, hdata_begin_i}-1) && (hcount <= {1'h0, hdata_end_i}-1))&&
-                       ((vcount >= {5'h0, vdata_begin_i}-1) && (vcount <= vdata_end_i-1))) ? 1 : 0;
+                       ((vcount >= {4'h0, vdata_begin_i}-1) && (vcount <= vdata_end_i-1))) ? 1 : 0;
     end
     // assign data_req_o = (((hcount >= {3'h0, hdata_begin_i}-1) && (hcount <= {1'h0, hdata_end_i}-1))&&
     //                     ((vcount >= {3'h0, vdata_begin_i}-1) && (vcount <= vdata_end_i-1))) ? 1 : 0;

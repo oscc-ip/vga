@@ -58,10 +58,10 @@ module vga_top
     wire [ 7:0] hpulse_end_i;
     wire [ 7:0] hdata_begin_i;
     wire [ 9:0] hdata_end_i;
-    wire [ 8:0] vsync_end_i;
-    wire [ 2:0] vpulse_end_i;
-    wire [ 4:0] vdata_begin_i;
-    wire [ 8:0] vdata_end_i;
+    wire [ 9:0] vsync_end_i;
+    wire [ 3:0] vpulse_end_i;
+    wire [ 5:0] vdata_begin_i;
+    wire [ 9:0] vdata_end_i;
     // ppr and cu
     wire        self_test_i; // VGA self test mode
     wire [31:0] base_addr_i; // SDRAM read base addr
