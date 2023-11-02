@@ -43,11 +43,27 @@ void config_unit::eval() {
       out->prdata_o = 0;
       base_addr = 0;
       offset = 0;
-      resolution_sel = 0;
-      self_test = 1; // enable self_test in default
-      for (int i = 0; i < 3; i++)
-        resolution[i] = 0;
-      self_test_resolution = 0x8106c1b884830320;
+      resolution_sel = 1; // choose 640*480 by default
+      self_test = 1;      // enable self_test in default
+      for (int i = 0; i < 4; i++) {
+        // sync, pulse, data_begin, data_end
+        resolution[i][0] = htotal[i];
+        resolution[i][1] = hsync_pulse[i];
+        resolution[i][2] = hsync_pulse[i] + hback[i] + hleft[i];
+        resolution[i][3] = resolution[i][2] + hdata[i];
+        resolution[i][4] = vtotal[i];
+        resolution[i][5] = vsync_pulse[i];
+        resolution[i][6] = vsync_pulse[i] + vback[i] + vtop[i];
+        resolution[i][7] = resolution[i][6] + vdata[i];
+      }
+      self_test_resolution[0] = htotal[1];
+      self_test_resolution[1] = hsync_pulse[1];
+      self_test_resolution[2] = hsync_pulse[1] + hback[1] + hleft[1];
+      self_test_resolution[3] = resolution[1][2] + hdata[1];
+      self_test_resolution[4] = vtotal[1];
+      self_test_resolution[5] = vsync_pulse[1];
+      self_test_resolution[6] = vsync_pulse[1] + vback[1] + vtop[1];
+      self_test_resolution[7] = resolution[1][6] + vdata[1];
     } else if (in->psel_i && in->penable_i) {
       out->pready_o = 1;
       if (in->pwrite_i) {
@@ -64,68 +80,28 @@ void config_unit::eval() {
         case 3:
           resolution_sel = in->pwdata_i & 0x11;
           break;
-        case 4: // write into low 32 bits
-          msb = resolution[0] & 0xffffffff00000000;
-          lsb = in->pwdata_i;
-          resolution[0] = msb + lsb;
-          break;
-        case 5: // write into high 32 bits
-          msb = in->pwdata_i;
-          msb = msb << 32;
-          lsb = resolution[0] & 0xffffffff;
-          resolution[0] = msb + lsb;
-          break;
-        case 6: // write into low 32 bits
-          msb = resolution[1] & 0xffffffff00000000;
-          lsb = in->pwdata_i;
-          resolution[1] = msb + lsb;
-          break;
-        case 7: // write into high 32 bits
-          msb = in->pwdata_i;
-          msb = msb << 32;
-          lsb = resolution[1] & 0xffffffff;
-          resolution[1] = msb + lsb;
-          break;
-        case 8: // write into low 32 bits
-          msb = resolution[2] & 0xffffffff00000000;
-          lsb = in->pwdata_i;
-          resolution[2] = msb + lsb;
-          break;
-        case 9: // write into high 32 bits
-          msb = in->pwdata_i;
-          msb = msb << 32;
-          lsb = resolution[2] & 0xffffffff;
-          resolution[2] = msb + lsb;
-          break;
-        case 10: // write into low 32 bits
-          msb = resolution[3] & 0xffffffff00000000;
-          lsb = in->pwdata_i;
-          resolution[3] = msb + lsb;
-          break;
-        case 11: // write into high 32 bits
-          msb = in->pwdata_i;
-          msb = msb << 32;
-          lsb = resolution[3] & 0xffffffff;
-          resolution[3] = msb + lsb;
-          break;
         }
       }
     } else {
       out->pready_o = 0;
     }
 
-    // output resolution
-        printf("self_test_resolution=0x%016lx\n",self_test_resolution );
-        out->hsync_end_o  = self_test?((self_test_resolution & 0x00000000000007ff)>>  0): ((resolution[resolution_sel] & 0x00000000000007ff) >>  0);
-        out->hpulse_end_o = self_test?((self_test_resolution & 0x000000000007f800)>> 11): ((resolution[resolution_sel] & 0x000000000007f800) >> 11);
-        out->hdata_begin_o= self_test?((self_test_resolution & 0x0000000007f80000)>> 19): ((resolution[resolution_sel] & 0x0000000007f80000) >> 19);
-        out->hdata_end_o  = self_test?((self_test_resolution & 0x0000001ff8000000)>> 27): ((resolution[resolution_sel] & 0x0000001ff8000000) >> 27);
-        out->vsync_end_o  = self_test?((self_test_resolution & 0x00003fe000000000)>> 37): ((resolution[resolution_sel] & 0x00003fe000000000) >> 37);
-        out->vpulse_end_o = self_test?((self_test_resolution & 0x0001c00000000000)>> 46): ((resolution[resolution_sel] & 0x0001c00000000000) >> 46);
-        out->vdata_begin_o= self_test?((self_test_resolution & 0x003e000000000000)>> 49): ((resolution[resolution_sel] & 0x003e000000000000) >> 49);
-        out->vdata_end_o  = self_test?((self_test_resolution & 0x7fc0000000000000)>> 54): ((resolution[resolution_sel] & 0x7fc0000000000000) >> 54);
-
-        printf("cu>>>>> hsync_end_o=0x%d\n", out->hsync_end_o);
+    out->hsync_end_o =
+        self_test ? self_test_resolution[0] : resolution[resolution_sel][0];
+    out->hpulse_end_o =
+        self_test ? self_test_resolution[1] : resolution[resolution_sel][1];
+    out->hdata_begin_o =
+        self_test ? self_test_resolution[2] : resolution[resolution_sel][2];
+    out->hdata_end_o =
+        self_test ? self_test_resolution[3] : resolution[resolution_sel][3];
+    out->vsync_end_o =
+        self_test ? self_test_resolution[4] : resolution[resolution_sel][4];
+    out->vpulse_end_o =
+        self_test ? self_test_resolution[5] : resolution[resolution_sel][5];
+    out->vdata_begin_o =
+        self_test ? self_test_resolution[6] : resolution[resolution_sel][6];
+    out->vdata_end_o =
+        self_test ? self_test_resolution[7] : resolution[resolution_sel][7];
     // output address
     out->base_addr_o = base_addr;
     out->top_addr_o = base_addr + offset;

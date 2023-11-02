@@ -29,12 +29,18 @@ void top_in_io::randInIO(unsigned long int sim_time) {
     ppr->resetn_a = 1;
     ppr->resetn_v = 1;
   }
+  // set cu to stop self_test mode
+  if (sim_time >= 4) { // write in only one cycle
+    cu->psel_i = 1;
+    cu->penable_i = 1;
+    cu->pwrite_i = 1;
+    cu->paddr_i = 2;  // write to self_test register
+    cu->pwdata_i = 0; // stop self_test mode
+  }
   vc->clk = ppr->clk_v;
   vc->resetn = ppr->resetn_v;
   cu->clk = ppr->clk_a;
   cu->resetn = ppr->resetn_a;
-  printf("resetn_v=%d\n", ppr->resetn_v);
-  printf("resetn_a=%d\n", ppr->resetn_a);
 }
 
 void vga_top::eval() {

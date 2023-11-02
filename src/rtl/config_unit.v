@@ -63,14 +63,14 @@ module config_unit
             prdata_o       <= 32'h0;
             base_addr      <= 32'h0;
             offset         <= 32'h0;
-            resolution_sel <=  2'h0;
+            resolution_sel <=  2'h1;
             self_test      <=  1'h1; // enable self_test by default
             //TODO: add resolution config for 480x and so on
-            resolution[0]  <= 67'h4071941b884830320;    
+            resolution[0]  <= 67'h4e6da4e9fc6c40420;    
             resolution[1]  <= 67'h4071941b884830320;    
-            resolution[2]  <= 67'h4071941b884830320;    
+            resolution[2]  <= 67'h2386523d192914a0d;    
             resolution[3]  <= 67'h4071941b884830320;    
-            self_test_resolution <= 67'h4071941b884830320;
+            self_test_resolution <= 67'h4071941b884830320; // default resolution is 640*480
         end
         else if(psel_i && penable_i) begin
             pready_o  <= 1'h1;    

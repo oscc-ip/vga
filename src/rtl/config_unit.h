@@ -42,11 +42,20 @@ public:
   // ============== variables ===================
   cu_in_io *in;
   cu_out_io *out;
-  unsigned long self_test_resolution;
-  unsigned long resolution[4];
-  unsigned int resolution_sel;
-  unsigned int base_addr, offset;
+  unsigned int self_test_resolution[8];
+  unsigned int resolution[4][8];
+  unsigned int resolution_sel; unsigned int base_addr, offset;
   bool self_test;
+  unsigned int hsync_pulse[4] = {128, 96, 41, 0};
+  unsigned int hback[4] = {88, 40, 41, 0};
+  unsigned int hleft[4] = {0, 8, 0, 0};
+  unsigned int hdata[4] = {800, 640, 480, 0};
+  unsigned int htotal[4] = {1056, 800, 525, 0};
+  unsigned int vsync_pulse[4] = {4, 2, 10, 0};
+  unsigned int vback[4] = {23, 25, 2, 0};
+  unsigned int vtop[4] = {0, 8, 0, 0};
+  unsigned int vdata[4] = {600, 480, 272, 0};
+  unsigned int vtotal[4] = {628, 525, 286, 0};
 
   // ============== functions ===================
   config_unit() {

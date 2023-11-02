@@ -4,8 +4,12 @@
 
 void vga_ctrl::eval() {
 
-    printf("vga_ctrl: clk=%d, resetn=%d\n",in->clk, in->resetn);
-    printf("hsync_end_i=%d\n", in->hsync_end_i);
+    printf("\n==================\n");
+    printf("vsync=%d\n",in->vsync_end_i);
+    printf("vpulse=%d\n",in->vpulse_end_i);
+    printf("vdata_begin_i=%d\n",in->vdata_begin_i);
+    printf("vdata_end_i=%d\n",in->vdata_end_i);
+    printf("==================");
   // calculate sync signal
   if (in->clk) { // only eval at posedge
 

@@ -41,20 +41,21 @@ private:
 public:
   // get random input signal for dut and ref
   void drive(InIO *in) {
-    // copy input signal to ref
-    dut->resetn_a = in->ppr->resetn_a;
-    dut->resetn_v = in->ppr->resetn_v;
-    // dut->data_req_i = in->ppr->data_req_i;
-    // dut->self_test_i = in->ppr->self_test_i;
+    // ppr related data
     dut->arready_i = in->ppr->arready_i;
     dut->rvalid_i = in->ppr->rvalid_i;
     dut->rresp_i = in->ppr->rresp_i;
     dut->rdata_i = in->ppr->rdata_i;
     dut->clk_a = in->ppr->clk_a;
     dut->clk_v = in->ppr->clk_v;
-    // dut->self_test_i = in->ppr->self_test_i; // enable self test
-    // copy input signal to ref
-    // ref->in = in;
+    dut->resetn_a = in->ppr->resetn_a;
+    dut->resetn_v = in->ppr->resetn_v;
+    // cu related data
+    dut->paddr_i  = in->cu->paddr_i;
+    dut->pwdata_i = in->cu->pwdata_i;
+    dut->psel_i   = in->cu->psel_i;
+    dut->penable_i= in->cu->penable_i;
+    dut->pwrite_i = in->cu->pwrite_i;
   }
   // constructor: connect to dut and ref
   InDriver(DUT *d, REF *r) {
