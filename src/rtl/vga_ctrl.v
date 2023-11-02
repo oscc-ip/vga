@@ -81,8 +81,7 @@ module vga_ctrl(
     // data request
     always @(posedge clk ) begin 
         data_req_o <= (((hcount >= {3'h0, hdata_begin_i}-1) && (hcount <= {1'h0, hdata_end_i}-1))&&
-                       ((vcount >= {4'h0, vdata_begin_i}-1) && (vcount <= vdata_end_i-1))) ? 1 : 0;
-    end
+                       ((vcount >= {4'h0, vdata_begin_i}-1) && (vcount <= vdata_end_i-1))) ? 1 : 0; end
     // assign data_req_o = (((hcount >= {3'h0, hdata_begin_i}-1) && (hcount <= {1'h0, hdata_end_i}-1))&&
     //                     ((vcount >= {3'h0, vdata_begin_i}-1) && (vcount <= vdata_end_i-1))) ? 1 : 0;
 
