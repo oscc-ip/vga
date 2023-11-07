@@ -1,5 +1,6 @@
 #include "vga_top.h"
 #include <cstdio>
+#include <cstdlib>
 
 void top_in_io::randInIO(unsigned long int sim_time) {
   // calculate clock
@@ -37,11 +38,12 @@ void top_in_io::randInIO(unsigned long int sim_time) {
     cu->paddr_i = 2;  // write to self_test register
     cu->pwdata_i = 0; // stop self_test mode
   }
-  // if (sim_time >= 4) {
-  //   ppr->arready_i = 1;
-  //   ppr->rvalid_i = 1;
-  //   ppr->rdata_i = 0xffff0000;
-  // }
+  if (sim_time >= 4) {
+    ppr->arready_i = 1;
+    ppr->rvalid_i = 1;
+    // ppr->rdata_i = 0x1234567812345678;
+    ppr->rdata_i = rand() & 0xffffffffffffffff;
+  }
   vc->clk = ppr->clk_v;
   vc->resetn = ppr->resetn_v;
   cu->clk = ppr->clk_a;

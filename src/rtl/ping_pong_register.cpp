@@ -1,6 +1,7 @@
 #include "ping_pong_register.h"
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 
 void ping_pong_register::resetn() {
 
@@ -163,8 +164,19 @@ void ping_pong_register::eval() {
     if (in->resetn_a == 0) {
       read_ping = 0;
     } else if (vga_read_finish && (~ppr_write_finish)) {
+      printf("------- change read_ping ---------\n\n\n");
+      printf("ping data:\n");
+      for (int i = 0; i < 32; i++) {
+        printf("ping[%d]=0x%lx\n", i, ping[i]);
+      }
+      printf("pong data:\n");
+      for (int i = 0; i < 32; i++) {
+        printf("pong[%d]=0x%lx\n", i, pong[i]);
+      }
       read_ping ^= 1;
+      // exit(-1);
       Log("====> change ppr <====\n");
     }
   }
+  printf("\n >>>>>> read_ping=%d\n", read_ping);
 };

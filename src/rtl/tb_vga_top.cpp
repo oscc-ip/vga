@@ -23,7 +23,9 @@
 // #define MAX_SIM_TIME 500
 // #define MAX_SIM_TIME 2000000
 // #define MAX_SIM_TIME 4807
-#define MAX_SIM_TIME 120000 
+// #define MAX_SIM_TIME 54947
+#define MAX_SIM_TIME 100000
+// #define MAX_SIM_TIME 120000 
 // #define MAX_SIM_TIME 54696
 // #define MAX_SIM_TIME 200000
 // #define MAX_SIM_TIME 20000000
