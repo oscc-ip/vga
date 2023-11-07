@@ -1,15 +1,15 @@
 #include "vga_ctrl.h"
 #include "config.h"
 #include <cstdio>
+#include <cstdlib>
 
 void vga_ctrl::eval() {
 
-    printf("\n==================\n");
-    printf("vsync=%d\n",in->vsync_end_i);
-    printf("vpulse=%d\n",in->vpulse_end_i);
-    printf("vdata_begin_i=%d\n",in->vdata_begin_i);
-    printf("vdata_end_i=%d\n",in->vdata_end_i);
-    printf("==================");
+  printf("\n==================\n");
+  printf("hdata_begin_i=%d, hdata_end_i=%d\n", in->hdata_begin_i,
+         in->hdata_end_i);
+  printf("vdata_begin_i=%d, vdata_end_i=%d\n", in->vdata_begin_i,
+         in->vdata_end_i);
   // calculate sync signal
   if (in->clk) { // only eval at posedge
 
@@ -44,17 +44,17 @@ void vga_ctrl::eval() {
     // calculate hcount: must put behind vcount calculation
     if (in->resetn == 0) {
       hcount = 0;
-      printf("resetn==1, hcount = 0\n");
     } else {
       if (hcount >= in->hsync_end_i - 1) {
         hcount = 0;
-        printf("hcount = hsync_end_i, hcount = 0\n");
       } else {
         hcount++;
-        printf("hcount too small, hcount ++\n");
       }
     }
   }
-  printf("hcount=0x%x, vcount=0x%x\n", hcount, vcount);
-  printf("data_req_o=%d\n\n", out->data_req_o);
+  printf("hcount=%d, vcount=%d\n", hcount, vcount);
+  printf("data_req_o=%d\n", out->data_req_o);
+  // if (out->data_req_o == 1)
+  //   exit(-1);
+  printf("==================");
 }

@@ -22,7 +22,8 @@
 // #define MAX_SIM_TIME 202
 // #define MAX_SIM_TIME 500
 // #define MAX_SIM_TIME 2000000
-#define MAX_SIM_TIME 4807
+// #define MAX_SIM_TIME 4807
+#define MAX_SIM_TIME 120000 
 // #define MAX_SIM_TIME 54696
 // #define MAX_SIM_TIME 200000
 // #define MAX_SIM_TIME 20000000
@@ -76,7 +77,7 @@ private:
 
 public:
   void display() {
-    printf("display dut and ref OutIO at time=%ld\n", sim_time);
+    printf("display dut and ref OutIO at time=%llu\n", sim_time);
     printf("red_o    -> dut: %d, ref: %d\n", dut->red_o, ref->out->vc->red_o);
     printf("green_o  -> dut: %d, ref: %d\n", dut->green_o,
            ref->out->vc->green_o);
@@ -87,7 +88,7 @@ public:
            ref->out->vc->vsync_o);
     printf("blank_o  -> dut: %d, ref: %d\n", dut->blank_o,
            ref->out->vc->blank_o);
-    printf("araddr_o -> dut: %ld, ref: %ld\n", dut->araddr_o,
+    printf("araddr_o -> dut: %llu, ref: %ld\n", dut->araddr_o,
            ref->out->ppr->araddr_o);
     printf("arburst_o-> dut: %d, ref: %d\n", dut->arburst_o,
            ref->out->ppr->arburst_o);
@@ -202,7 +203,7 @@ void step() {
   Log("step\n");
   while (sim_time < MAX_SIM_TIME) {
     Log("\nsim_time=%ld\n", sim_time);
-    printf("\n\nsim_time=%ld\n", sim_time);
+    printf("\n\nsim_time=%llu\n", sim_time);
     // dut->clk_v ^= 1;
     // dut->clk_a ^= 1;
     // in = randInIO();
