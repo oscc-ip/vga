@@ -79,7 +79,8 @@ private:
 
 public:
   void display() {
-    printf("display dut and ref OutIO at time=%llu\n", sim_time);
+    // printf("display dut and ref OutIO at time=%llu\n", sim_time); // llu for mac
+    printf("display dut and ref OutIO at time=%lu\n", sim_time);
     printf("red_o    -> dut: %d, ref: %d\n", dut->red_o, ref->out->vc->red_o);
     printf("green_o  -> dut: %d, ref: %d\n", dut->green_o,
            ref->out->vc->green_o);
@@ -90,7 +91,8 @@ public:
            ref->out->vc->vsync_o);
     printf("blank_o  -> dut: %d, ref: %d\n", dut->blank_o,
            ref->out->vc->blank_o);
-    printf("araddr_o -> dut: %llu, ref: %ld\n", dut->araddr_o,
+    // printf("araddr_o -> dut: %llu, ref: %ld\n", dut->araddr_o, // llu for mac
+    printf("araddr_o -> dut: %lu, ref: %ld\n", dut->araddr_o,
            ref->out->ppr->araddr_o);
     printf("arburst_o-> dut: %d, ref: %d\n", dut->arburst_o,
            ref->out->ppr->arburst_o);
@@ -205,7 +207,8 @@ void step() {
   Log("step\n");
   while (sim_time < MAX_SIM_TIME) {
     Log("\nsim_time=%ld\n", sim_time);
-    printf("\n\nsim_time=%llu\n", sim_time);
+    printf("\n\nsim_time=%lu\n", sim_time);
+    // printf("\n\nsim_time=%llu\n", sim_time); // llu for mac
     // dut->clk_v ^= 1;
     // dut->clk_a ^= 1;
     // in = randInIO();
