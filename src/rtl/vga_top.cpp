@@ -42,7 +42,9 @@ void top_in_io::randInIO(unsigned long int sim_time) {
     ppr->arready_i = 1;
     ppr->rvalid_i = 1;
     // ppr->rdata_i = 0x1234567812345678;
-    ppr->rdata_i = rand() & 0xffffffffffffffff;
+    ppr->rdata_i = rand();
+    // ppr->rdata_i = sim_time;
+    // ppr->rdata_i = 0x1122334455667788;
   }
   vc->clk = ppr->clk_v;
   vc->resetn = ppr->resetn_v;
@@ -53,6 +55,13 @@ void top_in_io::randInIO(unsigned long int sim_time) {
 void vga_top::eval() {
   printf("eval in vga_top\n");
   cu->eval();
+  in->ppr->data_req_i = vc->out->data_req_o;
+  in->ppr->base_addr_i = cu->out->base_addr_o;
+  in->ppr->top_addr_i = cu->out->top_addr_o;
+  in->ppr->self_test_i = cu->out->self_test_o;
+  ppr->eval();
+  in->vc->data_i = out->ppr->data_o;
+
   vc->in->hsync_end_i = cu->out->hsync_end_o;
   vc->in->hdata_begin_i = cu->out->hdata_begin_o;
   vc->in->hdata_end_i = cu->out->hdata_end_o;
@@ -62,10 +71,4 @@ void vga_top::eval() {
   vc->in->vdata_end_i = cu->out->vdata_end_o;
   vc->in->vpulse_end_i = cu->out->vpulse_end_o;
   vc->eval();
-  in->ppr->data_req_i = vc->out->data_req_o;
-  in->ppr->base_addr_i = cu->out->base_addr_o;
-  in->ppr->top_addr_i = cu->out->top_addr_o;
-  in->ppr->self_test_i = cu->out->self_test_o;
-  ppr->eval();
-  in->vc->data_i = out->ppr->data_o;
 }

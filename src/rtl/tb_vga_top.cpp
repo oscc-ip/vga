@@ -23,7 +23,8 @@
 // #define MAX_SIM_TIME 500
 // #define MAX_SIM_TIME 2000000
 // #define MAX_SIM_TIME 4807
-// #define MAX_SIM_TIME 54947
+// #define MAX_SIM_TIME 54956
+// #define MAX_SIM_TIME 55208
 #define MAX_SIM_TIME 100000
 // #define MAX_SIM_TIME 120000 
 // #define MAX_SIM_TIME 54696
@@ -81,10 +82,10 @@ public:
   void display() {
     // printf("display dut and ref OutIO at time=%llu\n", sim_time); // llu for mac
     printf("display dut and ref OutIO at time=%lu\n", sim_time);
-    printf("red_o    -> dut: %d, ref: %d\n", dut->red_o, ref->out->vc->red_o);
-    printf("green_o  -> dut: %d, ref: %d\n", dut->green_o,
+    printf("red_o    -> dut: 0x%x, ref: 0x%x\n", dut->red_o, ref->out->vc->red_o);
+    printf("green_o  -> dut: 0x%x, ref: 0x%x\n", dut->green_o,
            ref->out->vc->green_o);
-    printf("blue_o   -> dut: %d, ref: %d\n", dut->blue_o, ref->out->vc->blue_o);
+    printf("blue_o   -> dut: 0x%x, ref: 0x%x\n", dut->blue_o, ref->out->vc->blue_o);
     printf("hsync_o  -> dut: %d, ref: %d\n", dut->hsync_o,
            ref->out->vc->hsync_o);
     printf("vsync_o  -> dut: %d, ref: %d\n", dut->vsync_o,
