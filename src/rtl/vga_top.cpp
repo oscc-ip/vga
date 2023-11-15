@@ -32,11 +32,11 @@ void top_in_io::randInIO(unsigned long int sim_time) {
   }
   // set cu to stop self_test mode
   if (sim_time >= 4) { // write in only one cycle
-    cu->psel_i = 1;
-    cu->penable_i = 1;
-    cu->pwrite_i = 1;
-    cu->paddr_i = 2;  // write to self_test register
-    cu->pwdata_i = 0; // stop self_test mode
+    // cu->psel_i = 1;
+    // cu->penable_i = 1;
+    // cu->pwrite_i = 1;
+    // cu->paddr_i = 2;  // write to self_test register
+    // cu->pwdata_i = 0; // stop self_test mode
   }
   if (sim_time >= 4) {
     ppr->arready_i = 1;
@@ -58,7 +58,8 @@ void vga_top::eval() {
   in->ppr->data_req_i = vc->out->data_req_o;
   in->ppr->base_addr_i = cu->out->base_addr_o;
   in->ppr->top_addr_i = cu->out->top_addr_o;
-  in->ppr->self_test_i = cu->out->self_test_o;
+  // in->ppr->self_test_i = cu->out->self_test_o;
+  in->vc->self_test_i = cu->out->self_test_o;
   ppr->eval();
   in->vc->data_i = out->ppr->data_o;
 

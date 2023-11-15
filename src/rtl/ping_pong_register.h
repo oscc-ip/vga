@@ -11,7 +11,7 @@ class ppr_in_io {
 public:
   bool clk_a, clk_v;
   bool data_req_i;  // request color data
-  bool self_test_i; // seft test enable
+  // bool self_test_i; // seft test enable
   bool resetn_v;
   // signals with AXI bus
   bool arready_i, rvalid_i;
@@ -23,7 +23,7 @@ public:
     clk_a = 0;
     clk_v = 0;
     data_req_i = 0;
-    self_test_i = 0;
+    // self_test_i = 0;
     resetn_v = 1;
     resetn_a = 1;
     arready_i = 0;
@@ -36,14 +36,14 @@ public:
     Log("\nInIO data:\n");
     Log("clk_v=%d, clk_a=%d\n", clk_v, clk_a);
     Log("arready_i=%d\n", arready_i);
-    Log("data_req_i=%d, self_test_i=%d\n", data_req_i, self_test_i);
+    // Log("data_req_i=%d, self_test_i=%d\n", data_req_i, self_test_i);
   }
 
   // get randome InIO
   void randInIO(unsigned long int sim_time) {
     if (sim_time >= 0 && sim_time < 4) {
       data_req_i = 0;
-      self_test_i = 0;
+      // self_test_i = 0;
       base_addr_i = 0;
       top_addr_i = 0;
       arready_i = 0;
@@ -60,7 +60,7 @@ public:
       // self_test_i = 1;        // enable self_test
       data_req_i = 1; // vga require data
       // get data from SDRAM through AXI
-      self_test_i = 0; // disable self_test
+      // self_test_i = 0; // disable self_test
       rvalid_i = 1;
       rresp_i = 0;
       // rdata_i = 0x012356789abcdef;

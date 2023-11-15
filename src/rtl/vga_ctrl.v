@@ -15,6 +15,7 @@ module vga_ctrl(
     input  wire [ 9:0] vdata_end_i,
 
     input  wire [11:0] data_i,
+    input  wire        self_test_i,// self_test mode
     output reg         data_req_o, // request data from ping pong register
     output wire [ 3:0] red_o,      // rea color
     output wire [ 3:0] green_o,    // green color
@@ -29,6 +30,8 @@ module vga_ctrl(
 // =========================================================================
     reg [10:0] hcount;
     reg [ 9:0] vcount;
+    reg [11:0] test_color [7:0]; 
+    reg [ 2:0] test_cnt;
 
 
 // =========================================================================
@@ -85,23 +88,31 @@ module vga_ctrl(
     // assign data_req_o = (((hcount >= {3'h0, hdata_begin_i}-1) && (hcount <= {1'h0, hdata_end_i}-1))&&
     //                     ((vcount >= {3'h0, vdata_begin_i}-1) && (vcount <= vdata_end_i-1))) ? 1 : 0;
 
+    // self test color set
+    always @(posedge clk) begin 
+        if(~resetn) begin
+            test_color[0] <= 12'hf00; // red 
+            test_color[1] <= 12'h0f0; // green
+            test_color[2] <= 12'h00f; // blue
+            test_color[3] <= 12'hff0; // yellow 
+            test_color[4] <= 12'h0ff; // cyan
+            test_color[5] <= 12'hf0f; // magenta
+            test_color[6] <= 12'h000; // black
+            test_color[7] <= 12'hfff; // white
+        end
+    end
+
+    always @(posedge clk) begin
+        if(~resetn) begin
+            test_cnt <= 3'h0;    
+        end else if(vcount[4:0] == 5'h0 & hcount == {3'h0, hdata_begin_i} & data_req_o) begin
+            test_cnt <= test_cnt+3'h1;    
+        end
+    end
     // output rgb
-    // TODO: change back to real logic
-    assign red_o   = data_i[ 3:0];    
-    assign green_o = data_i[ 7:4];    
-    assign blue_o  = data_i[11:8];    
-    // always @(posedge clk ) begin 
-        // if(data_req_o) begin
-        //     red_o   <= data_i[ 3:0];    
-        //     green_o <= data_i[ 7:4];    
-        //     blue_o  <= data_i[11:8];    
-        // end
-        // else begin
-        //     red_o   <= 4'h0;    
-        //     green_o <= 4'h0;    
-        //     blue_o  <= 4'h0;    
-        // end
-    // end
+    assign red_o   = self_test_i ? test_color[test_cnt][ 3:0] : data_i[ 3:0];
+    assign green_o = self_test_i ? test_color[test_cnt][ 7:4] : data_i[ 7:4];
+    assign blue_o  = self_test_i ? test_color[test_cnt][11:8] : data_i[11:8];
 
     always @(posedge clk ) begin 
         blank_o <= data_req_o;

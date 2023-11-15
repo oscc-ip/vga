@@ -36,7 +36,7 @@ module ping_pong_register
 // =========================================================================
 reg [DATA_WIDTH-1:0] ping [31:0];
 reg [DATA_WIDTH-1:0] pong [31:0];
-reg [11:0] color[ 7:0]; // color register, store self test color data
+// reg [11:0] color[ 7:0]; // color register, store self test color data
 reg        read_ping; // currently read from ping register
 reg [ 4:0] read_count; // which register in ping or pong is read
 reg [ 1:0] byte_count;// which 16bits in a register is read, 64 bits register has 4 16-bits part
@@ -94,10 +94,10 @@ reg        ppr_write_finish; // finish write ping or pong
             data_o <= 12'h0;    
         end
         else if(data_req_i) begin
-            if(self_test_i) begin
-                data_o <= color[2]; //TODO: correntlly only support self test of red color
-            end
-            else begin
+            // if(self_test_i) begin
+            //     data_o <= color[2]; //TODO: correntlly only support self test of red color
+            // end
+            begin
                 if(read_ping) begin // read data from ping register
                     case(byte_count) 
                         2'h0: begin
@@ -220,19 +220,19 @@ reg        ppr_write_finish; // finish write ping or pong
     end
     
 
-    // self test color set
-    always @(posedge clk_a) begin 
-        if(~resetn_a) begin
-            color[0] <= 12'h000; // black
-            color[1] <= 12'hfff; // white
-            color[2] <= 12'hf00; // red 
-            color[3] <= 12'h0f0; // green
-            color[4] <= 12'h00f; // blue
-            color[5] <= 12'hff0; // yellow 
-            color[6] <= 12'h0ff; // cyan
-            color[7] <= 12'hf0f; // magenta
-        end
-    end
+    // // self test color set
+    // always @(posedge clk_a) begin 
+    //     if(~resetn_a) begin
+    //         color[0] <= 12'h000; // black
+    //         color[1] <= 12'hfff; // white
+    //         color[2] <= 12'hf00; // red 
+    //         color[3] <= 12'h0f0; // green
+    //         color[4] <= 12'h00f; // blue
+    //         color[5] <= 12'hff0; // yellow 
+    //         color[6] <= 12'h0ff; // cyan
+    //         color[7] <= 12'hf0f; // magenta
+    //     end
+    // end
     
 endmodule
 `endif

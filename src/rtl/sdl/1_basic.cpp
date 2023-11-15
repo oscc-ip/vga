@@ -25,13 +25,19 @@ int main() {
   // SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // choose another color:
   // red SDL_RenderDrawPoint(renderer, 0, 0); // draw a pixel use the renderer
   // color
-  for (int i = 0; i < WIDTH; i++) {
-    for (int j = 0; j < DEPTH; j++) {
-      SDL_SetRenderDrawColor(renderer, i % 255, j % 255, i % 255,
-                             255);         // choose another color
-      SDL_RenderDrawPoint(renderer, i, j); // draw a pixel use the renderer
-    }
-  }
+  // for (int i = 0; i < WIDTH; i++) {
+  //   for (int j = 0; j < DEPTH; j++) {
+  //     SDL_SetRenderDrawColor(renderer, i % 255, j % 255, i % 255,
+  //                            255);         // choose another color
+  //     SDL_RenderDrawPoint(renderer, i, j); // draw a pixel use the renderer
+  //   }
+  // }
+  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // choose another color
+  SDL_RenderDrawPoint(renderer, 0, 0); // draw a pixel use the renderer
+  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // choose another color
+  SDL_RenderDrawPoint(renderer, 640/2, 480/2); // draw a pixel use the renderer
+  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // choose another color
+  SDL_RenderDrawPoint(renderer, 640-1, 480-1); // draw a pixel use the renderer
 
   SDL_RenderPresent(renderer);
   SDL_Delay(3000);

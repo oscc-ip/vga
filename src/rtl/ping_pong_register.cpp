@@ -38,19 +38,18 @@ void ping_pong_register::eval() {
     if (in->resetn_v == 0) {
       out->data_o = 0;
     } else if (in->data_req_i) {
-      if (in->self_test_i) {
-        out->data_o = color;
+      // if (in->self_test_i) {
+      //   out->data_o = color;}
+      if (read_ping) {
+        // read from ping
+        out->data_o = (ping[read_count] >> (16 * byte_count)) & 0xfff;
       } else {
-        if (read_ping) {
-          // read from ping
-          out->data_o = (ping[read_count] >> (16 * byte_count)) & 0xfff;
-        } else {
-          // read from pong
-          out->data_o = (pong[read_count] >> (16 * byte_count)) & 0xfff;
-        }
+        // read from pong
+        out->data_o = (pong[read_count] >> (16 * byte_count)) & 0xfff;
       }
     }
-    printf("data_req_i=%d, self_test_i=%d\n", in->data_req_i, in->self_test_i);
+    // printf("data_req_i=%d, self_test_i=%d\n", in->data_req_i,
+    // in->self_test_i);
     printf("read from %s=> ", read_ping ? "ping" : "pong");
     printf("read_count=%d, byte_count=%d, read_data=0x%x\n", read_count,
            byte_count, out->data_o);

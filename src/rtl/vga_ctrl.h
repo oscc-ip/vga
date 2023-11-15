@@ -14,6 +14,7 @@ public:
   int vdata_end_i;
   // PingPongRegister input
   int data_i;
+  bool self_test_i;
   // get random input
   void randInIO(unsigned long int sim_time);
 };
@@ -28,6 +29,8 @@ class vga_ctrl {
 private:
   // resolotion configs
   int vcount, hcount;
+  int test_cnt;
+  int test_color[8];
 
 public:
   vc_in_io *in;

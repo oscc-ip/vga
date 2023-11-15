@@ -13,6 +13,13 @@
 #include "vga_top.h"
 
 #include <SDL2/SDL.h>
+#define WIDTH 640
+#define DEPTH 480
+int x = 0;
+int y = 0;
+bool blank_delay;
+bool line_start;
+
 // set dut and c_model macros
 #define DUT Vvga_top
 #define REF vga_top
@@ -24,11 +31,13 @@
 // #define MAX_SIM_TIME 202
 // #define MAX_SIM_TIME 500
 // #define MAX_SIM_TIME 2000000
-// #define MAX_SIM_TIME 4807
+// #define MAX_SIM_TIME 48070
 // #define MAX_SIM_TIME 54956
 // #define MAX_SIM_TIME 55208
-#define MAX_SIM_TIME 100000
-// #define MAX_SIM_TIME 120000 
+#define MAX_SIM_TIME 800000
+// #define MAX_SIM_TIME 1000000 // this
+// #define MAX_SIM_TIME 500000
+// #define MAX_SIM_TIME 120000
 // #define MAX_SIM_TIME 54696
 // #define MAX_SIM_TIME 200000
 // #define MAX_SIM_TIME 20000000
@@ -57,10 +66,10 @@ public:
     dut->resetn_a = in->ppr->resetn_a;
     dut->resetn_v = in->ppr->resetn_v;
     // cu related data
-    dut->paddr_i  = in->cu->paddr_i;
+    dut->paddr_i = in->cu->paddr_i;
     dut->pwdata_i = in->cu->pwdata_i;
-    dut->psel_i   = in->cu->psel_i;
-    dut->penable_i= in->cu->penable_i;
+    dut->psel_i = in->cu->psel_i;
+    dut->penable_i = in->cu->penable_i;
     dut->pwrite_i = in->cu->pwrite_i;
   }
   // constructor: connect to dut and ref
@@ -82,12 +91,15 @@ private:
 
 public:
   void display() {
-    // printf("display dut and ref OutIO at time=%llu\n", sim_time); // llu for mac
+    // printf("display dut and ref OutIO at time=%llu\n", sim_time); // llu for
+    // mac
     printf("display dut and ref OutIO at time=%lu\n", sim_time);
-    printf("red_o    -> dut: 0x%x, ref: 0x%x\n", dut->red_o, ref->out->vc->red_o);
+    printf("red_o    -> dut: 0x%x, ref: 0x%x\n", dut->red_o,
+           ref->out->vc->red_o);
     printf("green_o  -> dut: 0x%x, ref: 0x%x\n", dut->green_o,
            ref->out->vc->green_o);
-    printf("blue_o   -> dut: 0x%x, ref: 0x%x\n", dut->blue_o, ref->out->vc->blue_o);
+    printf("blue_o   -> dut: 0x%x, ref: 0x%x\n", dut->blue_o,
+           ref->out->vc->blue_o);
     printf("hsync_o  -> dut: %d, ref: %d\n", dut->hsync_o,
            ref->out->vc->hsync_o);
     printf("vsync_o  -> dut: %d, ref: %d\n", dut->vsync_o,
@@ -176,6 +188,8 @@ REF *ref = new REF();
 InDriver *drv = new InDriver(dut, ref);
 SCB *scb = new SCB(dut, ref);
 OutMonitor *outMon = new OutMonitor(scb, dut, ref);
+SDL_Window *window = nullptr;
+SDL_Renderer *renderer = nullptr;
 
 // init dut, ref and verilator
 void init() {
@@ -199,7 +213,7 @@ void destroy() {
   m_trace->close();
   Log("save waveform\n");
   delete dut;
-  delete m_trace;
+  // delete m_trace;
   delete outMon;
   delete scb;
   delete drv;
@@ -224,21 +238,49 @@ void step() {
     m_trace->dump(sim_time);
     sim_time++;
     if (outMon->monitor_equal() == 0) {
-      m_trace->dump(++sim_time);
-      destroy();
-      _exit(-1);
+      // m_trace->dump(++sim_time);
+      // destroy();
+      // _exit(-1);
     };
+
+    // draw SDL renderer
+    line_start = (blank_delay == false) && (dut->blank_o == true);
+    if (line_start) {
+      x = 0;
+    } else {
+      x = x + 1;
+      if (x == 640) {
+        y = (y + 1) % 480;
+      }
+    }
+    blank_delay = dut->blank_o;
+    if (dut->blank_o) {
+      SDL_SetRenderDrawColor(renderer, dut->red_o << 4, dut->green_o << 4,
+                             dut->blue_o << 4,
+                             255);         // choose another color
+      SDL_RenderDrawPoint(renderer, x, y); // draw a pixel use the renderer
+    }
   }
+
+  // show SDL contents
+  SDL_RenderPresent(renderer);
+  SDL_Delay(10000);
 }
 
-void init_sdl(){
-
-
+void init_sdl() {
+  SDL_Init(SDL_INIT_VIDEO);
+  // SDL_CreateWindowAndRenderer(WIDTH, DEPTH, 0, &window, &renderer);
+  SDL_CreateWindowAndRenderer(WIDTH * 4, DEPTH * 4, 0, &window, &renderer);
+  SDL_RenderSetScale(renderer, 4, 4);
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // set renderer color
+  SDL_RenderClear(renderer); // clear the screen with the renderer color
 }
 
 int main(int argc, char **argv) {
   // init dut, ref and verilator
   init();
+
+  init_sdl();
   // step and compare
   step();
   // destroy pointers

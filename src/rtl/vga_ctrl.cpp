@@ -13,10 +13,27 @@ void vga_ctrl::eval() {
   // calculate sync signal
   if (in->clk) { // only eval at posedge
 
-    out->red_o = in->data_i & 0xf;
-    out->green_o = (in->data_i >> 4) & 0xf;
-    out->blue_o = (in->data_i >> 8) & 0xf;
+    if (in->resetn == 0) {
+      test_color[0] = 0xf00; // red
+      test_color[1] = 0x0f0; // green
+      test_color[2] = 0x00f; // blue
+      test_color[3] = 0xff0; // yellow
+      test_color[4] = 0x0ff; // cyan
+      test_color[5] = 0xf0f; // magenta
+      test_color[6] = 0x000; // black
+      test_color[7] = 0xfff; // white
+    }
 
+    if (in->resetn == 0) {
+      test_cnt = 0;
+    } else if (((vcount & 0x1f) == 0x0) && (hcount == in->hdata_begin_i) &&
+               (out->data_req_o)) {
+      test_cnt = (test_cnt + 1) % 8;
+    }
+
+    out->red_o =   in->self_test_i?       test_color[test_cnt] & 0xf :in->data_i & 0xf;
+    out->green_o = in->self_test_i?(test_color[test_cnt] >> 4) & 0xf :(in->data_i >> 4) & 0xf;
+    out->blue_o =  in->self_test_i?(test_color[test_cnt] >> 8) & 0xf :(in->data_i >> 8) & 0xf;
     // calculate sync data
     out->hsync_o = hcount <= in->hpulse_end_i ? 0 : 1;
     out->vsync_o = vcount <= in->vpulse_end_i ? 0 : 1;

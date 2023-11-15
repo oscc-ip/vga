@@ -109,6 +109,7 @@ module vga_top
     .vpulse_end_i  (vpulse_end_i  ),
     .vdata_begin_i (vdata_begin_i ),
     .vdata_end_i   (vdata_end_i   ),
+    .self_test_i   (self_test_i   ),
     .data_i        (data_o        ),
     .data_req_o    (data_req_o    ),
     .red_o         (red_o         ),
