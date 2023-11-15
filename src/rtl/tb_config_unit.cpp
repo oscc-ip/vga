@@ -69,31 +69,31 @@ private:
 
 public:
   void display() {
-    printf("display dut and ref OutIO at time=%ld\n", sim_time);
-    printf("prdata_o -> dut: %d, ref: %d\n", dut->prdata_o, ref->out->prdata_o);
-    printf("pslverr_o    -> dut: %d, ref: %d\n", dut->pslverr_o,
+    Log("display dut and ref OutIO at time=%ld\n", sim_time);
+    Log("prdata_o -> dut: %d, ref: %d\n", dut->prdata_o, ref->out->prdata_o);
+    Log("pslverr_o    -> dut: %d, ref: %d\n", dut->pslverr_o,
            ref->out->pslverr_o);
-    printf("hsync_end_o  -> dut: %d, ref: %d\n", dut->hsync_end_o,
+    Log("hsync_end_o  -> dut: %d, ref: %d\n", dut->hsync_end_o,
            ref->out->hsync_end_o);
-    printf("hpulse_end_o -> dut: %d, ref: %d\n", dut->hpulse_end_o,
+    Log("hpulse_end_o -> dut: %d, ref: %d\n", dut->hpulse_end_o,
            ref->out->hpulse_end_o);
-    printf("hdata_begin_o-> dut: %d, ref: %d\n", dut->hdata_begin_o,
+    Log("hdata_begin_o-> dut: %d, ref: %d\n", dut->hdata_begin_o,
            ref->out->hdata_begin_o);
-    printf("vdata_end_o  -> dut: %d, ref: %d\n", dut->vdata_end_o,
+    Log("vdata_end_o  -> dut: %d, ref: %d\n", dut->vdata_end_o,
            ref->out->vdata_end_o);
-    printf("vsync_end_o  -> dut: %d, ref: %d\n", dut->vsync_end_o,
+    Log("vsync_end_o  -> dut: %d, ref: %d\n", dut->vsync_end_o,
            ref->out->vsync_end_o);
-    printf("vpulse_end_o -> dut: %d, ref: %d\n", dut->vpulse_end_o,
+    Log("vpulse_end_o -> dut: %d, ref: %d\n", dut->vpulse_end_o,
            ref->out->vpulse_end_o);
-    printf("vdata_begin_o-> dut: %d, ref: %d\n", dut->vdata_begin_o,
+    Log("vdata_begin_o-> dut: %d, ref: %d\n", dut->vdata_begin_o,
            ref->out->vdata_begin_o);
-    printf("vdata_end_o  -> dut: %d, ref: %d\n", dut->hdata_end_o,
+    Log("vdata_end_o  -> dut: %d, ref: %d\n", dut->hdata_end_o,
            ref->out->hdata_end_o);
-    printf("base_addr_o  -> dut: %d, ref: %d\n", dut->base_addr_o,
+    Log("base_addr_o  -> dut: %d, ref: %d\n", dut->base_addr_o,
            ref->out->base_addr_o);
-    printf("top_addr_o   -> dut: %d, ref: %d\n", dut->top_addr_o,
+    Log("top_addr_o   -> dut: %d, ref: %d\n", dut->top_addr_o,
            ref->out->top_addr_o);
-    printf("self_test_o  -> dut: %d, ref: %d\n", dut->self_test_o,
+    Log("self_test_o  -> dut: %d, ref: %d\n", dut->self_test_o,
            ref->out->self_test_o);
   }
   bool compare() {
@@ -113,9 +113,9 @@ public:
                  dut->top_addr_o == ref->out->top_addr_o &&
                  dut->self_test_o == ref->out->self_test_o;
     if (match) {
-      printf("match\n");
+      Log("match\n");
     } else {
-      printf("mismatch\n");
+      Log("mismatch\n");
     }
     return match;
   }
@@ -197,7 +197,7 @@ void step() {
   Log("step\n");
   while (sim_time < MAX_SIM_TIME) {
     Log("\nsim_time=%ld\n", sim_time);
-    printf("\n\nsim_time=%ld\n", sim_time);
+    Log("\n\nsim_time=%ld\n", sim_time);
     // dut->clk_v ^= 1;
     // dut->clk_a ^= 1;
     // in = randInIO();

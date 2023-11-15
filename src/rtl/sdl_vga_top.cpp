@@ -29,12 +29,12 @@ bool line_start;
 // #define MAX_SIM_TIME 8
 // #define MAX_SIM_TIME 71
 // #define MAX_SIM_TIME 202
-// #define MAX_SIM_TIME 500
+#define MAX_SIM_TIME 500
 // #define MAX_SIM_TIME 2000000
 // #define MAX_SIM_TIME 48070
 // #define MAX_SIM_TIME 54956
 // #define MAX_SIM_TIME 55208
-#define MAX_SIM_TIME 800000
+// #define MAX_SIM_TIME 800000
 // #define MAX_SIM_TIME 1000000 // this
 // #define MAX_SIM_TIME 500000
 // #define MAX_SIM_TIME 120000
@@ -93,31 +93,31 @@ public:
   void display() {
     // printf("display dut and ref OutIO at time=%llu\n", sim_time); // llu for
     // mac
-    printf("display dut and ref OutIO at time=%lu\n", sim_time);
-    printf("red_o    -> dut: 0x%x, ref: 0x%x\n", dut->red_o,
+    Log("display dut and ref OutIO at time=%lu\n", sim_time);
+    Log("red_o    -> dut: 0x%x, ref: 0x%x\n", dut->red_o,
            ref->out->vc->red_o);
-    printf("green_o  -> dut: 0x%x, ref: 0x%x\n", dut->green_o,
+    Log("green_o  -> dut: 0x%x, ref: 0x%x\n", dut->green_o,
            ref->out->vc->green_o);
-    printf("blue_o   -> dut: 0x%x, ref: 0x%x\n", dut->blue_o,
+    Log("blue_o   -> dut: 0x%x, ref: 0x%x\n", dut->blue_o,
            ref->out->vc->blue_o);
-    printf("hsync_o  -> dut: %d, ref: %d\n", dut->hsync_o,
+    Log("hsync_o  -> dut: %d, ref: %d\n", dut->hsync_o,
            ref->out->vc->hsync_o);
-    printf("vsync_o  -> dut: %d, ref: %d\n", dut->vsync_o,
+    Log("vsync_o  -> dut: %d, ref: %d\n", dut->vsync_o,
            ref->out->vc->vsync_o);
-    printf("blank_o  -> dut: %d, ref: %d\n", dut->blank_o,
+    Log("blank_o  -> dut: %d, ref: %d\n", dut->blank_o,
            ref->out->vc->blank_o);
-    // printf("araddr_o -> dut: %llu, ref: %ld\n", dut->araddr_o, // llu for mac
-    printf("araddr_o -> dut: %lu, ref: %ld\n", dut->araddr_o,
+    // Log("araddr_o -> dut: %llu, ref: %ld\n", dut->araddr_o, // llu for mac
+    Log("araddr_o -> dut: %lu, ref: %ld\n", dut->araddr_o,
            ref->out->ppr->araddr_o);
-    printf("arburst_o-> dut: %d, ref: %d\n", dut->arburst_o,
+    Log("arburst_o-> dut: %d, ref: %d\n", dut->arburst_o,
            ref->out->ppr->arburst_o);
-    printf("arlen_o  -> dut: %d, ref: %d\n", dut->arlen_o,
+    Log("arlen_o  -> dut: %d, ref: %d\n", dut->arlen_o,
            ref->out->ppr->arlen_o);
-    printf("arsize_o -> dut: %d, ref: %d\n", dut->arsize_o,
+    Log("arsize_o -> dut: %d, ref: %d\n", dut->arsize_o,
            ref->out->ppr->arsize_o);
-    printf("arvalid_o-> dut: %d, ref: %d\n", dut->arvalid_o,
+    Log("arvalid_o-> dut: %d, ref: %d\n", dut->arvalid_o,
            ref->out->ppr->arvalid_o);
-    printf("rready_o -> dut: %d, ref: %d\n", dut->rready_o,
+    Log("rready_o -> dut: %d, ref: %d\n", dut->rready_o,
            ref->out->ppr->rready_o);
   }
   bool compare() {
@@ -223,12 +223,7 @@ void destroy() {
 void step() {
   Log("step\n");
   while (sim_time < MAX_SIM_TIME) {
-    Log("\nsim_time=%ld\n", sim_time);
-    printf("\n\nsim_time=%lu\n", sim_time);
-    // printf("\n\nsim_time=%llu\n", sim_time); // llu for mac
-    // dut->clk_v ^= 1;
-    // dut->clk_a ^= 1;
-    // in = randInIO();
+    printf("sim_time=%lu, ", sim_time);
     ref->in->randInIO(sim_time);
     drv->drive(ref->in);
     dut->eval(); // dut evaluate
@@ -238,9 +233,9 @@ void step() {
     m_trace->dump(sim_time);
     sim_time++;
     if (outMon->monitor_equal() == 0) {
-      // m_trace->dump(++sim_time);
-      // destroy();
-      // _exit(-1);
+      m_trace->dump(++sim_time);
+      destroy();
+      _exit(-1);
     };
 
     // draw SDL renderer

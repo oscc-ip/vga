@@ -48,10 +48,10 @@ void ping_pong_register::eval() {
         out->data_o = (pong[read_count] >> (16 * byte_count)) & 0xfff;
       }
     }
-    // printf("data_req_i=%d, self_test_i=%d\n", in->data_req_i,
+    // Log("data_req_i=%d, self_test_i=%d\n", in->data_req_i,
     // in->self_test_i);
-    printf("read from %s=> ", read_ping ? "ping" : "pong");
-    printf("read_count=%d, byte_count=%d, read_data=0x%x\n", read_count,
+    Log("read from %s=> ", read_ping ? "ping" : "pong");
+    Log("read_count=%d, byte_count=%d, read_data=0x%x\n", read_count,
            byte_count, out->data_o);
   }
 
@@ -102,12 +102,12 @@ void ping_pong_register::eval() {
         write_count, ppr_write_finish ? "false" : "true");
   }
   // if (in->clk_a && (~ppr_write_finish)) {
-  //   printf("display pong\n");
+  //   Log("display pong\n");
   //   for (int i = 0; i < 32; i++)
-  //     printf("pong[%d]=0x%lx\n", i, pong[i]);
-  //   printf("display ping\n");
+  //     Log("pong[%d]=0x%lx\n", i, pong[i]);
+  //   Log("display ping\n");
   //   for (int i = 0; i < 32; i++)
-  //     printf("ping[%d]=0x%lx\n", i, ping[i]);
+  //     Log("ping[%d]=0x%lx\n", i, ping[i]);
   // }
 
   /*
@@ -129,7 +129,7 @@ void ping_pong_register::eval() {
       byte_count = (byte_count + 1) & 0x3;
     }
   }
-  printf("\n\n===== test in ppr =============\n");
+  Log("\n\n===== test in ppr =============\n");
   vga_read_finish = read_count == 32;
   read_count = vga_read_finish ? 0 : read_count;
 
@@ -145,7 +145,7 @@ void ping_pong_register::eval() {
   //       ppr_write_finish_delay = 0;
   //     }
   //   }
-  //   printf("-->vga_read_finish=%d, ppr_write_finish=%d, write_count=%d\n",
+  //   Log("-->vga_read_finish=%d, ppr_write_finish=%d, write_count=%d\n",
   //          vga_read_finish, ppr_write_finish, write_count);
   // }
   // calculate write controls
@@ -161,7 +161,7 @@ void ping_pong_register::eval() {
         ppr_write_finish = 0;
       }
     }
-    printf("-->vga_read_finish=%d, ppr_write_finish=%d, write_count=%d\n",
+    Log("-->vga_read_finish=%d, ppr_write_finish=%d, write_count=%d\n",
            vga_read_finish, ppr_write_finish, write_count);
   }
   // calculate write_count
@@ -179,14 +179,14 @@ void ping_pong_register::eval() {
     if (in->resetn_a == 0) {
       read_ping = 0;
     } else if (vga_read_finish && (~ppr_write_finish)) {
-      printf("------- change read_ping ---------\n\n\n");
+      Log("------- change read_ping ---------\n\n\n");
       read_ping ^= 1;
-      printf("display pong\n");
+      Log("display pong\n");
       for (int i = 0; i < 32; i++)
-        printf("pong[%d]=0x%lx\n", i, pong[i]);
-      printf("display ping\n");
+        Log("pong[%d]=0x%lx\n", i, pong[i]);
+      Log("display ping\n");
       for (int i = 0; i < 32; i++)
-        printf("ping[%d]=0x%lx\n", i, ping[i]);
+        Log("ping[%d]=0x%lx\n", i, ping[i]);
       // exit(-1);
       Log("====> change ppr <====\n");
     }

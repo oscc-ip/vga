@@ -5,10 +5,10 @@
 
 void vga_ctrl::eval() {
 
-  printf("\n==================\n");
-  printf("hdata_begin_i=%d, hdata_end_i=%d\n", in->hdata_begin_i,
+  Log("\n==================\n");
+  Log("hdata_begin_i=%d, hdata_end_i=%d\n", in->hdata_begin_i,
          in->hdata_end_i);
-  printf("vdata_begin_i=%d, vdata_end_i=%d\n", in->vdata_begin_i,
+  Log("vdata_begin_i=%d, vdata_end_i=%d\n", in->vdata_begin_i,
          in->vdata_end_i);
   // calculate sync signal
   if (in->clk) { // only eval at posedge
@@ -69,9 +69,9 @@ void vga_ctrl::eval() {
       }
     }
   }
-  printf("hcount=%d, vcount=%d\n", hcount, vcount);
-  printf("data_req_o=%d\n", out->data_req_o);
+  Log("hcount=%d, vcount=%d\n", hcount, vcount);
+  Log("data_req_o=%d\n", out->data_req_o);
   // if (out->data_req_o == 1)
   //   exit(-1);
-  printf("==================");
+  Log("==================");
 }

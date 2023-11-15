@@ -56,13 +56,13 @@ public:
   REF *c_model;
 
   void display(VgaCtrlOutTx *dut, REF *c_model) {
-    printf("output format: dut : ref\n");
-    printf("red  : %2x : %2x\n", dut->red_o, c_model->red_o);
-    printf("green: %2x : %2x\n", dut->green_o, c_model->green_o);
-    printf("blue : %2x : %2x\n", dut->blue_o, c_model->blue_o);
-    printf("hsync: %2x : %2x\n", dut->hsync_o, c_model->hsync_o);
-    printf("vsync: %2x : %2x\n", dut->vsync_o, c_model->vsync_o);
-    printf("blank: %2x : %2x\n", dut->blank_o, c_model->blank_o);
+    Log("output format: dut : ref\n");
+    Log("red  : %2x : %2x\n", dut->red_o, c_model->red_o);
+    Log("green: %2x : %2x\n", dut->green_o, c_model->green_o);
+    Log("blue : %2x : %2x\n", dut->blue_o, c_model->blue_o);
+    Log("hsync: %2x : %2x\n", dut->hsync_o, c_model->hsync_o);
+    Log("vsync: %2x : %2x\n", dut->vsync_o, c_model->vsync_o);
+    Log("blank: %2x : %2x\n", dut->blank_o, c_model->blank_o);
   }
   void write_in(VgaCtrlInTx *tx) { queue.push_back(tx); }
   void write_out(VgaCtrlOutTx *tx) {
@@ -96,7 +96,7 @@ public:
       display(tx, c_model);
       _exit(1);
     } else {
-      printf("match\n");
+      Log("match\n");
     }
   };
 };
