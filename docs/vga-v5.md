@@ -247,7 +247,7 @@ VGA模块分为3个模块，各个模块功能如下所示：
    - RM的IO分别用一个Input跟Output类编写，Input类里的成员变量跟模块的所有input信号一致、Output类的成员变量跟模块所有的output信号一致
    - Input类实现了Random方法，用于生成随机的输入testcase
 
-3. ScoreBoard里会将测试模块的output信号同该模块的Output类向对比，从而判断是否出错
+3. ScoreBoard里会将测试模块的output信号同该模块的Output类相对比，从而判断是否出错
 
 ### 测试结果
 
