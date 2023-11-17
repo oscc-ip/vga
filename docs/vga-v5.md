@@ -1,4 +1,4 @@
-# VGA 交接文档
+# VGA文档
 
 ## 使用本仓库
 
@@ -252,9 +252,14 @@ VGA模块分为3个模块，各个模块功能如下所示：
 ### 测试结果
 
 - [x] 3个模块单独跟RM对比测试，通过
+
 - [x] vga_top跟RM对比测试，测试通过
+
+  ![image-20231116202336216](https://s2.loli.net/2023/11/17/uoRqdUBV854DryE.png)
+
+
 - [x] vga_top接入SDL框架，显示自测试彩条
-![hdl](https://s2.loli.net/2023/11/16/U14wkBxt6pvSdRi.png)
+      ![hdl](https://s2.loli.net/2023/11/16/U14wkBxt6pvSdRi.png)
 
 ## TODO
 
