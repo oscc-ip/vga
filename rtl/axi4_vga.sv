@@ -13,7 +13,7 @@
 
 module axi4_vga (
     apb4_if.slave  apb4,
-    axi4_if.master axi4,
+    // axi4_if.master axi4,
     vga_if.dut     vga
 );
 
@@ -146,5 +146,6 @@ module axi4_vga (
     end
   end
 
-  
+  // vga counter
+
 endmodule
