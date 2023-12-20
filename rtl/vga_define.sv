@@ -18,9 +18,9 @@
 
 /* register mapping
  * VGA_CTRL:
- * BITS:   | 31:21 | 20:13  | 12   | 11   | 10:3 | 2     | 1     | 0  |
- * FIELDS: | RES   | BRULEN | MODE | TEST | DIV  | VSPOL | HSPOL | EN |
- * PERMS:  | NONE  | RW     | RW   | RW   | RW   | RW    | RW    | RW |
+ * BITS:   | 31:22 | 21:14  | 13:12 | 11   | 10:3 | 2     | 1     | 0  |
+ * FIELDS: | RES   | BRULEN | MODE  | TEST | DIV  | VSPOL | HSPOL | EN |
+ * PERMS:  | NONE  | RW     | RW    | RW   | RW   | RW    | RW    | RW |
  * --------------------------------------------------------------------
  * VGA_HVSIZE:
  * BITS:   | 31:16 | 15:0   |
@@ -99,7 +99,7 @@
 `define VGA_FBSTART_ADDR {26'b0, `VGA_FBSTART, 2'b00}
 `define VGA_FBSIZE_ADDR  {26'b0, `VGA_FBSIZE , 2'b00}
 
-`define VGA_CTRL_WIDTH    21
+`define VGA_CTRL_WIDTH    22
 `define VGA_HVSIZE_WIDTH  16
 `define VGA_HFPSIZE_WIDTH 16
 `define VGA_HSNSIZE_WIDTH 16
@@ -111,6 +111,10 @@
 `define VGA_FBSTART_WIDTH 32
 `define VGA_FBSIZE_WIDTH  32
 
+`define VGA_RGB332_MODE 2'b00
+`define VGA_RGB444_MODE 2'b01
+`define VGA_RGB555_MODE 2'b10
+`define VGA_RGB565_MODE 2'b11
 // `define VGA_PSCR_MIN_VAL  {{(`VGA_PSCR_WIDTH-2){1'b0}}, 2'd2}
 // verilog_format: on
 

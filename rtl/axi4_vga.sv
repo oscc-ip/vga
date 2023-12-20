@@ -30,12 +30,14 @@ module axi4_vga (
   logic [`VGA_FBSTART_WIDTH-1:0] s_vga_fbstart_d, s_vga_fbstart_q;
   logic [`VGA_FBSIZE_WIDTH-1:0] s_vga_fbsize_d, s_vga_fbsize_q;
 
-  logic s_bit_en, s_bit_hspol, s_bit_vspol, s_bit_test, s_bit_mode;
+  logic s_bit_en, s_bit_hspol, s_bit_vspol, s_bit_test;
+  logic [1:0] s_bit_mode;
   logic [7:0] s_bit_div, s_bit_brulen;
 
   logic s_pclk;
   logic [10:0] s_hori_cnt_d, s_hori_cnt_q;  // 0 ~ 2047
   logic [10:0] s_vert_cnt_d, s_vert_cnt_q;  // 0 ~ 2047
+  logic [15:0] s_pixel_data;
 
   assign s_apb4_addr = apb4.paddr[5:2];
   assign s_apb4_wr_hdshk = apb4.psel && apb4.penable && apb4.pwrite;
@@ -48,8 +50,10 @@ module axi4_vga (
   assign s_bit_vspol = s_vga_ctrl_q[2];
   assign s_bit_div = s_vga_ctrl_q[10:3];
   assign s_bit_test = s_vga_ctrl_q[11];
-  assign s_bit_mode = s_vga_ctrl_q[12];
-  assign s_bit_brulen = s_vga_ctrl_q[20:13];
+  assign s_bit_mode = s_vga_ctrl_q[13:12];
+  assign s_bit_brulen = s_vga_ctrl_q[21:14];
+
+  assign s_pixel_data = '0;  // TODO:
 
   assign s_vga_ctrl_d = (s_apb4_wr_hdshk && s_apb4_addr == `VGA_CTRL) ? apb4.pwdata[`VGA_CTRL_WIDTH-1:0] : s_vga_ctrl_q;
   dffr #(`VGA_CTRL_WIDTH) u_vga_ctrl_dffr (
@@ -168,6 +172,46 @@ module axi4_vga (
                         && (s_hori_cnt_q < s_vga_hsnsize_q + s_vga_hbpsize_q + s_vga_hvsize_q + s_vga_hfpsize_q)
                         && (s_vert_cnt_q > s_vga_vsnsize_q + s_vga_vbpsize_q)
                         && (s_vert_cnt_q < s_vga_vsnsize_q + s_vga_vbpsize_q + s_vga_vvsize_q + s_vga_vfpsize_q);
+
+  // RGB332 RGB444 RGB555 RGB565
+  always_comb begin
+    vga.vga_r_o = '0;
+    if (vga.vga_de_o) begin
+      unique case (s_bit_mode)
+        `VGA_RGB332_MODE: vga.vga_r_o = s_pixel_data[7:5];
+        `VGA_RGB444_MODE: vga.vga_r_o = s_pixel_data[11:8];
+        `VGA_RGB555_MODE: vga.vga_r_o = s_pixel_data[14:10];
+        `VGA_RGB565_MODE: vga.vga_r_o = s_pixel_data[15:11];
+        default:          vga.vga_r_o = '0;
+      endcase
+    end
+  end
+
+  always_comb begin
+    vga.vga_g_o = '0;
+    if (vga.vga_de_o) begin
+      unique case (s_bit_mode)
+        `VGA_RGB332_MODE: vga.vga_g_o = s_pixel_data[4:2];
+        `VGA_RGB444_MODE: vga.vga_g_o = s_pixel_data[7:4];
+        `VGA_RGB555_MODE: vga.vga_g_o = s_pixel_data[9:5];
+        `VGA_RGB565_MODE: vga.vga_g_o = s_pixel_data[10:5];
+        default:          vga.vga_g_o = '0;
+      endcase
+    end
+  end
+
+  always_comb begin
+    vga.vga_b_o = '0;
+    if (vga.vga_de_o) begin
+      unique case (s_bit_mode)
+        `VGA_RGB332_MODE: vga.vga_b_o = s_pixel_data[1:0];
+        `VGA_RGB444_MODE: vga.vga_b_o = s_pixel_data[3:0];
+        `VGA_RGB555_MODE: vga.vga_b_o = s_pixel_data[4:0];
+        `VGA_RGB565_MODE: vga.vga_b_o = s_pixel_data[4:0];
+        default:          vga.vga_b_o = '0;
+      endcase
+    end
+  end
 
   always_comb begin
     s_hori_cnt_d = s_hori_cnt_q;
