@@ -37,7 +37,8 @@ module axi4_vga (
   logic s_pclk;
   logic [10:0] s_hori_cnt_d, s_hori_cnt_q;  // 0 ~ 2047
   logic [10:0] s_vert_cnt_d, s_vert_cnt_q;  // 0 ~ 2047
-  logic [15:0] s_pixel_data;
+  logic [10:0] s_pixel_x, s_pixel_y;
+  logic [15:0] s_testmode_data_d, s_testmode_data_q, s_fb_data, s_pixel_data;
 
   assign s_apb4_addr = apb4.paddr[5:2];
   assign s_apb4_wr_hdshk = apb4.psel && apb4.penable && apb4.pwrite;
@@ -53,7 +54,106 @@ module axi4_vga (
   assign s_bit_mode = s_vga_ctrl_q[13:12];
   assign s_bit_brulen = s_vga_ctrl_q[21:14];
 
-  assign s_pixel_data = '0;  // TODO:
+
+  assign s_pixel_x = vga.vga_de_o ? s_hori_cnt_q - (s_vga_hsnsize_q + s_vga_hbpsize_q - 1) : '0;
+  assign s_pixel_y = vga.vga_de_o ? s_vert_cnt_q - (s_vga_vsnsize_q + s_vga_vbpsize_q) : '0;
+  assign s_pixel_data = ~vga.vga_de_o ? '0 : s_bit_test ? s_testmode_data_q : s_fb_data;
+
+  always_comb begin
+    s_testmode_data_d = '0;
+    if (s_bit_test) begin
+      s_testmode_data_d = '0;
+      if (s_pixel_x >= 0 && s_pixel_x < ((s_vga_hvsize_q / 10) * 1)) begin
+        unique case (s_bit_mode)
+          `VGA_RGB332_MODE: s_testmode_data_d = `VGA_RGB332_COLOR_RED;
+          `VGA_RGB444_MODE: s_testmode_data_d = `VGA_RGB444_COLOR_RED;
+          `VGA_RGB555_MODE: s_testmode_data_d = `VGA_RGB555_COLOR_RED;
+          `VGA_RGB565_MODE: s_testmode_data_d = `VGA_RGB565_COLOR_RED;
+          default:          s_testmode_data_d = `VGA_RGB565_COLOR_RED;
+        endcase
+      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 1) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 2)) begin
+        unique case (s_bit_mode)
+          `VGA_RGB332_MODE: s_testmode_data_d = `VGA_RGB332_COLOR_ORANGE;
+          `VGA_RGB444_MODE: s_testmode_data_d = `VGA_RGB444_COLOR_ORANGE;
+          `VGA_RGB555_MODE: s_testmode_data_d = `VGA_RGB555_COLOR_ORANGE;
+          `VGA_RGB565_MODE: s_testmode_data_d = `VGA_RGB565_COLOR_ORANGE;
+          default:          s_testmode_data_d = `VGA_RGB565_COLOR_ORANGE;
+        endcase
+      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 2) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 3)) begin
+        unique case (s_bit_mode)
+          `VGA_RGB332_MODE: s_testmode_data_d = `VGA_RGB332_COLOR_YELLOW;
+          `VGA_RGB444_MODE: s_testmode_data_d = `VGA_RGB444_COLOR_YELLOW;
+          `VGA_RGB555_MODE: s_testmode_data_d = `VGA_RGB555_COLOR_YELLOW;
+          `VGA_RGB565_MODE: s_testmode_data_d = `VGA_RGB565_COLOR_YELLOW;
+          default:          s_testmode_data_d = `VGA_RGB565_COLOR_YELLOW;
+        endcase
+      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 3) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 4)) begin
+        unique case (s_bit_mode)
+          `VGA_RGB332_MODE: s_testmode_data_d = `VGA_RGB332_COLOR_GREEN;
+          `VGA_RGB444_MODE: s_testmode_data_d = `VGA_RGB444_COLOR_GREEN;
+          `VGA_RGB555_MODE: s_testmode_data_d = `VGA_RGB555_COLOR_GREEN;
+          `VGA_RGB565_MODE: s_testmode_data_d = `VGA_RGB565_COLOR_GREEN;
+          default:          s_testmode_data_d = `VGA_RGB565_COLOR_GREEN;
+        endcase
+      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 4) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 5)) begin
+        unique case (s_bit_mode)
+          `VGA_RGB332_MODE: s_testmode_data_d = `VGA_RGB332_COLOR_CYAN;
+          `VGA_RGB444_MODE: s_testmode_data_d = `VGA_RGB444_COLOR_CYAN;
+          `VGA_RGB555_MODE: s_testmode_data_d = `VGA_RGB555_COLOR_CYAN;
+          `VGA_RGB565_MODE: s_testmode_data_d = `VGA_RGB565_COLOR_CYAN;
+          default:          s_testmode_data_d = `VGA_RGB565_COLOR_CYAN;
+        endcase
+      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 5) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 6)) begin
+        unique case (s_bit_mode)
+          `VGA_RGB332_MODE: s_testmode_data_d = `VGA_RGB332_COLOR_BLUE;
+          `VGA_RGB444_MODE: s_testmode_data_d = `VGA_RGB444_COLOR_BLUE;
+          `VGA_RGB555_MODE: s_testmode_data_d = `VGA_RGB555_COLOR_BLUE;
+          `VGA_RGB565_MODE: s_testmode_data_d = `VGA_RGB565_COLOR_BLUE;
+          default:          s_testmode_data_d = `VGA_RGB565_COLOR_BLUE;
+        endcase
+      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 6) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 7)) begin
+        unique case (s_bit_mode)
+          `VGA_RGB332_MODE: s_testmode_data_d = `VGA_RGB332_COLOR_PURPPLE;
+          `VGA_RGB444_MODE: s_testmode_data_d = `VGA_RGB444_COLOR_PURPPLE;
+          `VGA_RGB555_MODE: s_testmode_data_d = `VGA_RGB555_COLOR_PURPPLE;
+          `VGA_RGB565_MODE: s_testmode_data_d = `VGA_RGB565_COLOR_PURPPLE;
+          default:          s_testmode_data_d = `VGA_RGB565_COLOR_PURPPLE;
+        endcase
+      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 7) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 8)) begin
+        unique case (s_bit_mode)
+          `VGA_RGB332_MODE: s_testmode_data_d = `VGA_RGB332_COLOR_BLACK;
+          `VGA_RGB444_MODE: s_testmode_data_d = `VGA_RGB444_COLOR_BLACK;
+          `VGA_RGB555_MODE: s_testmode_data_d = `VGA_RGB555_COLOR_BLACK;
+          `VGA_RGB565_MODE: s_testmode_data_d = `VGA_RGB565_COLOR_BLACK;
+          default:          s_testmode_data_d = `VGA_RGB565_COLOR_BLACK;
+        endcase
+      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 8) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 9)) begin
+        unique case (s_bit_mode)
+          `VGA_RGB332_MODE: s_testmode_data_d = `VGA_RGB332_COLOR_WHITE;
+          `VGA_RGB444_MODE: s_testmode_data_d = `VGA_RGB444_COLOR_WHITE;
+          `VGA_RGB555_MODE: s_testmode_data_d = `VGA_RGB555_COLOR_WHITE;
+          `VGA_RGB565_MODE: s_testmode_data_d = `VGA_RGB565_COLOR_WHITE;
+          default:          s_testmode_data_d = `VGA_RGB565_COLOR_WHITE;
+        endcase
+      end else if (s_pixel_x >= ((s_vga_hvsize_q / 10) * 9) && s_pixel_x < (s_vga_hvsize_q)) begin
+        unique case (s_bit_mode)
+          `VGA_RGB332_MODE: s_testmode_data_d = `VGA_RGB332_COLOR_GRAY;
+          `VGA_RGB444_MODE: s_testmode_data_d = `VGA_RGB444_COLOR_GRAY;
+          `VGA_RGB555_MODE: s_testmode_data_d = `VGA_RGB555_COLOR_GRAY;
+          `VGA_RGB565_MODE: s_testmode_data_d = `VGA_RGB565_COLOR_GRAY;
+          default:          s_testmode_data_d = `VGA_RGB565_COLOR_GRAY;
+        endcase
+      end
+    end
+  end
+
+  dffr #(16) u_testmode_data_dffr (
+      apb4.pclk,
+      apb4.presetn,
+      s_testmode_data_d,
+      s_testmode_data_q
+  );
+
 
   assign s_vga_ctrl_d = (s_apb4_wr_hdshk && s_apb4_addr == `VGA_CTRL) ? apb4.pwdata[`VGA_CTRL_WIDTH-1:0] : s_vga_ctrl_q;
   dffr #(`VGA_CTRL_WIDTH) u_vga_ctrl_dffr (
@@ -168,9 +268,9 @@ module axi4_vga (
   assign vga.vga_pclk_o = s_pclk;
   assign vga.vga_hsync_o = (s_hori_cnt_q <= s_vga_hsnsize_q - 1'b1) ? s_bit_hspol : ~s_bit_hspol;
   assign vga.vga_vsync_o = (s_vert_cnt_q <= s_vga_vsnsize_q - 1'b1) ? s_bit_vspol : ~s_bit_vspol;
-  assign vga.vga_de_o    = (s_hori_cnt_q > s_vga_hsnsize_q + s_vga_hbpsize_q)
+  assign vga.vga_de_o    = (s_hori_cnt_q >= s_vga_hsnsize_q + s_vga_hbpsize_q)
                         && (s_hori_cnt_q < s_vga_hsnsize_q + s_vga_hbpsize_q + s_vga_hvsize_q + s_vga_hfpsize_q)
-                        && (s_vert_cnt_q > s_vga_vsnsize_q + s_vga_vbpsize_q)
+                        && (s_vert_cnt_q >= s_vga_vsnsize_q + s_vga_vbpsize_q)
                         && (s_vert_cnt_q < s_vga_vsnsize_q + s_vga_vbpsize_q + s_vga_vvsize_q + s_vga_vfpsize_q);
 
   // RGB332 RGB444 RGB555 RGB565
