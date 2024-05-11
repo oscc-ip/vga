@@ -18,10 +18,10 @@
 
 /* register mapping
  * VGA_CTRL:
- * BITS:   | 31:22 | 21:14  | 13:12 | 11   | 10:3 | 2     | 1     | 0  |
- * FIELDS: | RES   | BRULEN | MODE  | TEST | DIV  | VSPOL | HSPOL | EN |
- * PERMS:  | NONE  | RW     | RW    | RW   | RW   | RW    | RW    | RW |
- * --------------------------------------------------------------------
+ * BITS:   | 31:27 | 26:19  | 18:17 | 16   | 15:8 | 7     | 6     | 5     | 4   | 3     | 2   | 1   | 0  |
+ * FIELDS: | RES   | BRULEN | MODE  | TEST | DIV  | VSPOL | HSPOL | BLPOL | VBSE | VBSIE | VIE | HIE | EN |
+ * PERMS:  | NONE  | RW     | RW    | RW   | RW   | RW    | RW    | RW    | RW   | RW    | RW  | RW  | RW |
+ * ------------------------------------------------------------------------------------
  * VGA_HVSIZE:
  * BITS:   | 31:16 | 15:0   |
  * FIELDS: | RES   | HVSIZE |
@@ -62,12 +62,17 @@
  * FIELDS: | RES   | VBPSIZE |
  * PERMS:  | NONE  | RW      |
  * --------------------------------------------------------------------
- * VGA_FBSTART:
+ * VGA_FBBA1:
  * BITS:   | 31:0    |
- * FIELDS: | FPSTART |
+ * FIELDS: | FBBA1 |
  * PERMS:  | RW      |
  * --------------------------------------------------------------------
- * VGA_FBSIZE:
+ * VGA_FBBA2:
+ * BITS:   | 31:0   |
+ * FIELDS: | FBBA2 |
+ * PERMS:  | RW     |
+ * --------------------------------------------------------------------
+ * VGA_STAT:
  * BITS:   | 31:0   |
  * FIELDS: | FBSIZE |
  * PERMS:  | RW     |

@@ -40,24 +40,25 @@ module axi4_vga (
   logic [10:0] s_pixel_x, s_pixel_y;
   logic [15:0] s_testmode_data_d, s_testmode_data_q, s_fb_data, s_pixel_data;
 
-  assign s_apb4_addr = apb4.paddr[5:2];
+  // verilog_format: off
+  assign s_apb4_addr     = apb4.paddr[5:2];
   assign s_apb4_wr_hdshk = apb4.psel && apb4.penable && apb4.pwrite;
   assign s_apb4_rd_hdshk = apb4.psel && apb4.penable && (~apb4.pwrite);
-  assign apb4.pready = 1'b1;
-  assign apb4.pslverr = 1'b0;
+  assign apb4.pready     = 1'b1;
+  assign apb4.pslverr    = 1'b0;
 
-  assign s_bit_en = s_vga_ctrl_q[0];
-  assign s_bit_hspol = s_vga_ctrl_q[1];
-  assign s_bit_vspol = s_vga_ctrl_q[2];
-  assign s_bit_div = s_vga_ctrl_q[10:3];
-  assign s_bit_test = s_vga_ctrl_q[11];
-  assign s_bit_mode = s_vga_ctrl_q[13:12];
-  assign s_bit_brulen = s_vga_ctrl_q[21:14];
-
+  assign s_bit_en        = s_vga_ctrl_q[0];
+  assign s_bit_hspol     = s_vga_ctrl_q[1];
+  assign s_bit_vspol     = s_vga_ctrl_q[2];
+  assign s_bit_div       = s_vga_ctrl_q[10:3];
+  assign s_bit_test      = s_vga_ctrl_q[11];
+  assign s_bit_mode      = s_vga_ctrl_q[13:12];
+  assign s_bit_brulen    = s_vga_ctrl_q[21:14];
 
   assign s_pixel_x = vga.vga_de_o ? s_hori_cnt_q - (s_vga_hsnsize_q + s_vga_hbpsize_q - 1) : '0;
   assign s_pixel_y = vga.vga_de_o ? s_vert_cnt_q - (s_vga_vsnsize_q + s_vga_vbpsize_q) : '0;
   assign s_pixel_data = ~vga.vga_de_o ? '0 : s_bit_test ? s_testmode_data_q : s_fb_data;
+  // verilog_format: on
 
   always_comb begin
     s_testmode_data_d = '0;
