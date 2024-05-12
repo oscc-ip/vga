@@ -13,108 +13,73 @@
 
 // RGB MODE: RGB565(VGA or LCD) RGB555 RGB444 RGB332
 // RES: 
-//      VGA: 640x350@70 640x400@70 640x480@60 800x600@60 800x600@72
+//      VGA: 640x350@70(25M) 640x400@70(25M) 640x480@60(25M)
+//           800x600@60(40M) 800x600@72(50M)
 //      LCD: 480x272 800x480
 
 /* register mapping
  * VGA_CTRL:
- * BITS:   | 31:27 | 26:19  | 18:17 | 16   | 15:8 | 7     | 6     | 5     | 4   | 3     | 2   | 1   | 0  |
+ * BITS:   | 31:27 | 26:19  | 18:17 | 16   | 15:8 | 7     | 6     | 5     | 4    | 3     | 2   | 1   | 0  |
  * FIELDS: | RES   | BRULEN | MODE  | TEST | DIV  | VSPOL | HSPOL | BLPOL | VBSE | VBSIE | VIE | HIE | EN |
  * PERMS:  | NONE  | RW     | RW    | RW   | RW   | RW    | RW    | RW    | RW   | RW    | RW  | RW  | RW |
- * ------------------------------------------------------------------------------------
+ * --------------------------------------------------------------------------------------------------------
  * VGA_HVSIZE:
- * BITS:   | 31:16 | 15:0   |
- * FIELDS: | RES   | HVSIZE |
- * PERMS:  | NONE  | RW     |
+ * BITS:   | 31:16  | 15:0   |
+ * FIELDS: | VVSIZE | HVSIZE |
+ * PERMS:  | RW     | RW     |
  * --------------------------------------------------------------------
- * VGA_HFPSIZE:
- * BITS:   | 31:16 | 15:0    |
- * FIELDS: | RES   | HFPSIZE |
- * PERMS:  | NONE  | none    |
+ * VGA_HTIM:
+ * BITS:   | 31:30 | 29:20   | 19:10   | 9:0     |
+ * FIELDS: | RES   | HBPSIZE | HSNSIZE | HFPSIZE |
+ * PERMS:  | NONE  | RW      | RW      | RW      |
  * --------------------------------------------------------------------
- * VGA_HSNSIZE:
- * BITS:   | 31:16 | 15:0    |
- * FIELDS: | RES   | HSNSIZE |
- * PERMS:  | NONE  | RW      |
- * --------------------------------------------------------------------
- * VGA_HBPSIZE:
- * BITS:   | 31:16 | 15:0    |
- * FIELDS: | RES   | HBPSIZE |
- * PERMS:  | NONE  | RW      |
- * --------------------------------------------------------------------
- * VGA_VVSIZE:
- * BITS:   | 31:16 | 15:0   |
- * FIELDS: | RES   | VVSIZE |
- * PERMS:  | NONE  | RW     |
- * --------------------------------------------------------------------
- * VGA_VFPSIZE:
- * BITS:   | 31:16 | 15:0    |
- * FIELDS: | RES   | VFPSIZE |
- * PERMS:  | NONE  | none    |
- * --------------------------------------------------------------------
- * VGA_VSNSIZE:
- * BITS:   | 31:16 | 15:0    |
- * FIELDS: | RES   | VSNSIZE |
- * PERMS:  | NONE  | RW      |
- * --------------------------------------------------------------------
- * VGA_VBPSIZE:
- * BITS:   | 31:16 | 15:0    |
- * FIELDS: | RES   | VBPSIZE |
- * PERMS:  | NONE  | RW      |
+ * VGA_VTIM:
+ * BITS:   | 31:30 | 29:20   | 19:10   | 9:0     |
+ * FIELDS: | RES   | VBPSIZE | VSNSIZE | VFPSIZE |
+ * PERMS:  | NONE  | RW      | RW      | RW      |
  * --------------------------------------------------------------------
  * VGA_FBBA1:
- * BITS:   | 31:0    |
+ * BITS:   | 31:0  |
  * FIELDS: | FBBA1 |
- * PERMS:  | RW      |
+ * PERMS:  | RW    |
  * --------------------------------------------------------------------
  * VGA_FBBA2:
- * BITS:   | 31:0   |
+ * BITS:   | 31:0  |
  * FIELDS: | FBBA2 |
- * PERMS:  | RW     |
+ * PERMS:  | RW    |
  * --------------------------------------------------------------------
  * VGA_STAT:
- * BITS:   | 31:0   |
- * FIELDS: | FBSIZE |
- * PERMS:  | RW     |
+ * BITS:   | 31:4 | 3   | 2     | 1      | 0     |
+ * FIELDS: | RES  | CFB | VBSIF | VIF    | HIF   |
+ * PERMS:  | NONE | RO  | RO_WC | RO_WC  | RO_WC |
  * --------------------------------------------------------------------
 */
 
 // verilog_format: off
-`define VGA_CTRL    4'b0000 // BASEADDR + 0x00
-`define VGA_HVSIZE  4'b0001 // BASEADDR + 0x04
-`define VGA_HFPSIZE 4'b0010 // BASEADDR + 0x08
-`define VGA_HSNSIZE 4'b0011 // BASEADDR + 0x0C
-`define VGA_HBPSIZE 4'b0100 // BASEADDR + 0x10
-`define VGA_VVSIZE  4'b0101 // BASEADDR + 0x14
-`define VGA_VFPSIZE 4'b0110 // BASEADDR + 0x18
-`define VGA_VSNSIZE 4'b0111 // BASEADDR + 0x1C
-`define VGA_VBPSIZE 4'b1000 // BASEADDR + 0x20
-`define VGA_FBSTART 4'b1001 // BASEADDR + 0x24
-`define VGA_FBSIZE  4'b1010 // BASEADDR + 0x28
+`define VGA_CTRL   4'b0000 // BASEADDR + 0x00
+`define VGA_HVSIZE 4'b0001 // BASEADDR + 0x04
+`define VGA_HTIM   4'b0010 // BASEADDR + 0x08
+`define VGA_VTIM   4'b0011 // BASEADDR + 0x0C
+`define VGA_FBBA1  4'b0100 // BASEADDR + 0x10
+`define VGA_FBBA2  4'b0100 // BASEADDR + 0x14
+`define VGA_STAT   4'b0100 // BASEADDR + 0x18
 
-`define VGA_CTRL_ADDR    {26'b0, `VGA_CTRL   , 2'b00}
-`define VGA_HVSIZE_ADDR  {26'b0, `VGA_HVSIZE , 2'b00}
-`define VGA_HFPSIZE_ADDR {26'b0, `VGA_HFPSIZE, 2'b00}
-`define VGA_HSNSIZE_ADDR {26'b0, `VGA_HSNSIZE, 2'b00}
-`define VGA_HBPSIZE_ADDR {26'b0, `VGA_HBPSIZE, 2'b00}
-`define VGA_VVSIZE_ADDR  {26'b0, `VGA_VVSIZE , 2'b00}
-`define VGA_VFPSIZE_ADDR {26'b0, `VGA_VFPSIZE, 2'b00}
-`define VGA_VSNSIZE_ADDR {26'b0, `VGA_VSNSIZE, 2'b00}
-`define VGA_VBPSIZE_ADDR {26'b0, `VGA_VBPSIZE, 2'b00}
-`define VGA_FBSTART_ADDR {26'b0, `VGA_FBSTART, 2'b00}
-`define VGA_FBSIZE_ADDR  {26'b0, `VGA_FBSIZE , 2'b00}
 
-`define VGA_CTRL_WIDTH    22
-`define VGA_HVSIZE_WIDTH  16
-`define VGA_HFPSIZE_WIDTH 16
-`define VGA_HSNSIZE_WIDTH 16
-`define VGA_HBPSIZE_WIDTH 16
-`define VGA_VVSIZE_WIDTH  16
-`define VGA_VFPSIZE_WIDTH 16
-`define VGA_VSNSIZE_WIDTH 16
-`define VGA_VBPSIZE_WIDTH 16
-`define VGA_FBSTART_WIDTH 32
-`define VGA_FBSIZE_WIDTH  32
+`define VGA_CTRL_ADDR   {26'b0, `VGA_CTRL  , 2'b00}
+`define VGA_HVSIZE_ADDR {26'b0, `VGA_HVSIZE, 2'b00}
+`define VGA_HTIM_ADDR   {26'b0, `VGA_HTIM  , 2'b00}
+`define VGA_VTIM_ADDR   {26'b0, `VGA_VTIM  , 2'b00}
+`define VGA_FBBA1_ADDR  {26'b0, `VGA_FBBA1 , 2'b00}
+`define VGA_FBBA2_ADDR  {26'b0, `VGA_FBBA2 , 2'b00}
+`define VGA_STAT_ADDR   {26'b0, `VGA_STAT  , 2'b00}
+
+`define VGA_CTRL_WIDTH   27
+`define VGA_HVSIZE_WIDTH 32
+`define VGA_HTIM_WIDTH   30
+`define VGA_VTIM_WIDTH   30
+`define VGA_FBBA1_WIDTH  32
+`define VGA_FBBA2_WIDTH  32
+`define VGA_STAT_WIDTH   4
 
 `define VGA_RGB332_MODE 2'b00
 `define VGA_RGB444_MODE 2'b01
