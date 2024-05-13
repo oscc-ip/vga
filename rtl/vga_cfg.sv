@@ -53,13 +53,33 @@
 module vga_cfg (
     apb4_if.slave apb4,
 
-    input  logic cfb_i,
-    input  logic vbsirq_i,
-    input  logic verirq_i,
-    input  logic horirq_i,
-    output logic pclk_en_o,
-
-    output logic irq_o
+    output logic                         en_o,
+    output logic                         hie_o,
+    output logic                         vie_o,
+    output logic                         vbsie_o,
+    output logic                         vbse_o,
+    output logic                         blpol_o,
+    output logic                         hspol_o,
+    output logic                         vspol_o,
+    output logic                         test_o,
+    output logic [                  1:0] mode_o,
+    output logic [`VGA_BRULEN_WIDTH-1:0] brulen_o,
+    output logic [    `VGA_VB_WIDTH-1:0] hvlen_o,
+    output logic [    `VGA_VB_WIDTH-1:0] vvlen_o,
+    output logic [    `VGA_TB_WIDTH-1:0] hfpsize_o,
+    output logic [    `VGA_TB_WIDTH-1:0] hsnsize_o,
+    output logic [    `VGA_TB_WIDTH-1:0] hbpsize_o,
+    output logic [    `VGA_TB_WIDTH-1:0] vfpsize_o,
+    output logic [    `VGA_TB_WIDTH-1:0] vsnsize_o,
+    output logic [    `VGA_TB_WIDTH-1:0] vbpsize_o,
+    output logic [                 31:0] fbba1_o,
+    output logic [                 31:0] fbba2_o,
+    input  logic                         cfb_i,
+    input  logic                         vbsirq_i,
+    input  logic                         verirq_i,
+    input  logic                         horirq_i,
+    output logic                         pclk_en_o,
+    output logic                         irq_o
 );
 
   logic [3:0] s_apb4_addr;
@@ -120,6 +140,27 @@ module vga_cfg (
   assign s_bit_vbsif     = s_vga_stat_q[2];
   assign s_bit_cfb       = s_vga_stat_q[3];
 
+  assign en_o            = s_bit_en;
+  assign hie_o           = s_bit_hie;
+  assign vie_o           = s_bit_vie;
+  assign vbsie_o         = s_bit_vbsie;
+  assign vbse_o          = s_bit_vbse;
+  assign blpol_o         = s_bit_blpol;
+  assign hspol_o         = s_bit_hspol;
+  assign vspol_o         = s_bit_vspol;
+  assign div_o           = s_bit_div;
+  assign test_o          = s_bit_test;
+  assign mode_o          = s_bit_mode;
+  assign brulen_o        = s_bit_brulen;
+  assign hvlen_o         = s_bit_hvlen;
+  assign vvlen_o         = s_bit_vvlen;
+  assign hfpsize_o       = s_bit_hfpsize;
+  assign hsnsize_o       = s_bit_hsnsize;
+  assign hbpsize_o       = s_bit_hbpsize;
+  assign vfpsize_o       = s_bit_vfpsize;
+  assign vsnsize_o       = s_bit_vsnsize;
+  assign vbpsize_o       = s_bit_vbpsize;
+  assign pclk_en_o       = s_pclk_cnt_q == '0;
   assign irq_o           = (s_bit_hie & s_bit_hif) | (s_bit_vie & s_bit_vif);
 
   assign s_vga_ctrl_en   = s_apb4_wr_hdshk && s_apb4_addr == `VGA_CTRL;
@@ -222,7 +263,6 @@ module vga_cfg (
     end
   end
 
-  assign pclk_en_o    = s_pclk_cnt_q == '0;
   assign s_pclk_div   = (|s_bit_div) ? s_bit_div : 8'b1;
   assign s_pclk_cnt_d = s_pclk_cnt_q == s_pclk_div - 1 ? '0 : s_pclk_cnt_q + 1'b1;
   dffr #(`VGA_DIV_WIDTH) u_pclk_cnt_dffr (
