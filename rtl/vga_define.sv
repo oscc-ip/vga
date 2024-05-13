@@ -56,13 +56,13 @@
 */
 
 // verilog_format: off
-`define VGA_CTRL   4'b0000 // BASEADDR + 0x00
-`define VGA_HVVL 4'b0001 // BASEADDR + 0x04
-`define VGA_HTIM   4'b0010 // BASEADDR + 0x08
-`define VGA_VTIM   4'b0011 // BASEADDR + 0x0C
-`define VGA_FBBA1  4'b0100 // BASEADDR + 0x10
-`define VGA_FBBA2  4'b0100 // BASEADDR + 0x14
-`define VGA_STAT   4'b0100 // BASEADDR + 0x18
+`define VGA_CTRL  4'b0000 // BASEADDR + 0x00
+`define VGA_HVVL  4'b0001 // BASEADDR + 0x04
+`define VGA_HTIM  4'b0010 // BASEADDR + 0x08
+`define VGA_VTIM  4'b0011 // BASEADDR + 0x0C
+`define VGA_FBBA1 4'b0100 // BASEADDR + 0x10
+`define VGA_FBBA2 4'b0100 // BASEADDR + 0x14
+`define VGA_STAT  4'b0100 // BASEADDR + 0x18
 
 
 `define VGA_CTRL_ADDR  {26'b0, `VGA_CTRL , 2'b00}
@@ -81,8 +81,10 @@
 `define VGA_FBBA2_WIDTH 32
 `define VGA_STAT_WIDTH  4
 
-`define VGA_TB_WIDTH    10 // timing bitfield width
-`define VGA_VB_WIDTH    16 // visible bitfield width
+`define VGA_TB_WIDTH      10 // timing bitfield width
+`define VGA_VB_WIDTH      16 // visible bitfield width
+`define VGA_DIV_WIDTH     8
+`define VGA_BRULEN_WIDTH  8
 
 
 `define VGA_RGB332_MODE 2'b00
