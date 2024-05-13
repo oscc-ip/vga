@@ -23,10 +23,10 @@
  * FIELDS: | RES   | BRULEN | MODE  | TEST | DIV  | VSPOL | HSPOL | BLPOL | VBSE | VBSIE | VIE | HIE | EN |
  * PERMS:  | NONE  | RW     | RW    | RW   | RW   | RW    | RW    | RW    | RW   | RW    | RW  | RW  | RW |
  * --------------------------------------------------------------------------------------------------------
- * VGA_HVSIZE:
- * BITS:   | 31:16  | 15:0   |
- * FIELDS: | VVSIZE | HVSIZE |
- * PERMS:  | RW     | RW     |
+ * VGA_HVVL:
+ * BITS:   | 31:16 | 15:0  |
+ * FIELDS: | VVLEN | HVLEN |
+ * PERMS:  | RW    | RW    |
  * --------------------------------------------------------------------
  * VGA_HTIM:
  * BITS:   | 31:30 | 29:20   | 19:10   | 9:0     |
@@ -57,7 +57,7 @@
 
 // verilog_format: off
 `define VGA_CTRL   4'b0000 // BASEADDR + 0x00
-`define VGA_HVSIZE 4'b0001 // BASEADDR + 0x04
+`define VGA_HVVL 4'b0001 // BASEADDR + 0x04
 `define VGA_HTIM   4'b0010 // BASEADDR + 0x08
 `define VGA_VTIM   4'b0011 // BASEADDR + 0x0C
 `define VGA_FBBA1  4'b0100 // BASEADDR + 0x10
@@ -65,21 +65,25 @@
 `define VGA_STAT   4'b0100 // BASEADDR + 0x18
 
 
-`define VGA_CTRL_ADDR   {26'b0, `VGA_CTRL  , 2'b00}
-`define VGA_HVSIZE_ADDR {26'b0, `VGA_HVSIZE, 2'b00}
-`define VGA_HTIM_ADDR   {26'b0, `VGA_HTIM  , 2'b00}
-`define VGA_VTIM_ADDR   {26'b0, `VGA_VTIM  , 2'b00}
-`define VGA_FBBA1_ADDR  {26'b0, `VGA_FBBA1 , 2'b00}
-`define VGA_FBBA2_ADDR  {26'b0, `VGA_FBBA2 , 2'b00}
-`define VGA_STAT_ADDR   {26'b0, `VGA_STAT  , 2'b00}
+`define VGA_CTRL_ADDR  {26'b0, `VGA_CTRL , 2'b00}
+`define VGA_HVVL_ADDR  {26'b0, `VGA_HVVL , 2'b00}
+`define VGA_HTIM_ADDR  {26'b0, `VGA_HTIM , 2'b00}
+`define VGA_VTIM_ADDR  {26'b0, `VGA_VTIM , 2'b00}
+`define VGA_FBBA1_ADDR {26'b0, `VGA_FBBA1, 2'b00}
+`define VGA_FBBA2_ADDR {26'b0, `VGA_FBBA2, 2'b00}
+`define VGA_STAT_ADDR  {26'b0, `VGA_STAT , 2'b00}
 
-`define VGA_CTRL_WIDTH   27
-`define VGA_HVSIZE_WIDTH 32
-`define VGA_HTIM_WIDTH   30
-`define VGA_VTIM_WIDTH   30
-`define VGA_FBBA1_WIDTH  32
-`define VGA_FBBA2_WIDTH  32
-`define VGA_STAT_WIDTH   4
+`define VGA_CTRL_WIDTH  27
+`define VGA_HVVL_WIDTH  32
+`define VGA_HTIM_WIDTH  30
+`define VGA_VTIM_WIDTH  30
+`define VGA_FBBA1_WIDTH 32
+`define VGA_FBBA2_WIDTH 32
+`define VGA_STAT_WIDTH  4
+
+`define VGA_TB_WIDTH    10 // timing bitfield width
+`define VGA_VB_WIDTH    16 // visible bitfield width
+
 
 `define VGA_RGB332_MODE 2'b00
 `define VGA_RGB444_MODE 2'b01
@@ -135,6 +139,15 @@
 `define VGA_RGB565_COLOR_BLACK   16'h0000;
 `define VGA_RGB565_COLOR_WHITE   16'hFFFF;
 `define VGA_RGB565_COLOR_GRAY    16'hD69A;
+
+`define VGA_TIMFSM_WIDTH         2
+`define VGA_TIMFSM_BACKPORCH     2'b00
+`define VGA_TIMFSM_VISIBLE       2'b01
+`define VGA_TIMFSM_FRONTPORCH    2'b10
+`define VGA_TIMFSM_SYNC          2'b11
+
+`define VGA_TIMCNT_WIDTH         12
+
 
 interface vga_if ();
   logic [4:0] vga_r_o;
