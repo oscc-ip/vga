@@ -60,6 +60,7 @@ module axi4_vga #(
 );
 
   logic [3:0] s_apb4_addr;
+  logic s_apb4_wr_hdshk, s_apb4_rd_hdshk;
   logic [`VGA_CTRL_WIDTH-1:0] s_vga_ctrl_d, s_vga_ctrl_q;
   logic s_vga_ctrl_en;
   logic [`VGA_HVVL_WIDTH-1:0] s_vga_hvvl_d, s_vga_hvvl_q;
@@ -90,6 +91,9 @@ module axi4_vga #(
   logic [63:0] s_tx_push_data, s_tx_pop_data;
   // irq signal
   logic s_cfb, s_vbsirq, s_verirq, s_horirq;
+  // axi fsm signal
+  logic [1:0] s_axi4_mst_state_d, s_axi4_mst_state_q;
+  logic s_axi4_ar_hdshk, s_axi4_r_hdshk;
 
   assign s_apb4_addr     = apb4.paddr[5:2];
   assign s_apb4_wr_hdshk = apb4.psel && apb4.penable && apb4.pwrite;
@@ -225,7 +229,6 @@ module axi4_vga #(
     end
   end
 
-
   // vga master interface[fetch data]
   // dont use aw, w and b chnl
   assign axi4.awid       = '0;
@@ -248,6 +251,7 @@ module axi4_vga #(
   assign axi4.bready     = '0;
   // ar, r chnl
   assign axi4.arid       = '0;
+  assign axi4.arlen      = s_bit_brulen; // FIFO_DEPTH is divisible by arlen
   assign axi4.arsize     = 3'd3;  // dont support narrow trans
   assign axi4.arburst    = 2'd1;  // inc mode
   assign axi4.arlock     = '0;
@@ -256,13 +260,52 @@ module axi4_vga #(
   assign axi4.arqos      = '0;
   assign axi4.arregion   = '0;
   assign axi4.aruser     = '0;
+  assign axi4.arvalid    = s_bit_en && s_push_push_ready;
+  assign axi4.rready     = 1'b1;
+
+  assign s_axi4_ar_hdshk = axi4.arvalid && axi4.arready;
+  assign s_axi4_r_hdshk  = axi4.rvalid && axi4.rready;
 
   // control logic signals
-  // araddr, arlen, arvalid, arready
-  // rid, rdata, rresp, rlast, rvalid, rready
+  // [araddr, arlen, arvalid, arready]
+  // [rid, rdata, rresp, rlast, rvalid, rready]
+  always_comb begin
+    if (s_bit_en) begin
+      s_axi4_mst_state_d = s_axi4_mst_state_q;
+      unique case (s_axi4_mst_state_q)
+        `VGA_AXI_MST_FSM_IDLE: begin
+          s_axi4_mst_state_d = `VGA_AXI_MST_FSM_AR;
+        end
+        `VGA_AXI_MST_FSM_AR: begin
+          if (s_axi4_ar_hdshk) begin
+            s_axi4_mst_state_d = `VGA_AXI_MST_FSM_R;
+          end
+        end
+        `VGA_AXI_MST_FSM_R: begin
+          if (s_axi4_r_hdshk) begin
+            if (axi4.rlast) begin
+            end else begin
+            end
+          end
+        end
+      endcase
+    end else begin
+      s_axi4_mst_state_d = `VGA_AXI_MST_FSM_IDLE;
+      axi4.araddr        = s_vga_fbba1_q;
+
+    end
+  end
+  dffr #(2) u_axi_mst_state_dffr (
+      axi4.aclk,
+      axi4.aresetn,
+      s_axi4_mst_state_d,
+      s_axi4_mst_state_q
+  );
 
 
-  // vga sync fifo[axi4 -> fifo -> vga_core]
+  // tx sync fifo[axi4 -> fifo -> vga_core]
+  assign s_tx_push_valid = s_bit_en && s_axi4_mst_state_q == `VGA_AXI_MST_FSM_R && s_axi4_r_hdshk;
+  assign s_tx_push_data  = axi4.rdata;
   assign s_tx_push_ready = ~s_tx_full;
   assign s_tx_pop_valid  = ~s_tx_empty;
   fifo #(

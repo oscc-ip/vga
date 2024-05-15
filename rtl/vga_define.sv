@@ -149,7 +149,9 @@
 `define VGA_TIMFSM_SYNC          2'b11
 
 `define VGA_TIMCNT_WIDTH         12
-
+`define VGA_AXI_MST_FSM_IDLE     2'b00
+`define VGA_AXI_MST_FSM_AR       2'b01
+`define VGA_AXI_MST_FSM_R        2'b10
 
 interface vga_if ();
   logic [4:0] vga_r_o;
