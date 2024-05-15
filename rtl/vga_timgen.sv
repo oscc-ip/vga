@@ -12,22 +12,24 @@
 `include "vga_define.sv"
 
 module vga_timgen (
-    input  logic                     clk_i,
-    input  logic                     rst_n_i,
-    input  logic                     en_i,
-    input  logic [`VGA_TB_WIDTH-1:0] hbpsize_i,
-    input  logic [`VGA_TB_WIDTH-1:0] hsnsize_i,
-    input  logic [`VGA_TB_WIDTH-1:0] hfpsize_i,
-    input  logic [`VGA_VB_WIDTH-1:0] hvlen_i,
-    input  logic [`VGA_TB_WIDTH-1:0] vbpsize_i,
-    input  logic [`VGA_TB_WIDTH-1:0] vsnsize_i,
-    input  logic [`VGA_TB_WIDTH-1:0] vfpsize_i,
-    input  logic [`VGA_VB_WIDTH-1:0] vvlen_i,
-    output logic                     hsync_o,
-    output logic                     hend_o,
-    output logic                     vsync_o,
-    output logic                     vend_o,
-    output logic                     de_o
+    input  logic                         clk_i,
+    input  logic                         rst_n_i,
+    input  logic                         en_i,
+    input  logic                         pclk_en_i,
+    input  logic [    `VGA_TB_WIDTH-1:0] hbpsize_i,
+    input  logic [    `VGA_TB_WIDTH-1:0] hsnsize_i,
+    input  logic [    `VGA_TB_WIDTH-1:0] hfpsize_i,
+    input  logic [    `VGA_VB_WIDTH-1:0] hvlen_i,
+    input  logic [    `VGA_TB_WIDTH-1:0] vbpsize_i,
+    input  logic [    `VGA_TB_WIDTH-1:0] vsnsize_i,
+    input  logic [    `VGA_TB_WIDTH-1:0] vfpsize_i,
+    input  logic [    `VGA_VB_WIDTH-1:0] vvlen_i,
+    output logic [`VGA_TIMCNT_WIDTH-1:0] pos_x_o,
+    output logic                         hsync_o,
+    output logic                         hend_o,
+    output logic                         vsync_o,
+    output logic                         vend_o,
+    output logic                         de_o
 );
 
   logic s_hvis, s_vvis;
@@ -36,7 +38,7 @@ module vga_timgen (
   vga_cnt u_hori_vga_cnt (
       .clk_i   (clk_i),
       .rst_n_i (rst_n_i),
-      .en_i    (en_i),
+      .en_i    (en_i && pclk_en_i),
       .bpsize_i(hbpsize_i),
       .snsize_i(hsnsize_i),
       .fpsize_i(hfpsize_i),
@@ -49,7 +51,7 @@ module vga_timgen (
   vga_cnt u_vert_vga_cnt (
       .clk_i   (clk_i),
       .rst_n_i (rst_n_i),
-      .en_i    (en_i && hend_o),
+      .en_i    (en_i && pclk_en_i && hend_o),
       .bpsize_i(vbpsize_i),
       .snsize_i(vsnsize_i),
       .fpsize_i(vfpsize_i),

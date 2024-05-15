@@ -48,9 +48,12 @@
 // See the Mulan PSL v2 for more details.
 
 `include "register.sv"
+`include "fifo.sv"
 `include "vga_define.sv"
 
-module axi4_vga (
+module axi4_vga #(
+    parameter int FIFO_DEPTH = 512
+) (
     apb4_if.slave  apb4,
     axi4_if.master axi4,
     vga_if.dut     vga
@@ -80,6 +83,13 @@ module axi4_vga (
   logic [`VGA_VB_WIDTH-1:0] s_bit_hvlen, s_bit_vvlen;
   logic [`VGA_TB_WIDTH-1:0] s_bit_hfpsize, s_bit_hsnsize, s_bit_hbpsize;
   logic [`VGA_TB_WIDTH-1:0] s_bit_vfpsize, s_bit_vsnsize, s_bit_vbpsize;
+  // ctrl signal
+  logic s_hsync, s_vsync;
+  // fifo signal
+  logic s_tx_push_valid, s_tx_push_ready, s_tx_empty, s_tx_full, s_tx_pop_valid, s_tx_pop_ready;
+  logic [63:0] s_tx_push_data, s_tx_pop_data;
+  // irq signal
+  logic s_cfb, s_vbsirq, s_verirq, s_horirq;
 
   assign s_apb4_addr     = apb4.paddr[5:2];
   assign s_apb4_wr_hdshk = apb4.psel && apb4.penable && apb4.pwrite;
@@ -112,28 +122,9 @@ module axi4_vga (
   assign s_bit_vbsif     = s_vga_stat_q[2];
   assign s_bit_cfb       = s_vga_stat_q[3];
 
-  assign en_o            = s_bit_en;
-  assign hie_o           = s_bit_hie;
-  assign vie_o           = s_bit_vie;
-  assign vbsie_o         = s_bit_vbsie;
-  assign vbse_o          = s_bit_vbse;
-  assign blpol_o         = s_bit_blpol;
-  assign hspol_o         = s_bit_hspol;
-  assign vspol_o         = s_bit_vspol;
-  assign div_o           = s_bit_div;
-  assign test_o          = s_bit_test;
-  assign mode_o          = s_bit_mode;
-  assign brulen_o        = s_bit_brulen;
-  assign hvlen_o         = s_bit_hvlen;
-  assign vvlen_o         = s_bit_vvlen;
-  assign hfpsize_o       = s_bit_hfpsize;
-  assign hsnsize_o       = s_bit_hsnsize;
-  assign hbpsize_o       = s_bit_hbpsize;
-  assign vfpsize_o       = s_bit_vfpsize;
-  assign vsnsize_o       = s_bit_vsnsize;
-  assign vbpsize_o       = s_bit_vbpsize;
-  assign pclk_en_o       = s_pclk_cnt_q == '0;
-  assign irq_o           = (s_bit_hie & s_bit_hif) | (s_bit_vie & s_bit_vif);
+  assign vga.vga_hsync_o = s_hsync ^ s_bit_hspol;
+  assign vga.vga_vsync_o = s_vsync ^ s_bit_vspol;
+  assign vga.irq_o       = (s_bit_hie & s_bit_hif) | (s_bit_vie & s_bit_vif);
 
   assign s_vga_ctrl_en   = s_apb4_wr_hdshk && s_apb4_addr == `VGA_CTRL;
   assign s_vga_ctrl_d    = apb4.pwdata[`VGA_CTRL_WIDTH-1:0];
@@ -196,19 +187,19 @@ module axi4_vga (
   );
 
   always_comb begin
-    assign s_vga_stat_d[3] = cfb_i;
+    assign s_vga_stat_d[3] = s_cfb;
     // xx_irq_i has higher priority, when xx_irq_i is 1, dont care other signal
     // when xx_irq_i is 0, if xx_if is 0, write 0/1 no effect
     // when xx_irq_i is 0, if xx_if is 1, write 0 clear bit, write 1 no effect
     if (s_apb4_wr_hdshk && s_apb4_addr == `VGA_STAT) begin
-      s_vga_stat_d[2] = vbsirq_i | (s_vga_stat_q[2] & apb4.pwdata[2]);
-      s_vga_stat_d[1] = verirq_i | (s_vga_stat_q[1] & apb4.pwdata[1]);
-      s_vga_stat_d[0] = horirq_i | (s_vga_stat_q[0] & apb4.pwdata[0]);
+      s_vga_stat_d[2] = s_vbsirq | (s_vga_stat_q[2] & apb4.pwdata[2]);
+      s_vga_stat_d[1] = s_verirq | (s_vga_stat_q[1] & apb4.pwdata[1]);
+      s_vga_stat_d[0] = s_horirq | (s_vga_stat_q[0] & apb4.pwdata[0]);
     end else begin
       // irq signal only keep trigger one cycle
-      s_vga_stat_d[2] = s_vga_stat_q[2] | vbsirq_i;
-      s_vga_stat_d[1] = s_vga_stat_q[1] | verirq_i;
-      s_vga_stat_d[0] = s_vga_stat_q[0] | horirq_i;
+      s_vga_stat_d[2] = s_vga_stat_q[2] | s_vbsirq;
+      s_vga_stat_d[1] = s_vga_stat_q[1] | s_verirq;
+      s_vga_stat_d[0] = s_vga_stat_q[0] | s_horirq;
     end
   end
   dffr #(`VGA_STAT_WIDTH) u_vga_stat_dffr (
@@ -235,160 +226,87 @@ module axi4_vga (
   end
 
 
+  // vga master interface[fetch data]
+  // dont use aw, w and b chnl
+  assign axi4.awid       = '0;
+  assign axi4.awaddr     = '0;
+  assign axi4.awlen      = '0;
+  assign axi4.awsize     = '0;
+  assign axi4.awburst    = '0;
+  assign axi4.awlock     = '0;
+  assign axi4.awcache    = '0;
+  assign axi4.awprot     = '0;
+  assign axi4.awqos      = '0;
+  assign axi4.awregion   = '0;
+  assign axi4.awuser     = '0;
+  assign axi4.awvalid    = '0;
+  assign axi4.wdata      = '0;
+  assign axi4.wstrb      = '0;
+  assign axi4.wlast      = '0;
+  assign axi4.wuser      = '0;
+  assign axi4.wvalid     = '0;
+  assign axi4.bready     = '0;
+  // ar, r chnl
+  assign axi4.arid       = '0;
+  assign axi4.arsize     = 3'd3;  // dont support narrow trans
+  assign axi4.arburst    = 2'd1;  // inc mode
+  assign axi4.arlock     = '0;
+  assign axi4.arcache    = '0;
+  assign axi4.arprot     = '0;
+  assign axi4.arqos      = '0;
+  assign axi4.arregion   = '0;
+  assign axi4.aruser     = '0;
 
-  vga_core u_vga_core (.axi4(axi4));
+  // control logic signals
+  // araddr, arlen, arvalid, arready
+  // rid, rdata, rresp, rlast, rvalid, rready
 
 
-  logic [10:0] s_pixel_x, s_pixel_y;
-  logic [15:0] s_tm_data_d, s_tm_data_q, s_fb_data, s_pixel_data;
-
-
-  assign s_pixel_data = ~vga.vga_de_o ? '0 : s_bit_test ? s_tm_data_q : s_fb_data;
-
-
-  always_comb begin
-    s_tm_data_d = '0;
-    if (s_bit_test) begin
-      s_tm_data_d = '0;
-      if (s_pixel_x >= 0 && s_pixel_x < ((s_vga_hvsize_q / 10) * 1)) begin
-        unique case (s_bit_mode)
-          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_RED;
-          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_RED;
-          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_RED;
-          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_RED;
-          default:          s_tm_data_d = `VGA_RGB565_COLOR_RED;
-        endcase
-      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 1) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 2)) begin
-        unique case (s_bit_mode)
-          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_ORANGE;
-          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_ORANGE;
-          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_ORANGE;
-          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_ORANGE;
-          default:          s_tm_data_d = `VGA_RGB565_COLOR_ORANGE;
-        endcase
-      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 2) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 3)) begin
-        unique case (s_bit_mode)
-          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_YELLOW;
-          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_YELLOW;
-          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_YELLOW;
-          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_YELLOW;
-          default:          s_tm_data_d = `VGA_RGB565_COLOR_YELLOW;
-        endcase
-      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 3) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 4)) begin
-        unique case (s_bit_mode)
-          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_GREEN;
-          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_GREEN;
-          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_GREEN;
-          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_GREEN;
-          default:          s_tm_data_d = `VGA_RGB565_COLOR_GREEN;
-        endcase
-      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 4) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 5)) begin
-        unique case (s_bit_mode)
-          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_CYAN;
-          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_CYAN;
-          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_CYAN;
-          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_CYAN;
-          default:          s_tm_data_d = `VGA_RGB565_COLOR_CYAN;
-        endcase
-      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 5) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 6)) begin
-        unique case (s_bit_mode)
-          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_BLUE;
-          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_BLUE;
-          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_BLUE;
-          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_BLUE;
-          default:          s_tm_data_d = `VGA_RGB565_COLOR_BLUE;
-        endcase
-      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 6) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 7)) begin
-        unique case (s_bit_mode)
-          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_PURPPLE;
-          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_PURPPLE;
-          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_PURPPLE;
-          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_PURPPLE;
-          default:          s_tm_data_d = `VGA_RGB565_COLOR_PURPPLE;
-        endcase
-      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 7) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 8)) begin
-        unique case (s_bit_mode)
-          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_BLACK;
-          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_BLACK;
-          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_BLACK;
-          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_BLACK;
-          default:          s_tm_data_d = `VGA_RGB565_COLOR_BLACK;
-        endcase
-      end else if(s_pixel_x >= ((s_vga_hvsize_q / 10) * 8) && s_pixel_x < ((s_vga_hvsize_q / 10 ) * 9)) begin
-        unique case (s_bit_mode)
-          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_WHITE;
-          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_WHITE;
-          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_WHITE;
-          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_WHITE;
-          default:          s_tm_data_d = `VGA_RGB565_COLOR_WHITE;
-        endcase
-      end else if (s_pixel_x >= ((s_vga_hvsize_q / 10) * 9) && s_pixel_x < (s_vga_hvsize_q)) begin
-        unique case (s_bit_mode)
-          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_GRAY;
-          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_GRAY;
-          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_GRAY;
-          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_GRAY;
-          default:          s_tm_data_d = `VGA_RGB565_COLOR_GRAY;
-        endcase
-      end
-    end
-  end
-
-  dffr #(16) u_tm_data_dffr (
-      apb4.pclk,
-      apb4.presetn,
-      s_tm_data_d,
-      s_tm_data_q
+  // vga sync fifo[axi4 -> fifo -> vga_core]
+  assign s_tx_push_ready = ~s_tx_full;
+  assign s_tx_pop_valid  = ~s_tx_empty;
+  fifo #(
+      .DATA_WIDTH  (64),
+      .BUFFER_DEPTH(FIFO_DEPTH)
+  ) u_tx_fifo (
+      .clk_i  (axi4.pclk),
+      .rst_n_i(axi4.presetn),
+      .flush_i(~s_bit_en),
+      .cnt_o  (s_tx_elem),
+      .push_i (s_tx_push_valid),
+      .full_o (s_tx_full),
+      .dat_i  (s_tx_push_data),
+      .pop_i  (s_tx_pop_ready),
+      .empty_o(s_tx_empty),
+      .dat_o  (s_tx_pop_data)
   );
 
-
-  // vga counter
-  assign vga.vga_pclk_o = s_pclk;
-  assign vga.vga_hsync_o = (s_hori_cnt_q <= s_vga_hsnsize_q - 1'b1) ? s_bit_hspol : ~s_bit_hspol;
-  assign vga.vga_vsync_o = (s_vert_cnt_q <= s_vga_vsnsize_q - 1'b1) ? s_bit_vspol : ~s_bit_vspol;
-  assign vga.vga_de_o    = (s_hori_cnt_q >= s_vga_hsnsize_q + s_vga_hbpsize_q)
-                        && (s_hori_cnt_q < s_vga_hsnsize_q + s_vga_hbpsize_q + s_vga_hvsize_q + s_vga_hfpsize_q)
-                        && (s_vert_cnt_q >= s_vga_vsnsize_q + s_vga_vbpsize_q)
-                        && (s_vert_cnt_q < s_vga_vsnsize_q + s_vga_vbpsize_q + s_vga_vvsize_q + s_vga_vfpsize_q);
-
-  // RGB332 RGB444 RGB555 RGB565
-  always_comb begin
-    vga.vga_r_o = '0;
-    if (vga.vga_de_o) begin
-      unique case (s_bit_mode)
-        `VGA_RGB332_MODE: vga.vga_r_o = s_pixel_data[7:5];
-        `VGA_RGB444_MODE: vga.vga_r_o = s_pixel_data[11:8];
-        `VGA_RGB555_MODE: vga.vga_r_o = s_pixel_data[14:10];
-        `VGA_RGB565_MODE: vga.vga_r_o = s_pixel_data[15:11];
-        default:          vga.vga_r_o = '0;
-      endcase
-    end
-  end
-
-  always_comb begin
-    vga.vga_g_o = '0;
-    if (vga.vga_de_o) begin
-      unique case (s_bit_mode)
-        `VGA_RGB332_MODE: vga.vga_g_o = s_pixel_data[4:2];
-        `VGA_RGB444_MODE: vga.vga_g_o = s_pixel_data[7:4];
-        `VGA_RGB555_MODE: vga.vga_g_o = s_pixel_data[9:5];
-        `VGA_RGB565_MODE: vga.vga_g_o = s_pixel_data[10:5];
-        default:          vga.vga_g_o = '0;
-      endcase
-    end
-  end
-
-  always_comb begin
-    vga.vga_b_o = '0;
-    if (vga.vga_de_o) begin
-      unique case (s_bit_mode)
-        `VGA_RGB332_MODE: vga.vga_b_o = s_pixel_data[1:0];
-        `VGA_RGB444_MODE: vga.vga_b_o = s_pixel_data[3:0];
-        `VGA_RGB555_MODE: vga.vga_b_o = s_pixel_data[4:0];
-        `VGA_RGB565_MODE: vga.vga_b_o = s_pixel_data[4:0];
-        default:          vga.vga_b_o = '0;
-      endcase
-    end
-  end
+  // gen sync and rgb signals
+  vga_core u_vga_core (
+      .clk_i        (axi4.aclk),
+      .rst_n_i      (axi4.aresetn),
+      .en_i         (s_bit_en),
+      .test_i       (s_bit_test),
+      .hbpsize_i    (s_bit_hbpsize),
+      .hsnsize_i    (s_bit_hsnsize),
+      .hfpsize_i    (s_bit_hfpsize),
+      .hvlen_i      (s_bit_hvlen),
+      .vbpsize_i    (s_bit_vbpsize),
+      .vsnsize_i    (s_bit_vsnsize),
+      .vfpsize_i    (s_bit_vfpsize),
+      .vvlen_i      (s_bit_vvlen),
+      .pixel_valid_i(s_tx_pop_valid),
+      .pixel_ready_o(s_tx_pop_ready),
+      .pixel_data_i (s_tx_pop_data),
+      .vga_r_o      (vga.vga_r_o),
+      .vga_g_o      (vga.vga_g_o),
+      .vga_b_o      (vga.vga_b_o),
+      .hsync_o      (s_hsync),
+      .hend_o       (),
+      .vsync_o      (s_vsync),
+      .vend_o       (),
+      .pclk_en_o    (vga.vga_pclk_o),
+      .de_o         (vga.vga_de_o)
+  );
 
 endmodule
