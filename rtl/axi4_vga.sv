@@ -58,6 +58,7 @@ module axi4_vga #(
     axi4_if.master axi4,
     vga_if.dut     vga
 );
+  localparam LOG_FIFO_DEPTH = $clog2(FIFO_DEPTH);
 
   logic [3:0] s_apb4_addr;
   logic s_apb4_wr_hdshk, s_apb4_rd_hdshk;
@@ -89,6 +90,7 @@ module axi4_vga #(
   // fifo signal
   logic s_tx_push_valid, s_tx_push_ready, s_tx_empty, s_tx_full, s_tx_pop_valid, s_tx_pop_ready;
   logic [63:0] s_tx_push_data, s_tx_pop_data;
+  logic [LOG_FIFO_DEPTH:0] s_tx_elem;
   // irq signal
   logic s_cfb, s_vbsirq, s_verirq, s_horirq;
   // axi fsm signal
@@ -251,7 +253,6 @@ module axi4_vga #(
   assign axi4.bready     = '0;
   // ar, r chnl
   assign axi4.arid       = '0;
-  assign axi4.arlen      = s_bit_brulen; // FIFO_DEPTH is divisible by arlen
   assign axi4.arsize     = 3'd3;  // dont support narrow trans
   assign axi4.arburst    = 2'd1;  // inc mode
   assign axi4.arlock     = '0;
@@ -303,6 +304,10 @@ module axi4_vga #(
   );
 
 
+  // assign axi4.arlen      = s_bit_brulen;  // FIFO_DEPTH is divisible by arlen
+
+
+
   // tx sync fifo[axi4 -> fifo -> vga_core]
   assign s_tx_push_valid = s_bit_en && s_axi4_mst_state_q == `VGA_AXI_MST_FSM_R && s_axi4_r_hdshk;
   assign s_tx_push_data  = axi4.rdata;
@@ -345,9 +350,9 @@ module axi4_vga #(
       .vga_g_o      (vga.vga_g_o),
       .vga_b_o      (vga.vga_b_o),
       .hsync_o      (s_hsync),
-      .hend_o       (),
+      .hend_o       (s_horirq),
       .vsync_o      (s_vsync),
-      .vend_o       (),
+      .vend_o       (s_verirq),
       .pclk_en_o    (vga.vga_pclk_o),
       .de_o         (vga.vga_de_o)
   );
