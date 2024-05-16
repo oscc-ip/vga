@@ -42,6 +42,9 @@ module vga_core (
   logic [`VGA_DIV_WIDTH-1:0] s_pclk_cnt_d, s_pclk_cnt_q, s_pclk_div;
   logic pclk_en_i;
   logic [15:0] s_tm_data_d, s_tm_data_q, s_fb_data, s_pixel_data;
+  logic [1:0] s_fetch_cnt_d, s_fetch_cnt_q;
+  logic [63:0] s_fetch_data_d, s_fetch_data_q;
+  logic s_norm_mode;
 
   // gen pclk
   assign pclk_en_i    = s_pclk_cnt_q == '0;
@@ -74,6 +77,40 @@ module vga_core (
       .vend_o   (vend_o),
       .de_o     (de_o)
   );
+
+  assign s_norm_mode   = en_i && ~test_i;
+  assign pixel_ready_o = s_norm_mode && (s_fetch_cnt_q == '0);
+
+  always_comb begin
+    s_fetch_cnt_d = s_fetch_cnt_q;
+    if (s_norm_mode) begin
+      s_fetch_cnt_d = s_fetch_cnt_q == '1 ? '0 : s_fetch_cnt_q + 1'b1;
+    end
+  end
+  dffer #(2) u_fetch_cnt_dffer (
+      clk_i,
+      rst_n_i,
+      s_norm_mode,
+      s_fetch_cnt_d,
+      s_fetch_cnt_q
+  );
+
+  assign s_fetch_data_d = (pixel_valid_i && pixel_ready_o) ? pixel_data_i : s_fetch_data_q;
+  dffr #(64) u_fetch_data_dffr (
+      clk_i,
+      rst_n_i,
+      s_fetch_data_d,
+      s_fetch_data_q
+  );
+
+  always_comb begin
+    unique case (s_fetch_cnt_q)
+      2'b00: s_fb_data = pixel_data_i[15:0];
+      2'b01: s_fb_data = s_fetch_data_q[31:16];
+      2'b10: s_fb_data = s_fetch_data_q[47:32];
+      2'b11: s_fb_data = s_fetch_data_q[63:48];
+    endcase
+  end
 
   assign s_pixel_data = ~de_o ? '0 : test_i ? s_tm_data_q : s_fb_data;
   always_comb begin
