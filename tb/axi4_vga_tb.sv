@@ -9,6 +9,7 @@
 // See the Mulan PSL v2 for more details.
 
 `include "apb4_if.sv"
+`include "axi4_if.sv"
 `include "vga_define.sv"
 
 module axi4_vga_tb ();
@@ -37,6 +38,11 @@ module axi4_vga_tb ();
       rst_n_i
   );
 
+  axi4_if u_axi4_if (
+      clk_i,
+      rst_n_i
+  );
+
   vga_if u_vga_if ();
 
   test_top u_test_top (
@@ -45,6 +51,7 @@ module axi4_vga_tb ();
   );
   axi4_vga u_axi4_vga (
       .apb4(u_apb4_if.slave),
+      .axi4(u_axi4_if.master),
       .vga (u_vga_if.dut)
   );
 

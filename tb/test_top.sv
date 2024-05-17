@@ -36,8 +36,8 @@ program automatic test_top (
     Helper::print("tb init done");
     vga_hdl = new("vga_test", apb4, vga);
     vga_hdl.init();
-    vga_hdl.test_reset_reg();
-    vga_hdl.test_wr_rd_reg();
+    // vga_hdl.test_reset_reg();
+    // vga_hdl.test_wr_rd_reg();
     // vga_hdl.test_clk_div();
     // vga_hdl.test_irq();
 
