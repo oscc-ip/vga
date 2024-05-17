@@ -93,7 +93,8 @@ module axi4_vga #(
   logic [LOG_FIFO_DEPTH:0] s_tx_elem, s_fifo_rem_len;
   logic [19:0] s_pixel_cnt_d, s_pixel_cnt_q, s_pixel_rem_len;
   // irq signal
-  logic s_cfb, s_vbsirq, s_verirq, s_horirq;
+  logic s_vbsirq, s_verirq, s_horirq, s_cfb_d, s_cfb_q;
+  logic s_vbsirq_trg, s_verirq_trg, s_horirq_trg;
   // axi4 signal
   logic [1:0] s_axi4_mst_state_d, s_axi4_mst_state_q;
   logic s_axi4_ar_hdshk, s_axi4_r_hdshk;
@@ -136,7 +137,11 @@ module axi4_vga #(
 
   assign vga.vga_hsync_o = s_hsync ^ s_bit_hspol;
   assign vga.vga_vsync_o = s_vsync ^ s_bit_vspol;
-  assign vga.irq_o       = (s_bit_hie & s_bit_hif) | (s_bit_vie & s_bit_vif);
+
+  assign s_horirq_trg    = s_bit_hie & s_bit_hif;
+  assign s_verirq_trg    = s_bit_vie & s_bit_vif;
+  assign s_vbsirq_trg    = s_bit_vbse & s_bit_vbsif;
+  assign vga.irq_o       = s_horirq_trg | s_verirq_trg | s_vbsirq_trg;
 
 
   assign s_vga_ctrl_en   = s_apb4_wr_hdshk && s_apb4_addr == `VGA_CTRL;
@@ -200,7 +205,7 @@ module axi4_vga #(
   );
 
   always_comb begin
-    assign s_vga_stat_d[3] = s_cfb;
+    assign s_vga_stat_d[3] = s_cfb_q;
     // xx_irq_i has higher priority, when xx_irq_i is 1, dont care other signal
     // when xx_irq_i is 0, if xx_if is 0, write 0/1 no effect
     // when xx_irq_i is 0, if xx_if is 1, write 0 clear bit, write 1 no effect
@@ -286,7 +291,9 @@ module axi4_vga #(
       s_axi4_addr_d      = s_axi4_addr_q;
       s_axi4_arlen_d     = s_axi4_arlen_q;
       s_pixel_cnt_d      = s_pixel_cnt_q;
+      s_cfb_d            = s_cfb_q;
       axi4.arlen         = '0;
+      s_vbsirq           = '0;
       unique case (s_axi4_mst_state_q)
         `VGA_AXI_MST_FSM_AR: begin
           if (s_axi4_ar_hdshk) begin
@@ -304,8 +311,9 @@ module axi4_vga #(
             s_axi4_mst_state_d = `VGA_AXI_MST_FSM_AR;
             if (s_bit_hvlen * s_bit_vvlen == s_pixel_cnt_q + s_axi4_arlen_q) begin
               s_pixel_cnt_d = '0;
-              s_axi4_addr_d = ~s_bit_vbse ? s_vga_fbba1_q : '0;  // TODO:
-              // s_cfb = s_bit_vbse ? ~
+              s_axi4_addr_d = s_cfb_d ? s_vga_fbba2_q : s_vga_fbba1_q;
+              s_cfb_d       = s_cfb_q ^ s_bit_vbse;
+              s_vbsirq      = 1'b1;
             end else begin
               s_pixel_cnt_d = s_pixel_cnt_q + s_axi4_arlen_q;
               s_axi4_addr_d = s_axi4_addr_q + s_axi4_arlen_q;
@@ -323,7 +331,9 @@ module axi4_vga #(
       s_axi4_addr_d      = s_vga_fbba1_q;
       s_axi4_arlen_d     = s_axi4_arlen_q;
       s_pixel_cnt_d      = s_pixel_cnt_q;
+      s_cfb_d            = s_cfb_q;
       axi4.arlen         = '0;
+      s_vbsirq           = '0;
     end
   end
   dffer #(1) u_axi4_mst_state_dffer (
@@ -359,11 +369,21 @@ module axi4_vga #(
       s_pixel_cnt_q
   );
 
+  dffer #(1) u_cfb_dffer (
+      axi4.aclk,
+      axi4.aresetn,
+      s_norm_mode,
+      s_cfb_d,
+      s_cfb_q
+  );
+
   // tx sync fifo[axi4 -> fifo -> vga_core]
+  // verilog_format: off
   assign s_tx_push_valid = s_norm_mode && s_axi4_mst_state_q == `VGA_AXI_MST_FSM_R && s_axi4_r_hdshk;
   assign s_tx_push_data  = axi4.rdata;
   assign s_tx_push_ready = ~s_tx_full;
   assign s_tx_pop_valid  = ~s_tx_empty;
+  // verilog_format: on
   fifo #(
       .DATA_WIDTH  (64),
       .BUFFER_DEPTH(FIFO_DEPTH)
