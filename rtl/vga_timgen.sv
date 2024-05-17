@@ -43,6 +43,7 @@ module vga_timgen (
       .snsize_i(hsnsize_i),
       .fpsize_i(hfpsize_i),
       .vlen_i  (hvlen_i),
+      .cnt_o   (pos_x_o),
       .vis_o   (s_hvis),
       .sync_o  (hsync_o),
       .end_o   (hend_o)
@@ -56,6 +57,7 @@ module vga_timgen (
       .snsize_i(vsnsize_i),
       .fpsize_i(vfpsize_i),
       .vlen_i  (vvlen_i),
+      .cnt_o   (),
       .vis_o   (s_vvis),
       .sync_o  (vsync_o),
       .end_o   (vend_o)

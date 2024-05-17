@@ -12,16 +12,17 @@
 `include "vga_define.sv"
 
 module vga_cnt (
-    input  logic                     clk_i,
-    input  logic                     rst_n_i,
-    input  logic                     en_i,
-    input  logic [`VGA_TB_WIDTH-1:0] bpsize_i,
-    input  logic [`VGA_TB_WIDTH-1:0] snsize_i,
-    input  logic [`VGA_TB_WIDTH-1:0] fpsize_i,
-    input  logic [`VGA_VB_WIDTH-1:0] vlen_i,
-    output logic                     vis_o,
-    output logic                     sync_o,
-    output logic                     end_o
+    input  logic                         clk_i,
+    input  logic                         rst_n_i,
+    input  logic                         en_i,
+    input  logic [    `VGA_TB_WIDTH-1:0] bpsize_i,
+    input  logic [    `VGA_TB_WIDTH-1:0] snsize_i,
+    input  logic [    `VGA_TB_WIDTH-1:0] fpsize_i,
+    input  logic [    `VGA_VB_WIDTH-1:0] vlen_i,
+    output logic [`VGA_TIMCNT_WIDTH-1:0] cnt_o,
+    output logic                         vis_o,
+    output logic                         sync_o,
+    output logic                         end_o
 );
 
   logic [`VGA_TIMFSM_WIDTH-1:0] s_vga_fsm_d, s_vga_fsm_q;
@@ -29,6 +30,7 @@ module vga_cnt (
   logic cnt_done;
 
   assign cnt_done = ~(|s_vga_cnt_q);
+  assign cnt_o    = (s_vga_fsm_q == `VGA_TIMFSM_VISIBLE) ? s_vga_cnt_q : '0;
   assign vis_o    = s_vga_fsm_q == `VGA_TIMFSM_VISIBLE;
   assign sync_o   = s_vga_fsm_q == `VGA_TIMFSM_SYNC;
   assign end_o    = s_vga_fsm_q == `VGA_TIMFSM_SYNC && cnt_done;
@@ -38,7 +40,7 @@ module vga_cnt (
       `VGA_TIMFSM_BACKPORCH:  if (en_i && cnt_done) s_vga_fsm_d = `VGA_TIMFSM_VISIBLE;
       `VGA_TIMFSM_VISIBLE:    if (en_i && cnt_done) s_vga_fsm_d = `VGA_TIMFSM_FRONTPORCH;
       `VGA_TIMFSM_FRONTPORCH: if (en_i && cnt_done) s_vga_fsm_d = `VGA_TIMFSM_SYNC;
-      `VGA_TIMFSM_SYNC:       if (en_i && cnt_done) s_vga_fsm_d = `VGA_TIMFSM_VISIBLE;
+      `VGA_TIMFSM_SYNC:       if (en_i && cnt_done) s_vga_fsm_d = `VGA_TIMFSM_BACKPORCH;
       default:                s_vga_fsm_d = `VGA_TIMFSM_BACKPORCH;
     endcase
   end
@@ -51,19 +53,19 @@ module vga_cnt (
   );
 
   always_comb begin
-    s_vga_cnt_d = s_vga_cnt_q;
+    s_vga_cnt_d = s_vga_cnt_q - 1'b1;
     unique case (s_vga_fsm_q)
       `VGA_TIMFSM_BACKPORCH:  if (en_i && cnt_done) s_vga_cnt_d = vlen_i;
       `VGA_TIMFSM_VISIBLE:    if (en_i && cnt_done) s_vga_cnt_d = fpsize_i;
       `VGA_TIMFSM_FRONTPORCH: if (en_i && cnt_done) s_vga_cnt_d = snsize_i;
       `VGA_TIMFSM_SYNC:       if (en_i && cnt_done) s_vga_cnt_d = bpsize_i;
-      default:                s_vga_cnt_d = '0;
+      default:                s_vga_cnt_d = '1;
     endcase
   end
   dffer #(`VGA_TIMCNT_WIDTH) u_vga_cnt (
       clk_i,
       rst_n_i,
-      en_i && cnt_done,
+      en_i,
       s_vga_cnt_d,
       s_vga_cnt_q
   );

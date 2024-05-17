@@ -426,7 +426,7 @@ module axi4_vga #(
       .hend_o       (s_horirq),
       .vsync_o      (s_vsync),
       .vend_o       (s_verirq),
-      .pclk_en_o    (vga.vga_pclk_o),
+      .pclk_o    (vga.vga_pclk_o),
       .de_o         (vga.vga_de_o)
   );
 

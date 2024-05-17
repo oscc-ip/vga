@@ -36,20 +36,20 @@ module vga_core (
     output logic                      hend_o,
     output logic                      vsync_o,
     output logic                      vend_o,
-    output logic                      pclk_en_o,
+    output logic                      pclk_o,
     output logic                      de_o
 );
 
   logic [`VGA_TIMCNT_WIDTH-1:0] s_pos_x;
   logic [`VGA_DIV_WIDTH-1:0] s_pclk_cnt_d, s_pclk_cnt_q, s_pclk_div;
-  logic pclk_en_i;
+  logic s_pclk_d, s_pclk_q;
   logic [15:0] s_tm_data_d, s_tm_data_q, s_fb_data, s_pixel_data;
   logic [1:0] s_fetch_cnt_d, s_fetch_cnt_q;
   logic [63:0] s_fetch_data_d, s_fetch_data_q;
   logic s_norm_mode;
 
   // gen pclk
-  assign pclk_en_i    = s_pclk_cnt_q == '0;
+  assign pclk_o       = s_pclk_q;
   assign s_pclk_div   = (|div_i) ? div_i : 8'b1;
   assign s_pclk_cnt_d = s_pclk_cnt_q == s_pclk_div - 1 ? '0 : s_pclk_cnt_q + 1'b1;
   dffr #(`VGA_DIV_WIDTH) u_pclk_cnt_dffr (
@@ -59,11 +59,19 @@ module vga_core (
       s_pclk_cnt_q
   );
 
+  assign s_pclk_d = s_pclk_cnt_q == s_pclk_div - 1 ? ~s_pclk_q : s_pclk_q;
+  dffr #(1) u_pclk_dffr (
+      clk_i,
+      rst_n_i,
+      s_pclk_d,
+      s_pclk_q
+  );
+
   vga_timgen u_vga_timgen (
       .clk_i    (clk_i),
       .rst_n_i  (rst_n_i),
       .en_i     (en_i),
-      .pclk_en_i(pclk_en_i),
+      .pclk_en_i(s_pclk_cnt_q == '0),
       .hbpsize_i(hbpsize_i),
       .hsnsize_i(hsnsize_i),
       .hfpsize_i(hfpsize_i),
