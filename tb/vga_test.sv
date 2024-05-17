@@ -38,7 +38,13 @@ endfunction
 task automatic VGATest::test_reset_reg();
   super.test_reset_reg();
   // verilog_format: off
-  this.rd_check(`VGA_CTRL_ADDR   , "CTRL    REG", 32'b0 & {`VGA_CTRL_WIDTH{1'b1}}, Helper::EQUL, Helper::INFO);
+  this.rd_check(`VGA_CTRL_ADDR,  "CTRL  REG", 32'b0 & {`VGA_CTRL_WIDTH{1'b1}}, Helper::EQUL, Helper::INFO);
+  this.rd_check(`VGA_HVVL_ADDR,  "HVVL  REG", 32'b0 & {`VGA_HVVL_WIDTH{1'b1}}, Helper::EQUL, Helper::INFO);
+  this.rd_check(`VGA_HTIM_ADDR,  "HTIM  REG", 32'b0 & {`VGA_HTIM_WIDTH{1'b1}}, Helper::EQUL, Helper::INFO);
+  this.rd_check(`VGA_VTIM_ADDR,  "VTIM  REG", 32'b0 & {`VGA_VTIM_WIDTH{1'b1}}, Helper::EQUL, Helper::INFO);
+  this.rd_check(`VGA_FBBA1_ADDR, "FBBA1 REG", 32'b0 & {`VGA_FBBA1_WIDTH{1'b1}}, Helper::EQUL, Helper::INFO);
+  this.rd_check(`VGA_FBBA2_ADDR, "FBBA2 REG", 32'b0 & {`VGA_FBBA2_WIDTH{1'b1}}, Helper::EQUL, Helper::INFO);
+  this.rd_check(`VGA_STAT_ADDR,  "STAT  REG", 32'b0 & {`VGA_STAT_WIDTH{1'b1}}, Helper::EQUL, Helper::INFO);
   // verilog_format: on
 endtask
 
@@ -46,7 +52,12 @@ task automatic VGATest::test_wr_rd_reg(input bit [31:0] run_times = 1000);
   super.test_wr_rd_reg();
   // verilog_format: off
   for (int i = 0; i < run_times; i++) begin
-    this.wr_rd_check(`VGA_CTRL_ADDR   , "CTRL    REG", $random & {`VGA_CTRL_WIDTH{1'b1}}, Helper::EQUL);
+    // this.wr_rd_check(`VGA_CTRL_ADDR   , "CTRL    REG", $random & {`VGA_CTRL_WIDTH{1'b1}}, Helper::EQUL);
+    this.wr_rd_check(`VGA_HVVL_ADDR,  "HVVL  REG", $random & {`VGA_HVVL_WIDTH{1'b1}}, Helper::EQUL);
+    this.wr_rd_check(`VGA_HTIM_ADDR,  "HTIM  REG", $random & {`VGA_HTIM_WIDTH{1'b1}}, Helper::EQUL);
+    this.wr_rd_check(`VGA_VTIM_ADDR,  "VTIM  REG", $random & {`VGA_VTIM_WIDTH{1'b1}}, Helper::EQUL);
+    this.wr_rd_check(`VGA_FBBA1_ADDR, "FBBA1 REG", $random & {`VGA_FBBA1_WIDTH{1'b1}}, Helper::EQUL);
+    this.wr_rd_check(`VGA_FBBA2_ADDR, "FBBA2 REG", $random & {`VGA_FBBA2_WIDTH{1'b1}}, Helper::EQUL);
   end
   // verilog_format: on
 endtask
