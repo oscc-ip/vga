@@ -128,85 +128,85 @@ module vga_core (
     if (test_i) begin
       s_tm_data_d = '0;
       if (s_pos_x >= 0 && s_pos_x < ((hvlen_i / 10) * 1)) begin
-        // unique case (mode_i)
-        //   `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_RED;
-        //   `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_RED;
-        //   `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_RED;
-        //   `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_RED;
-        //   // default:          s_tm_data_d = `VGA_RGB565_COLOR_RED;
-        // endcase
+        unique case (mode_i)
+          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_RED;
+          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_RED;
+          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_RED;
+          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_RED;
+          // default:          s_tm_data_d = `VGA_RGB565_COLOR_RED;
+        endcase
       end else if (s_pos_x >= ((hvlen_i / 10) * 1) && s_pos_x < ((hvlen_i / 10) * 2)) begin
-        // unique case (mode_i)
-        //   `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_ORANGE;
-        //   `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_ORANGE;
-        //   `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_ORANGE;
-        //   `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_ORANGE;
-        //   // default:          s_tm_data_d = `VGA_RGB565_COLOR_ORANGE;
-        // endcase
+        unique case (mode_i)
+          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_ORANGE;
+          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_ORANGE;
+          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_ORANGE;
+          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_ORANGE;
+          //   // default:          s_tm_data_d = `VGA_RGB565_COLOR_ORANGE;
+        endcase
       end else if (s_pos_x >= ((hvlen_i / 10) * 2) && s_pos_x < ((hvlen_i / 10) * 3)) begin
-        // unique case (mode_i)
-        //   `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_YELLOW;
-        //   `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_YELLOW;
-        //   `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_YELLOW;
-        //   `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_YELLOW;
-        //   // default:          s_tm_data_d = `VGA_RGB565_COLOR_YELLOW;
-        // endcase
+        unique case (mode_i)
+          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_YELLOW;
+          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_YELLOW;
+          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_YELLOW;
+          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_YELLOW;
+          // default:          s_tm_data_d = `VGA_RGB565_COLOR_YELLOW;
+        endcase
       end else if (s_pos_x >= ((hvlen_i / 10) * 3) && s_pos_x < ((hvlen_i / 10) * 4)) begin
-        // unique case (mode_i)
-        //   `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_GREEN;
-        //   `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_GREEN;
-        //   `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_GREEN;
-        //   `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_GREEN;
-        //   // default:          s_tm_data_d = `VGA_RGB565_COLOR_GREEN;
-        // endcase
+        unique case (mode_i)
+          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_GREEN;
+          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_GREEN;
+          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_GREEN;
+          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_GREEN;
+          // default:          s_tm_data_d = `VGA_RGB565_COLOR_GREEN;
+        endcase
       end else if (s_pos_x >= ((hvlen_i / 10) * 4) && s_pos_x < ((hvlen_i / 10) * 5)) begin
-        // unique case (mode_i)
-        //   `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_CYAN;
-        //   `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_CYAN;
-        //   `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_CYAN;
-        //   `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_CYAN;
-        //   // default:          s_tm_data_d = `VGA_RGB565_COLOR_CYAN;
-        // endcase
+        unique case (mode_i)
+          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_CYAN;
+          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_CYAN;
+          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_CYAN;
+          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_CYAN;
+          // default:          s_tm_data_d = `VGA_RGB565_COLOR_CYAN;
+        endcase
       end else if (s_pos_x >= ((hvlen_i / 10) * 5) && s_pos_x < ((hvlen_i / 10) * 6)) begin
-        // unique case (mode_i)
-        //   `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_BLUE;
-        //   `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_BLUE;
-        //   `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_BLUE;
-        //   `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_BLUE;
-        //   // default:          s_tm_data_d = `VGA_RGB565_COLOR_BLUE;
-        // endcase
+        unique case (mode_i)
+          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_BLUE;
+          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_BLUE;
+          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_BLUE;
+          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_BLUE;
+          // default:          s_tm_data_d = `VGA_RGB565_COLOR_BLUE;
+        endcase
       end else if (s_pos_x >= ((hvlen_i / 10) * 6) && s_pos_x < ((hvlen_i / 10) * 7)) begin
-        // unique case (mode_i)
-        //   `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_PURPPLE;
-        //   `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_PURPPLE;
-        //   `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_PURPPLE;
-        //   `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_PURPPLE;
-        //   // default:          s_tm_data_d = `VGA_RGB565_COLOR_PURPPLE;
-        // endcase
+        unique case (mode_i)
+          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_PURPPLE;
+          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_PURPPLE;
+          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_PURPPLE;
+          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_PURPPLE;
+          // default:          s_tm_data_d = `VGA_RGB565_COLOR_PURPPLE;
+        endcase
       end else if (s_pos_x >= ((hvlen_i / 10) * 7) && s_pos_x < ((hvlen_i / 10) * 8)) begin
-        // unique case (mode_i)
-        //   `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_BLACK;
-        //   `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_BLACK;
-        //   `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_BLACK;
-        //   `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_BLACK;
-        //   // default:          s_tm_data_d = `VGA_RGB565_COLOR_BLACK;
-        // endcase
+        unique case (mode_i)
+          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_BLACK;
+          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_BLACK;
+          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_BLACK;
+          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_BLACK;
+          // default:          s_tm_data_d = `VGA_RGB565_COLOR_BLACK;
+        endcase
       end else if (s_pos_x >= ((hvlen_i / 10) * 8) && s_pos_x < ((hvlen_i / 10) * 9)) begin
-        // unique case (mode_i)
-        //   `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_WHITE;
-        //   `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_WHITE;
-        //   `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_WHITE;
-        //   `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_WHITE;
-        //   // default:          s_tm_data_d = `VGA_RGB565_COLOR_WHITE;
-        // endcase
+        unique case (mode_i)
+          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_WHITE;
+          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_WHITE;
+          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_WHITE;
+          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_WHITE;
+          // default:          s_tm_data_d = `VGA_RGB565_COLOR_WHITE;
+        endcase
       end else if (s_pos_x >= ((hvlen_i / 10) * 9) && s_pos_x < (hvlen_i)) begin
-        // unique case (mode_i)
-        //   `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_GRAY;
-        //   `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_GRAY;
-        //   `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_GRAY;
-        //   `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_GRAY;
-        //   // default:          s_tm_data_d = `VGA_RGB565_COLOR_GRAY;
-        // endcase
+        unique case (mode_i)
+          `VGA_RGB332_MODE: s_tm_data_d = `VGA_RGB332_COLOR_GRAY;
+          `VGA_RGB444_MODE: s_tm_data_d = `VGA_RGB444_COLOR_GRAY;
+          `VGA_RGB555_MODE: s_tm_data_d = `VGA_RGB555_COLOR_GRAY;
+          `VGA_RGB565_MODE: s_tm_data_d = `VGA_RGB565_COLOR_GRAY;
+          // default:          s_tm_data_d = `VGA_RGB565_COLOR_GRAY;
+        endcase
       end
     end
   end
