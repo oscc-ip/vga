@@ -39,6 +39,7 @@ program automatic test_top (
     vga_hdl.test_reset_reg();
     vga_hdl.test_wr_rd_reg();
     vga_hdl.test_clk_div();
+    vga_hdl.test_tm_mode();
     // vga_hdl.test_irq();
 
     Helper::end_banner();
