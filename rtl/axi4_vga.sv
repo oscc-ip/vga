@@ -96,7 +96,7 @@ module axi4_vga #(
   logic s_vbsirq, s_verirq, s_horirq, s_cfb_d, s_cfb_q;
   logic s_vbsirq_trg, s_verirq_trg, s_horirq_trg;
   // axi4 signal
-  logic [1:0] s_axi4_mst_state_d, s_axi4_mst_state_q;
+  logic s_axi4_mst_state_d, s_axi4_mst_state_q;
   logic s_axi4_ar_hdshk, s_axi4_r_hdshk;
   logic [31:0] s_axi4_addr_d, s_axi4_addr_q;
   logic [7:0] s_axi4_arlen_d, s_axi4_arlen_q;
@@ -205,7 +205,7 @@ module axi4_vga #(
   );
 
   always_comb begin
-    assign s_vga_stat_d[3] = s_cfb_q;
+    s_vga_stat_d[3] = s_cfb_q;
     // xx_irq_i has higher priority, when xx_irq_i is 1, dont care other signal
     // when xx_irq_i is 0, if xx_if is 0, write 0/1 no effect
     // when xx_irq_i is 0, if xx_if is 1, write 0 clear bit, write 1 no effect
@@ -355,8 +355,8 @@ module axi4_vga #(
 
   dffer #(8) u_axi4_arlen_dffer (
       axi4.aclk,
-      axi4,
-      aresetn,
+      axi4.aresetn,
+      s_norm_mode,
       s_axi4_arlen_d,
       s_axi4_arlen_q
   );
@@ -388,8 +388,8 @@ module axi4_vga #(
       .DATA_WIDTH  (64),
       .BUFFER_DEPTH(FIFO_DEPTH)
   ) u_tx_fifo (
-      .clk_i  (axi4.pclk),
-      .rst_n_i(axi4.presetn),
+      .clk_i  (axi4.aclk),
+      .rst_n_i(axi4.aresetn),
       .flush_i(~s_norm_mode),
       .cnt_o  (s_tx_elem),
       .push_i (s_tx_push_valid),
@@ -405,7 +405,9 @@ module axi4_vga #(
       .clk_i        (axi4.aclk),
       .rst_n_i      (axi4.aresetn),
       .en_i         (s_bit_en),
+      .div_i        (s_bit_div),
       .test_i       (s_bit_test),
+      .mode_i       (s_bit_mode),
       .hbpsize_i    (s_bit_hbpsize),
       .hsnsize_i    (s_bit_hsnsize),
       .hfpsize_i    (s_bit_hfpsize),
