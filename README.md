@@ -5,7 +5,7 @@
 * RGB332, RGB444, RGB555 and RGB565 color modes
 * Programmable video timing
 * Programmable burst length
-* Programmable frame buffer switch
+* Programmable two frame buffer switch
 * Static synchronous design
 * Full synthesizable
 
