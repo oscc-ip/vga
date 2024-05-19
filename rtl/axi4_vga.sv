@@ -81,7 +81,7 @@ module axi4_vga #(
   logic s_bit_hif, s_bit_vif, s_bit_vbsif, s_bit_cfb;
   logic [                  1:0] s_bit_mode;
   logic [   `VGA_DIV_WIDTH-1:0] s_bit_div;
-  logic [`VGA_BRULEN_WIDTH-1:0] s_bit_brulen;
+  logic [`VGA_BURLEN_WIDTH-1:0] s_bit_burlen;
   logic [`VGA_VB_WIDTH-1:0] s_bit_hvlen, s_bit_vvlen;
   logic [`VGA_TB_WIDTH-1:0] s_bit_hfpsize, s_bit_hsnsize, s_bit_hbpsize;
   logic [`VGA_TB_WIDTH-1:0] s_bit_vfpsize, s_bit_vsnsize, s_bit_vbpsize;
@@ -119,7 +119,7 @@ module axi4_vga #(
   assign s_bit_div       = s_vga_ctrl_q[15:8];
   assign s_bit_test      = s_vga_ctrl_q[16];
   assign s_bit_mode      = s_vga_ctrl_q[18:17];
-  assign s_bit_brulen    = s_vga_ctrl_q[26:19];
+  assign s_bit_burlen    = s_vga_ctrl_q[26:19];
   assign s_bit_hvlen     = s_vga_hvvl_q[`VGA_VB_WIDTH-1:0];
   assign s_bit_vvlen     = s_vga_hvvl_q[31:`VGA_VB_WIDTH];
   assign s_bit_hfpsize   = s_vga_htim_q[`VGA_TB_WIDTH-1:0];
@@ -142,7 +142,6 @@ module axi4_vga #(
   assign s_verirq_trg    = s_bit_vie & s_bit_vif;
   assign s_vbsirq_trg    = s_bit_vbse & s_bit_vbsif;
   assign vga.irq_o       = s_horirq_trg | s_verirq_trg | s_vbsirq_trg;
-
 
   assign s_vga_ctrl_en   = s_apb4_wr_hdshk && s_apb4_addr == `VGA_CTRL;
   assign s_vga_ctrl_d    = apb4.pwdata[`VGA_CTRL_WIDTH-1:0];
@@ -299,9 +298,9 @@ module axi4_vga #(
           if (s_axi4_ar_hdshk) begin
             s_axi4_mst_state_d = `VGA_AXI_MST_FSM_R;
             if (s_pixel_rem_len < s_fifo_rem_len) begin  // aligned to the one frame bound
-              axi4.arlen = (s_pixel_rem_len < s_bit_brulen) ? s_pixel_rem_len : s_bit_brulen;
+              axi4.arlen = (s_pixel_rem_len < s_bit_burlen) ? s_pixel_rem_len : s_bit_burlen;
             end else begin
-              axi4.arlen = (s_fifo_rem_len < s_bit_brulen) ? s_fifo_rem_len : s_bit_brulen;
+              axi4.arlen = (s_fifo_rem_len < s_bit_burlen) ? s_fifo_rem_len : s_bit_burlen;
             end
             s_axi4_arlen_d = axi4.arlen;
           end
@@ -351,7 +350,6 @@ module axi4_vga #(
       s_axi4_addr_d,
       s_axi4_addr_q
   );
-
 
   dffer #(8) u_axi4_arlen_dffer (
       axi4.aclk,
@@ -426,7 +424,7 @@ module axi4_vga #(
       .hend_o       (s_horirq),
       .vsync_o      (s_vsync),
       .vend_o       (s_verirq),
-      .pclk_o    (vga.vga_pclk_o),
+      .pclk_o       (vga.vga_pclk_o),
       .de_o         (vga.vga_de_o)
   );
 

@@ -59,7 +59,7 @@
 /* register mapping
  * VGA_CTRL:
  * BITS:   | 31:27 | 26:19  | 18:17 | 16   | 15:8 | 7     | 6     | 5     | 4    | 3     | 2   | 1   | 0  |
- * FIELDS: | RES   | BRULEN | MODE  | TEST | DIV  | VSPOL | HSPOL | BLPOL | VBSE | VBSIE | VIE | HIE | EN |
+ * FIELDS: | RES   | BURLEN | MODE  | TEST | DIV  | VSPOL | HSPOL | BLPOL | VBSE | VBSIE | VIE | HIE | EN |
  * PERMS:  | NONE  | RW     | RW    | RW   | RW   | RW    | RW    | RW    | RW   | RW    | RW  | RW  | RW |
  * --------------------------------------------------------------------------------------------------------
  * VGA_HVVL:
@@ -123,7 +123,7 @@
 `define VGA_TB_WIDTH      10 // timing bitfield width
 `define VGA_VB_WIDTH      16 // visible bitfield width
 `define VGA_DIV_WIDTH     8
-`define VGA_BRULEN_WIDTH  8
+`define VGA_BURLEN_WIDTH  8
 
 
 `define VGA_RGB332_MODE 2'b00

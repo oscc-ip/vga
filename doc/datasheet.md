@@ -33,7 +33,7 @@ The `vga` IP is a fully parameterised soft IP recording the SoC architecture and
 | name | offset  | length | description |
 |:----:|:-------:|:-----: | :---------: |
 | [CTRL](#control-register) | 0x0 | 4 | control register |
-| [HVVL](#horizon-vertical-visble-len-reigster) | 0x4 | 4 | horizon vertical visble len reigster |
+| [HVVL](#horizon-vertical-visble-length-reigster) | 0x4 | 4 | horizon vertical visble length reigster |
 | [HTIM](#horizon-timing-reigster) | 0x8 | 4 | horizon timing register |
 | [VTIM](#vertical-timing-reigster) | 0x0C | 4 | vertical timing register |
 | [FBBA1](#frame-buffer-base-address-1-reigster) | 0x10 | 4 | frame buffer base address 1 register |
@@ -44,7 +44,7 @@ The `vga` IP is a fully parameterised soft IP recording the SoC architecture and
 | bit | access  | description |
 |:---:|:-------:| :---------: |
 | `[31:27]` | none | reserved |
-| `[26:19]` | RW | BRULEN |
+| `[26:19]` | RW | BURLEN |
 | `[18:17]` | RW | MODE |
 | `[16:16]` | RW | TEST |
 | `[15:8]` | RW | DIV |
@@ -59,7 +59,7 @@ The `vga` IP is a fully parameterised soft IP recording the SoC architecture and
 
 reset value: `0x0000_0000`
 
-* BRULEN: burst length(0~255)
+* BURLEN: burst length(0~255)
 
 * MODE: color mode
     * `MODE = 2'b00`: rgb332
@@ -90,7 +90,7 @@ reset value: `0x0000_0000`
     * `VBSE = 1'b1`: otherwise
 
 * VBSIE: video bank switch interrupt enable
-    * `VBSIE = 1'b0`: disable two fram switch interrupt
+    * `VBSIE = 1'b0`: disable two frame switch interrupt
     * `VBSIE = 1'b1`: otherwise
 
 * VIE: vertical sync interrupt enable
@@ -101,7 +101,7 @@ reset value: `0x0000_0000`
     * `HIE = 1'b0`: disable horizon sync interrupt
     * `HIE = 1'b1`: otherwise
 
-#### Horizon Vertical Visble Len Reigster
+#### Horizon Vertical Visble Lengh Reigster
 | bit | access  | description |
 |:---:|:-------:| :---------: |
 | `[31:16]` | RW | VVLEN |
@@ -109,9 +109,9 @@ reset value: `0x0000_0000`
 
 reset value: `0x0000_0000`
 
-* VVLEN: vertical visible len
+* VVLEN: vertical visible length
 
-* HVLEN: horizon visible len
+* HVLEN: horizon visible length
 
 #### Horizon Timing Reigster
 | bit | access  | description |
