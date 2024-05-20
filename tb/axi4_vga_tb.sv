@@ -23,6 +23,10 @@ module axi4_vga_tb ();
     end
   end
 
+  initial begin
+      $readmemh("../init.mem", u_axi4_mem_model.mem);
+  end
+
   task sim_reset(int delay);
     rst_n_i = 1'b0;
     repeat (delay) @(posedge clk_i);
@@ -53,6 +57,14 @@ module axi4_vga_tb ();
       .apb4(u_apb4_if.slave),
       .axi4(u_axi4_if.master),
       .vga (u_vga_if.dut)
+  );
+
+  axi4_mem_model #(
+      .BUFFER_DEPTH(1024),
+      .APP_DELAY   (0),
+      .ACQ_DELAY   (0)
+  ) u_axi4_mem_model (
+      .axi4(u_axi4_if.slave)
   );
 
 endmodule

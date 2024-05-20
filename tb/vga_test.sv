@@ -25,6 +25,7 @@ class VGATest extends APB4Master;
   extern task automatic test_wr_rd_reg(input bit [31:0] run_times = 1000);
   extern task automatic test_clk_div(input bit [31:0] run_times = 10);
   extern task automatic test_tm_mode(input bit [31:0] run_times = 10);
+  extern task automatic test_rd_fb(input bit [31:0] run_times = 10);
   extern task automatic test_irq(input bit [31:0] run_times = 10);
 endclass
 
@@ -89,20 +90,17 @@ task automatic VGATest::test_tm_mode(input bit [31:0] run_times = 10);
   this.write(`VGA_VTIM_ADDR, 32'h200_0409 & {`VGA_VTIM_WIDTH{1'b1}});
   // div 4, test, en, rgb444
   this.write(`VGA_CTRL_ADDR, 32'h11_02_01 & {`VGA_CTRL_WIDTH{1'b1}});
-  repeat (800*525*4) @(posedge this.apb4.pclk);
+  repeat (800 * 525 * 4) @(posedge this.apb4.pclk);
+endtask
+
+task automatic VGATest::test_rd_fb(input bit [31:0] run_times = 10);
+  $display("=== [test vga rd fb] ===");
+
 endtask
 
 task automatic VGATest::test_irq(input bit [31:0] run_times = 10);
   super.test_irq();
-  // this.read(`PWM_STAT_ADDR);
-  // this.write(`PWM_CR0_ADDR, 32'b0 & {`PWM_CRX_WIDTH{1'b1}});
-  // this.write(`PWM_CR1_ADDR, 32'b0 & {`PWM_CRX_WIDTH{1'b1}});
-  // this.write(`PWM_CR2_ADDR, 32'b0 & {`PWM_CRX_WIDTH{1'b1}});
-  // this.write(`PWM_CR3_ADDR, 32'b0 & {`PWM_CRX_WIDTH{1'b1}});
-  // this.write(`PWM_CTRL_ADDR, 32'b0 & {`PWM_CTRL_WIDTH{1'b1}});
-  // this.write(`PWM_PSCR_ADDR, 32'd4 & {`PWM_PSCR_WIDTH{1'b1}});
-  // this.write(`PWM_CMP_ADDR, 32'hE & {`PWM_CMP_WIDTH{1'b1}});
-  // 
+
   // for (int i = 0; i < run_times; i++) begin
   // this.write(`PWM_CTRL_ADDR, 32'b0 & {`PWM_CTRL_WIDTH{1'b1}});
   // this.read(`PWM_STAT_ADDR);
@@ -110,6 +108,5 @@ task automatic VGATest::test_irq(input bit [31:0] run_times = 10);
   // this.write(`PWM_CTRL_ADDR, 32'b11 & {`PWM_CTRL_WIDTH{1'b1}});
   // repeat (200) @(posedge this.apb4.pclk);
   // end
-
 endtask
 `endif
