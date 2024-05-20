@@ -40,7 +40,6 @@
 `define AXI4_SIM_BASE_ADDR 32'h8000_0000
 
 module axi4_mem_model #(
-    parameter int  BUFFER_DEPTH        = 1024,
     /// Warn on accesses to uninitialized bytes
     parameter bit  WARN_UNINITIALIZED  = 1'b0,
     /// Default value for uninitialized memory (undefined, zeros, ones, random)
@@ -79,7 +78,7 @@ module axi4_mem_model #(
     if (aburst_i == `AXI4_BURST_TYPE_INCR) begin
       res = addr_i + beat_i * (1 << asize_i);
     end
-    $display("addr_i: %h beat_i: %d asize_i: %d res: %h", addr_i, beat_i, asize_i, res);
+    // $display("addr_i: %h beat_i: %d asize_i: %d res: %h", addr_i, beat_i, asize_i, res);
     return res;
   endfunction
 
@@ -136,7 +135,7 @@ module axi4_mem_model #(
 
           automatic axi4_sim_rreq_t r_beat = '0;
           automatic logic [`AXI4_DATA_WIDTH-1:0] r_data = 'x;  // compatibility reasons
-          $display("mem: %h", mem[addr]);
+          // $display("mem: %h", mem[addr]);
           r_beat.data = 'x;
           r_beat.id   = ar_queue[0].id;
           r_beat.resp = `AXI4_RESP_OKAY;

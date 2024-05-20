@@ -24,7 +24,7 @@ module axi4_vga_tb ();
   end
 
   initial begin
-      $readmemh("../data/sim.mem", u_axi4_mem_model.mem);
+    $readmemh("../data/sim.mem", u_axi4_mem_model.mem);
   end
 
   task sim_reset(int delay);
@@ -60,9 +60,8 @@ module axi4_vga_tb ();
   );
 
   axi4_mem_model #(
-      .BUFFER_DEPTH(262144*8),
-      .APP_DELAY   (0),
-      .ACQ_DELAY   (0)
+      .APP_DELAY(0),
+      .ACQ_DELAY(0)
   ) u_axi4_mem_model (
       .axi4(u_axi4_if.slave)
   );

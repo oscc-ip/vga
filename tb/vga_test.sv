@@ -46,6 +46,7 @@ task automatic VGATest::test_reset_reg();
   this.rd_check(`VGA_VTIM_ADDR,  "VTIM  REG", 32'b0 & {`VGA_VTIM_WIDTH{1'b1}}, Helper::EQUL, Helper::INFO);
   this.rd_check(`VGA_FBBA1_ADDR, "FBBA1 REG", 32'b0 & {`VGA_FBBA1_WIDTH{1'b1}}, Helper::EQUL, Helper::INFO);
   this.rd_check(`VGA_FBBA2_ADDR, "FBBA2 REG", 32'b0 & {`VGA_FBBA2_WIDTH{1'b1}}, Helper::EQUL, Helper::INFO);
+  this.rd_check(`VGA_THOLD_ADDR, "THOLD REG", 32'b0 & {`VGA_THOLD_WIDTH{1'b1}}, Helper::EQUL, Helper::INFO);
   this.rd_check(`VGA_STAT_ADDR,  "STAT  REG", 32'b0 & {`VGA_STAT_WIDTH{1'b1}}, Helper::EQUL, Helper::INFO);
   // verilog_format: on
 endtask
@@ -60,12 +61,14 @@ task automatic VGATest::test_wr_rd_reg(input bit [31:0] run_times = 1000);
     this.wr_rd_check(`VGA_VTIM_ADDR,  "VTIM  REG", $random & {`VGA_VTIM_WIDTH{1'b1}}, Helper::EQUL);
     this.wr_rd_check(`VGA_FBBA1_ADDR, "FBBA1 REG", $random & {`VGA_FBBA1_WIDTH{1'b1}}, Helper::EQUL);
     this.wr_rd_check(`VGA_FBBA2_ADDR, "FBBA2 REG", $random & {`VGA_FBBA2_WIDTH{1'b1}}, Helper::EQUL);
+    this.wr_rd_check(`VGA_THOLD_ADDR, "THOLD REG", $random & {`VGA_THOLD_WIDTH{1'b1}}, Helper::EQUL);
   end
     this.wr_rd_check(`VGA_HVVL_ADDR,  "HVVL  REG", 32'b0 & {`VGA_HVVL_WIDTH{1'b1}}, Helper::EQUL);
     this.wr_rd_check(`VGA_HTIM_ADDR,  "HTIM  REG", 32'b0 & {`VGA_HTIM_WIDTH{1'b1}}, Helper::EQUL);
     this.wr_rd_check(`VGA_VTIM_ADDR,  "VTIM  REG", 32'b0 & {`VGA_VTIM_WIDTH{1'b1}}, Helper::EQUL);
     this.wr_rd_check(`VGA_FBBA1_ADDR, "FBBA1 REG", 32'b0 & {`VGA_FBBA1_WIDTH{1'b1}}, Helper::EQUL);
     this.wr_rd_check(`VGA_FBBA2_ADDR, "FBBA2 REG", 32'b0 & {`VGA_FBBA2_WIDTH{1'b1}}, Helper::EQUL);
+    this.wr_rd_check(`VGA_THOLD_ADDR, "THOLD REG", 32'b0 & {`VGA_THOLD_WIDTH{1'b1}}, Helper::EQUL);
   // verilog_format: on
 endtask
 
@@ -104,16 +107,20 @@ task automatic VGATest::test_rd_fb(input bit [31:0] run_times = 10);
   this.write(`VGA_HTIM_ADDR, 32'h2F1_7C0F & {`VGA_HTIM_WIDTH{1'b1}});
   // ((33-1) << 20) | ((2-1) << 10) | (10-1)
   this.write(`VGA_VTIM_ADDR, 32'h200_0409 & {`VGA_VTIM_WIDTH{1'b1}});
-  this.write(`VGA_FBBA1_ADDR, 32'h8000_0000);
-  this.write(`VGA_FBBA2_ADDR, 32'h8002_0000);
+  this.write(`VGA_FBBA1_ADDR, 32'h8000_0000);  // 0x9_6000
+  this.write(`VGA_FBBA2_ADDR, 32'h8010_0000);
+  this.write(`VGA_THOLD_ADDR, 32'd256);
   // div 4, test, en, rgb444
   ctrl_val[0]     = 1'd1;
   ctrl_val[4]     = 1'd1;
   ctrl_val[15:8]  = 8'd2;
   ctrl_val[18:17] = 2'd1;
-  ctrl_val[26:19] = 8'd64;
+  ctrl_val[26:19] = 8'd63;
   this.write(`VGA_CTRL_ADDR, ctrl_val & {`VGA_CTRL_WIDTH{1'b1}});
-  // repeat (800 * 525 * 4) @(posedge this.apb4.pclk);
+  for (int i = 0; i < 100; i++) begin
+    repeat (800 * 525 * 100) @(posedge this.apb4.pclk);
+  end
+  // while(1);
 endtask
 
 task automatic VGATest::test_irq(input bit [31:0] run_times = 10);
