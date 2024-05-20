@@ -38,7 +38,8 @@ The `vga` IP is a fully parameterised soft IP recording the SoC architecture and
 | [VTIM](#vertical-timing-reigster) | 0x0C | 4 | vertical timing register |
 | [FBBA1](#frame-buffer-base-address-1-reigster) | 0x10 | 4 | frame buffer base address 1 register |
 | [FBBA2](#frame-buffer-base-address-2-reigster) | 0x14 | 4 | frame buffer base address 2 register |
-| [STAT](#state-reigster) | 0x18 | 4 | state register |
+| [THOLD](#threshold-register) | 0x18 | 4 | threshold register |
+| [STAT](#state-reigster) | 0x1C | 4 | state register |
 
 #### Control Register
 | bit | access  | description |
@@ -162,6 +163,16 @@ reset value: `0x0000_0000`
 reset value: `0x0000_0000`
 
 * FBBA2: frame buffer base address 2
+
+#### Threshold Register
+| bit | access  | description |
+|:---:|:-------:| :---------: |
+| `[31:10]` | none | reserved |
+| `[9:0]` | RW | THOLD |
+
+reset value: `0x0000_0000`
+
+* THOLD: tx fifo threshold, if the number of data in fifo is large than `THOLD`, the axi4 master interface stop sending request
 
 #### State Reigster
 | bit | access  | description |
