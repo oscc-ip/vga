@@ -37,7 +37,7 @@
 
 `include "axi4_if.sv"
 
-`define AXI4_SIM_BASE_ADDR 32'h80000_0000
+`define AXI4_SIM_BASE_ADDR 32'h8000_0000
 
 module axi4_mem_model #(
     parameter int  BUFFER_DEPTH        = 1024,
@@ -55,18 +55,12 @@ module axi4_mem_model #(
     axi4_if.slave axi4
 );
 
-  typedef enum logic [1:0] {
-    FIXED = 2'b00,
-    INCR  = 2'b01,
-    WRAP  = 2'b10
-  } axi4_sim_burst_t;
-
   typedef struct packed {
     logic [`AXI4_ID_WIDTH-1:0]   id;
     logic [`AXI4_ADDR_WIDTH-1:0] addr;
     logic [7:0]                  len;
     logic [2:0]                  size;
-    axi4_sim_burst_t             burst;
+    logic [1:0]                  burst;
   } axi4_sim_arreq_t;
 
   typedef struct packed {
@@ -82,9 +76,10 @@ module axi4_mem_model #(
       input logic [2:0] asize_i, input logic [1:0] aburst_i, input int beat_i);
 
     logic [`AXI4_ADDR_WIDTH-1:0] res = addr_i;
-    if (beat_i != 0 && aburst_i == `AXI4_BURST_TYPE_INCR) begin
+    if (aburst_i == `AXI4_BURST_TYPE_INCR) begin
       res = addr_i + beat_i * (1 << asize_i);
     end
+    $display("addr_i: %h beat_i: %d asize_i: %d res: %h", addr_i, beat_i, asize_i, res);
     return res;
   endfunction
 
@@ -119,7 +114,7 @@ module axi4_mem_model #(
           automatic
           axi4_sim_arreq_t
           ar = {
-            axi4.arid, axi4.araddr - `AXI4_SIM_BASE_ADDR, axi4.arlen, axi4.arsize, axi4.arburst
+            axi4.arid, axi4.araddr, axi4.arlen, axi4.arsize, axi4.arburst
           };
           ar_queue.push_back(ar);
         end
@@ -130,16 +125,18 @@ module axi4_mem_model #(
         #(APP_DELAY);
         axi4.rvalid = 1'b0;
         if (ar_queue.size() != 0) begin
-          automatic axi4_sim_burst_t burst = ar_queue[0].burst;
+          automatic logic [1:0] burst = ar_queue[0].burst;
           automatic logic [7:0] len = ar_queue[0].len;
           automatic logic [2:0] size = ar_queue[0].size;
           automatic
           logic [`AXI4_ADDR_WIDTH-1:0]
           addr = axi4_sim_beat_addr(
-              ar_queue[0].addr, size, len, burst, r_cnt
+              ar_queue[0].addr, len, size, burst, r_cnt
           );
+
           automatic axi4_sim_rreq_t r_beat = '0;
           automatic logic [`AXI4_DATA_WIDTH-1:0] r_data = 'x;  // compatibility reasons
+          $display("mem: %h", mem[addr]);
           r_beat.data = 'x;
           r_beat.id   = ar_queue[0].id;
           r_beat.resp = `AXI4_RESP_OKAY;
