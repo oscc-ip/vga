@@ -49,7 +49,12 @@
 
 `include "register.sv"
 `include "fifo.sv"
+`include "axi4_define.sv"
 `include "vga_define.sv"
+
+// BPP: pixel percent trans
+`define VGA_RGB332_PPT `AXI4_DATA_BYTES
+`define VGA_RGBOTH_PPT (`AXI4_DATA_BYTES / 2)
 
 module axi4_vga #(
     parameter int FIFO_DEPTH = 512
@@ -74,6 +79,8 @@ module axi4_vga #(
   logic s_vga_fbba1_en;
   logic [`VGA_FBBA2_WIDTH-1:0] s_vga_fbba2_d, s_vga_fbba2_q;
   logic s_vga_fbba2_en;
+  logic [`VGA_THOLD_WIDTH-1:0] s_vga_thold_d, s_vga_thold_q;
+  logic s_vga_thold_en;
   logic [`VGA_STAT_WIDTH-1:0] s_vga_stat_d, s_vga_stat_q;
   // bit signal
   logic s_bit_en, s_bit_hie, s_bit_vie, s_bit_vbsie, s_bit_vbse;
@@ -85,6 +92,7 @@ module axi4_vga #(
   logic [`VGA_VB_WIDTH-1:0] s_bit_hvlen, s_bit_vvlen;
   logic [`VGA_TB_WIDTH-1:0] s_bit_hfpsize, s_bit_hsnsize, s_bit_hbpsize;
   logic [`VGA_TB_WIDTH-1:0] s_bit_vfpsize, s_bit_vsnsize, s_bit_vbpsize;
+  logic [`VGA_THOLD_WIDTH-1:0] s_bit_thold;
   // ctrl signal
   logic s_hsync, s_vsync;
   // fifo signal
@@ -128,6 +136,7 @@ module axi4_vga #(
   assign s_bit_vfpsize   = s_vga_vtim_q[`VGA_TB_WIDTH-1:0];
   assign s_bit_vsnsize   = s_vga_vtim_q[2*`VGA_TB_WIDTH-1:`VGA_TB_WIDTH];
   assign s_bit_vbpsize   = s_vga_vtim_q[3*`VGA_TB_WIDTH-1:2*`VGA_TB_WIDTH];
+  assign s_bit_thold     = s_vga_thold_q[`VGA_THOLD_WIDTH-1:0];
   assign s_bit_hif       = s_vga_stat_q[0];
   assign s_bit_vif       = s_vga_stat_q[1];
   assign s_bit_vbsif     = s_vga_stat_q[2];
@@ -203,6 +212,16 @@ module axi4_vga #(
       s_vga_fbba2_q
   );
 
+  assign s_vga_thold_en = s_apb4_wr_hdshk && s_apb4_addr == `VGA_THOLD;
+  assign s_vga_thold_d  = apb4.pwdata[`VGA_THOLD_WIDTH-1:0];
+  dffer #(`VGA_THOLD_WIDTH) u_vga_thold_dffer (
+      apb4.pclk,
+      apb4.presetn,
+      s_vga_thold_en,
+      s_vga_thold_d,
+      s_vga_thold_q
+  );
+
   always_comb begin
     s_vga_stat_d[3] = s_cfb_q;
     // xx_irq_i has higher priority, when xx_irq_i is 1, dont care other signal
@@ -236,6 +255,7 @@ module axi4_vga #(
         `VGA_VTIM:  apb4.prdata[`VGA_VTIM_WIDTH-1:0] = s_vga_vtim_q;
         `VGA_FBBA1: apb4.prdata[`VGA_FBBA1_WIDTH-1:0] = s_vga_fbba1_q;
         `VGA_FBBA2: apb4.prdata[`VGA_FBBA2_WIDTH-1:0] = s_vga_fbba2_q;
+        `VGA_THOLD: apb4.prdata[`VGA_THOLD_WIDTH-1:0] = s_vga_thold_q;
         `VGA_STAT:  apb4.prdata[`VGA_STAT_WIDTH-1:0] = s_vga_stat_q;
         default:    apb4.prdata = '0;
       endcase
@@ -311,14 +331,19 @@ module axi4_vga #(
         `VGA_AXI_MST_FSM_R: begin
           if (s_axi4_r_hdshk && axi4.rlast) begin
             s_axi4_mst_state_d = `VGA_AXI_MST_FSM_AR;
-            if (s_bit_hvlen * s_bit_vvlen == s_pixel_cnt_q + s_axi4_arlen_q * 8) begin
+            if ((s_bit_mode == `VGA_RGB332_MODE && s_bit_hvlen * s_bit_vvlen == s_pixel_cnt_q + s_axi4_arlen_q * `VGA_RGB332_PPT)
+            || (s_bit_mode != `VGA_RGB332_MODE && s_bit_hvlen * s_bit_vvlen == s_pixel_cnt_q + s_axi4_arlen_q * `VGA_RGBOTH_PPT)) begin
               s_pixel_cnt_d = '0;
               s_axi4_addr_d = s_cfb_d ? s_vga_fbba2_q : s_vga_fbba1_q;
               s_cfb_d       = s_cfb_q ^ s_bit_vbse;
               s_vbsirq      = 1'b1;
             end else begin
-              s_pixel_cnt_d = s_pixel_cnt_q + s_axi4_arlen_q * 8;
-              s_axi4_addr_d = s_axi4_addr_q + s_axi4_arlen_q * 8;
+              if (s_bit_mode == `VGA_RGB332_MODE) begin
+                s_pixel_cnt_d = s_pixel_cnt_q + s_axi4_arlen_q * `VGA_RGB332_PPT;
+              end else begin
+                s_pixel_cnt_d = s_pixel_cnt_q + s_axi4_arlen_q * `VGA_RGBOTH_PPT;
+              end
+              s_axi4_addr_d = s_axi4_addr_q + s_axi4_arlen_q * `AXI4_DATA_BYTES;
               // $display("axi4 addr d: %h arlen: %h", s_axi4_addr_d, s_axi4_arlen_q);
             end
           end

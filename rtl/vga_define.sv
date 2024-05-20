@@ -87,6 +87,11 @@
  * FIELDS: | FBBA2 |
  * PERMS:  | RW    |
  * --------------------------------------------------------------------------------------------------------
+ * VGA_THOLD:
+ * BITS:   | 31:10 | 9:0   |
+ * FIELDS: | RES   | THOLD |
+ * PERMS:  | NONE  | RW    |
+ * --------------------------------------------------------------------------------------------------------
  * VGA_STAT:
  * BITS:   | 31:4 | 3   | 2      | 1      | 0      |
  * FIELDS: | RES  | CFB | VBSIF  | VIF    | HIF    |
@@ -101,7 +106,8 @@
 `define VGA_VTIM  4'b0011 // BASEADDR + 0x0C
 `define VGA_FBBA1 4'b0100 // BASEADDR + 0x10
 `define VGA_FBBA2 4'b0101 // BASEADDR + 0x14
-`define VGA_STAT  4'b0110 // BASEADDR + 0x18
+`define VGA_THOLD 4'b0110 // BASEADDR + 0x18
+`define VGA_STAT  4'b0111 // BASEADDR + 0x1C
 
 
 `define VGA_CTRL_ADDR  {26'b0, `VGA_CTRL , 2'b00}
@@ -110,6 +116,7 @@
 `define VGA_VTIM_ADDR  {26'b0, `VGA_VTIM , 2'b00}
 `define VGA_FBBA1_ADDR {26'b0, `VGA_FBBA1, 2'b00}
 `define VGA_FBBA2_ADDR {26'b0, `VGA_FBBA2, 2'b00}
+`define VGA_THOLD_ADDR {26'b0, `VGA_THOLD, 2'b00}
 `define VGA_STAT_ADDR  {26'b0, `VGA_STAT , 2'b00}
 
 `define VGA_CTRL_WIDTH  27
@@ -118,13 +125,14 @@
 `define VGA_VTIM_WIDTH  30
 `define VGA_FBBA1_WIDTH 32
 `define VGA_FBBA2_WIDTH 32
+`define VGA_THOLD_WIDTH 10
 `define VGA_STAT_WIDTH  4
 
 `define VGA_TB_WIDTH      10 // timing bitfield width
 `define VGA_VB_WIDTH      16 // visible bitfield width
 `define VGA_DIV_WIDTH     8
 `define VGA_BURLEN_WIDTH  8
-
+`define VGA_THOLD_WIDTH   10
 
 `define VGA_RGB332_MODE 2'b00
 `define VGA_RGB444_MODE 2'b01
