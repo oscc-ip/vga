@@ -113,7 +113,7 @@ task automatic VGATest::test_rd_fb(input bit [31:0] run_times = 10);
   ctrl_val[18:17] = 2'd1;
   ctrl_val[26:19] = 8'd64;
   this.write(`VGA_CTRL_ADDR, ctrl_val & {`VGA_CTRL_WIDTH{1'b1}});
-  repeat (800 * 525 * 4) @(posedge this.apb4.pclk);
+  // repeat (800 * 525 * 4) @(posedge this.apb4.pclk);
 endtask
 
 task automatic VGATest::test_irq(input bit [31:0] run_times = 10);

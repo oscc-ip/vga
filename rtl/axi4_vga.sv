@@ -273,8 +273,10 @@ module axi4_vga #(
   assign axi4.arqos      = '0;
   assign axi4.arregion   = '0;
   assign axi4.aruser     = '0;
-  assign axi4.arvalid    = s_norm_mode && s_tx_push_ready;
+  // verilog_format: off
+  assign axi4.arvalid    = s_norm_mode && s_tx_push_ready && s_axi4_mst_state_q == `VGA_AXI_MST_FSM_AR;
   assign axi4.rready     = 1'b1;
+  // verilog_format: on
 
   assign s_axi4_ar_hdshk = axi4.arvalid && axi4.arready;
   assign s_axi4_r_hdshk  = axi4.rvalid && axi4.rready;
@@ -319,11 +321,6 @@ module axi4_vga #(
             end
           end
         end
-        // default: begin
-        //   s_axi4_mst_state_d = `VGA_AXI_MST_FSM_AR;
-        //   s_axi4_addr_d      = s_vga_fbba1_q;
-        //   axi4.arlen         = '0;
-        // end
       endcase
     end else begin
       s_axi4_mst_state_d = `VGA_AXI_MST_FSM_AR;
@@ -343,10 +340,9 @@ module axi4_vga #(
       s_axi4_mst_state_q
   );
 
-  dffer #(32) u_axi4_addr_dffer (
+  dffr #(32) u_axi4_addr_dffr (
       axi4.aclk,
       axi4.aresetn,
-      s_norm_mode,
       s_axi4_addr_d,
       s_axi4_addr_q
   );
