@@ -18,6 +18,7 @@ SRC_FILE += ../rtl/vga_cnt.sv
 SRC_FILE += ../rtl/vga_timgen.sv
 SRC_FILE += ../rtl/vga_core.sv
 SRC_FILE += ../rtl/axi4_vga.sv
+SRC_FILE += ../model/axi4_mem_model.sv
 
 SRC_FILE += ../tb/vga_test.sv
 SRC_FILE += ../tb/test_top.sv
