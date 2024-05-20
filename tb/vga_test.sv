@@ -94,19 +94,29 @@ task automatic VGATest::test_tm_mode(input bit [31:0] run_times = 10);
 endtask
 
 task automatic VGATest::test_rd_fb(input bit [31:0] run_times = 10);
+  bit [31:0] ctrl_val = '0;
   $display("=== [test vga rd fb] ===");
-
+  repeat (800 * 525 * 4) @(posedge this.apb4.pclk);
+  this.write(`VGA_CTRL_ADDR, 32'b0 & {`VGA_CTRL_WIDTH{1'b1}});
+  // ((480-1) << 16) | (640-1)
+  this.write(`VGA_HVVL_ADDR, 32'h1DF_027F & {`VGA_CTRL_WIDTH{1'b1}});
+  // ((48-1) << 20) | ((96-1) << 10) | (16-1)
+  this.write(`VGA_HTIM_ADDR, 32'h2F1_7C0F & {`VGA_HTIM_WIDTH{1'b1}});
+  // ((33-1) << 20) | ((2-1) << 10) | (10-1)
+  this.write(`VGA_VTIM_ADDR, 32'h200_0409 & {`VGA_VTIM_WIDTH{1'b1}});
+  this.write(`VGA_FBBA1_ADDR, 32'h8000_0000);
+  this.write(`VGA_FBBA2_ADDR, 32'h8002_0000);
+  // div 4, test, en, rgb444
+  ctrl_val[0]     = 1'd1;
+  ctrl_val[4]     = 1'd1;
+  ctrl_val[15:8]  = 8'd2;
+  ctrl_val[18:17] = 2'd1;
+  ctrl_val[26:19] = 8'd64;
+  this.write(`VGA_CTRL_ADDR, ctrl_val & {`VGA_CTRL_WIDTH{1'b1}});
+  repeat (800 * 525 * 4) @(posedge this.apb4.pclk);
 endtask
 
 task automatic VGATest::test_irq(input bit [31:0] run_times = 10);
   super.test_irq();
-
-  // for (int i = 0; i < run_times; i++) begin
-  // this.write(`PWM_CTRL_ADDR, 32'b0 & {`PWM_CTRL_WIDTH{1'b1}});
-  // this.read(`PWM_STAT_ADDR);
-  // $display("%t rd_data: %h", $time, super.rd_data);
-  // this.write(`PWM_CTRL_ADDR, 32'b11 & {`PWM_CTRL_WIDTH{1'b1}});
-  // repeat (200) @(posedge this.apb4.pclk);
-  // end
 endtask
 `endif
