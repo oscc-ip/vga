@@ -293,7 +293,7 @@ module axi4_vga #(
       s_axi4_arlen_d     = s_axi4_arlen_q;
       s_pixel_cnt_d      = s_pixel_cnt_q;
       s_cfb_d            = s_cfb_q;
-      axi4.arlen         = '0;
+      axi4.arlen         = s_axi4_addr_q;
       s_vbsirq           = '0;
       unique case (s_axi4_mst_state_q)
         `VGA_AXI_MST_FSM_AR: begin
@@ -305,19 +305,21 @@ module axi4_vga #(
               axi4.arlen = (s_fifo_rem_len < s_bit_burlen) ? s_fifo_rem_len : s_bit_burlen;
             end
             s_axi4_arlen_d = axi4.arlen;
+            // $display("axi4.arlen: %d val: %d", axi4.arlen, axi4.arlen * 8);
           end
         end
         `VGA_AXI_MST_FSM_R: begin
           if (s_axi4_r_hdshk && axi4.rlast) begin
             s_axi4_mst_state_d = `VGA_AXI_MST_FSM_AR;
-            if (s_bit_hvlen * s_bit_vvlen == s_pixel_cnt_q + s_axi4_arlen_q) begin
+            if (s_bit_hvlen * s_bit_vvlen == s_pixel_cnt_q + s_axi4_arlen_q * 8) begin
               s_pixel_cnt_d = '0;
               s_axi4_addr_d = s_cfb_d ? s_vga_fbba2_q : s_vga_fbba1_q;
               s_cfb_d       = s_cfb_q ^ s_bit_vbse;
               s_vbsirq      = 1'b1;
             end else begin
-              s_pixel_cnt_d = s_pixel_cnt_q + s_axi4_arlen_q;
-              s_axi4_addr_d = s_axi4_addr_q + s_axi4_arlen_q;
+              s_pixel_cnt_d = s_pixel_cnt_q + s_axi4_arlen_q * 8;
+              s_axi4_addr_d = s_axi4_addr_q + s_axi4_arlen_q * 8;
+              // $display("axi4 addr d: %h arlen: %h", s_axi4_addr_d, s_axi4_arlen_q);
             end
           end
         end
@@ -325,10 +327,10 @@ module axi4_vga #(
     end else begin
       s_axi4_mst_state_d = `VGA_AXI_MST_FSM_AR;
       s_axi4_addr_d      = s_vga_fbba1_q;
-      s_axi4_arlen_d     = s_axi4_arlen_q;
+      s_axi4_arlen_d     = s_bit_burlen;
       s_pixel_cnt_d      = s_pixel_cnt_q;
       s_cfb_d            = s_cfb_q;
-      axi4.arlen         = '0;
+      axi4.arlen         = s_bit_burlen;
       s_vbsirq           = '0;
     end
   end
@@ -347,10 +349,9 @@ module axi4_vga #(
       s_axi4_addr_q
   );
 
-  dffer #(8) u_axi4_arlen_dffer (
+  dffr #(8) u_axi4_arlen_dffr (
       axi4.aclk,
       axi4.aresetn,
-      s_norm_mode,
       s_axi4_arlen_d,
       s_axi4_arlen_q
   );
