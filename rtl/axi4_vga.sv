@@ -332,11 +332,12 @@ module axi4_vga #(
         `VGA_AXI_MST_FSM_R: begin
           if (s_axi4_r_hdshk && axi4.rlast) begin
             s_axi4_mst_state_d = `VGA_AXI_MST_FSM_AR;
-            if (s_rem_pixel_len == '0) begin
+            if (s_rem_pixel_len - 1 == s_axi4_arlen_q) begin
               s_pixel_cnt_d = '0;
-              s_axi4_addr_d = s_cfb_d ? s_vga_fbba2_q : s_vga_fbba1_q;
+              s_axi4_addr_d = s_cfb_q ? s_vga_fbba1_q : s_vga_fbba2_q;
               s_cfb_d       = s_cfb_q ^ s_bit_vbse;
               s_vbsirq      = 1'b1;
+              if(s_cfb_q == 1'b1) $finish;
             end else begin
               if (s_bit_mode == `VGA_RGB332_MODE) begin
                 s_pixel_cnt_d = s_pixel_cnt_q + s_axi4_arlen_q + 1;
@@ -344,7 +345,7 @@ module axi4_vga #(
                 s_pixel_cnt_d = s_pixel_cnt_q + s_axi4_arlen_q + 1;
               end
               s_axi4_addr_d = s_axi4_addr_q + (s_axi4_arlen_q + 1) * `AXI4_DATA_BYTES;
-              // $display("axi4 addr d: %h arlen: %h", s_axi4_addr_d, s_axi4_arlen_q);
+              $display("axi4_addr: %h arlen: %h", s_axi4_addr_q, s_axi4_arlen_q);
             end
           end
         end
