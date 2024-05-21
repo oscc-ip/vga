@@ -98,9 +98,11 @@ endtask
 
 task automatic VGATest::test_rd_fb(input bit [31:0] run_times = 10);
   bit [31:0] ctrl_val = '0;
+  bit [3:0] switch_cnt = '0;
   $display("=== [test vga rd fb] ===");
   repeat (800 * 525 * 4) @(posedge this.apb4.pclk);
   this.write(`VGA_CTRL_ADDR, 32'b0 & {`VGA_CTRL_WIDTH{1'b1}});
+  this.write(`VGA_STAT_ADDR, 4'b0000);
   // ((480-1) << 16) | (640-1)
   this.write(`VGA_HVVL_ADDR, 32'h1DF_027F & {`VGA_CTRL_WIDTH{1'b1}});
   // ((48-1) << 20) | ((96-1) << 10) | (16-1)
@@ -112,6 +114,7 @@ task automatic VGATest::test_rd_fb(input bit [31:0] run_times = 10);
   this.write(`VGA_THOLD_ADDR, 32'd256);
   // div 4, test, en, rgb444
   ctrl_val[0]     = 1'd1;
+  ctrl_val[3]     = 1'd1;
   ctrl_val[4]     = 1'd1;
   ctrl_val[15:8]  = 8'd2;
   ctrl_val[18:17] = 2'd1;
@@ -120,11 +123,17 @@ task automatic VGATest::test_rd_fb(input bit [31:0] run_times = 10);
   // for (int i = 0; i < 100; i++) begin
   //   repeat (800 * 525 * 100) @(posedge this.apb4.pclk);
   // end
-
-
-  while (1) begin
+  while (switch_cnt < 4'd4) begin
     this.read(`VGA_STAT_ADDR);
-
+    if (super.rd_data[2] == 1'b1) begin
+      if (super.rd_data[3] == 0) begin
+        $display("switch to fb2");
+      end else begin
+        $display("switch to fb1");
+      end
+      ++switch_cnt;
+      this.write(`VGA_STAT_ADDR, 4'b0000);
+    end
   end
 endtask
 
