@@ -9,7 +9,7 @@
 
 with open("sim.mem", "w+", encoding='utf-8') as f:
     f.write("@80000000\n")
-    for i in range(800 * 600): # 640x480
+    for i in range(2097152): # 640x480
         for k in range(8):
             txt = "{:x} "
             f.write(txt.format((i >> (8 * k)) & 0xFF))

@@ -301,8 +301,8 @@ module axi4_vga #(
 
   assign s_fifo_rem_len  = FIFO_DEPTH - s_tx_elem;
   assign s_all_pixel_len = s_bit_mode == `VGA_RGB332_MODE ?
-                           s_bit_hvlen * s_bit_vvlen / `VGA_RGB332_PPT : s_bit_hvlen * s_bit_vvlen / `VGA_RGBOTH_PPT;
-  assign s_rem_pixel_len  = s_all_pixel_len - s_pixel_cnt_q;
+                           (s_bit_hvlen+1) * (s_bit_vvlen + 1) / `VGA_RGB332_PPT : (s_bit_hvlen + 1) * (s_bit_vvlen + 1) / `VGA_RGBOTH_PPT;
+  assign s_rem_pixel_len = s_all_pixel_len - s_pixel_cnt_q;
   // control logic signals
   // [araddr, arlen, arvalid, arready]
   // [rid, rdata, rresp, rlast, rvalid]
@@ -321,9 +321,9 @@ module axi4_vga #(
             $display("s_rem_pixel_len: %h", s_rem_pixel_len);
             s_axi4_mst_state_d = `VGA_AXI_MST_FSM_R;
             if (s_rem_pixel_len < s_fifo_rem_len) begin  // aligned to the one frame bound
-              axi4.arlen = (s_rem_pixel_len < s_bit_burlen) ? s_rem_pixel_len : s_bit_burlen;
+              axi4.arlen = (s_rem_pixel_len - 1 < s_bit_burlen) ? s_rem_pixel_len - 1 : s_bit_burlen;
             end else begin
-              axi4.arlen = (s_fifo_rem_len < s_bit_burlen) ? s_fifo_rem_len : s_bit_burlen;
+              axi4.arlen = (s_fifo_rem_len - 1 < s_bit_burlen) ? s_fifo_rem_len - 1 : s_bit_burlen;
             end
             s_axi4_arlen_d = axi4.arlen;
             // $display("axi4.arlen: %d val: %d", axi4.arlen, axi4.arlen * 8);
@@ -332,20 +332,18 @@ module axi4_vga #(
         `VGA_AXI_MST_FSM_R: begin
           if (s_axi4_r_hdshk && axi4.rlast) begin
             s_axi4_mst_state_d = `VGA_AXI_MST_FSM_AR;
-            if (s_rem_pixel_len == s_axi4_arlen_q) begin
+            if (s_rem_pixel_len == '0) begin
               s_pixel_cnt_d = '0;
-              $display("hello");
-              $finish;
               s_axi4_addr_d = s_cfb_d ? s_vga_fbba2_q : s_vga_fbba1_q;
               s_cfb_d       = s_cfb_q ^ s_bit_vbse;
               s_vbsirq      = 1'b1;
             end else begin
               if (s_bit_mode == `VGA_RGB332_MODE) begin
-                s_pixel_cnt_d = s_pixel_cnt_q + s_axi4_arlen_q;
+                s_pixel_cnt_d = s_pixel_cnt_q + s_axi4_arlen_q + 1;
               end else begin
-                s_pixel_cnt_d = s_pixel_cnt_q + s_axi4_arlen_q;
+                s_pixel_cnt_d = s_pixel_cnt_q + s_axi4_arlen_q + 1;
               end
-              s_axi4_addr_d = s_axi4_addr_q + s_axi4_arlen_q * `AXI4_DATA_BYTES;
+              s_axi4_addr_d = s_axi4_addr_q + (s_axi4_arlen_q + 1) * `AXI4_DATA_BYTES;
               // $display("axi4 addr d: %h arlen: %h", s_axi4_addr_d, s_axi4_arlen_q);
             end
           end
