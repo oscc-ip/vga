@@ -196,20 +196,20 @@ reset value: `0x0000_0000`
 ### Program Guide
 Config registers can be accessed by 4-byte aligned read and write. C-like pseudocode init operation:
 ```c
-vga.CTRL = (uint32_t)0
-vga.HVVL.HVLEN = HOR_VIS_16_bit - 1  // set horizon visible length
-vga.HVVL.VVLEN = VER_VIS_16_bit - 1  // set vertical visible length
-vga.HTIM.HBPSIZE = HBP_16_bit - 1    // set hori timing params
-vga.HTIM.HSNSIZE = HSN_16_bit - 1    // set hori timing params
-vga.HTIM.HFPSIZE = HFP_16_bit - 1    // set hori timing params
-vga.VTIM.HBPSIZE = VBP_16_bit - 1    // set vert timing params
-vga.VTIM.HSNSIZE = VSN_16_bit - 1    // set vert timing params
-vga.VTIM.HFPSIZE = VFP_16_bit - 1    // set vert timing params
+vga.CTRL         = (uint32_t)0
+vga.HVVL.HVLEN   = HOR_VIS_16_bit - 1 // set horizon visible length
+vga.HVVL.VVLEN   = VER_VIS_16_bit - 1 // set vertical visible length
+vga.HTIM.HBPSIZE = HBP_16_bit - 1     // set hori timing params
+vga.HTIM.HSNSIZE = HSN_16_bit - 1     // set hori timing params
+vga.HTIM.HFPSIZE = HFP_16_bit - 1     // set hori timing params
+vga.VTIM.HBPSIZE = VBP_16_bit - 1     // set vert timing params
+vga.VTIM.HSNSIZE = VSN_16_bit - 1     // set vert timing params
+vga.VTIM.HFPSIZE = VFP_16_bit - 1     // set vert timing params
 vga.FBBA1        = FB1_ADDRESS_32_bit
 vga.FBBA2        = FB2_ADDRESS_32_bit
-vga.CTRL.DIV     = (uint32_t)2       // div 4
-vga.CTRL.MODE    = (uint32_t)1       // rgb444 mode
-vga.CTRL.BURLEN  = (uint32_t)63      // 64 burst len
+vga.CTRL.DIV     = (uint32_t)2        // div 4
+vga.CTRL.MODE    = (uint32_t)1        // rgb444 mode
+vga.CTRL.BURLEN  = (uint32_t)63       // 64 burst len
 ```
 
 normal operation:
@@ -226,7 +226,7 @@ void fill_fb(uint32_t block) {
 
 fill_fb(0)
 fill_fb(1)
-vga.CTRL.[VBSE, VBSIE, EN] = 1       // irq, core en
+vga.CTRL.[VBSE, VBSIE, EN] = 1         // irq, core en
 while(1) {
     if(vga.STAT.VBSIF) {
         vga.STAT.VBSIF = (uint32_t) 0; // clear irq flag
