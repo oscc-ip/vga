@@ -1,5 +1,5 @@
 // Copyright (c) 2023 Beijing Institute of Open Source Chip
-// vga is licensed under Mulan PSL v2.
+// vgalcd is licensed under Mulan PSL v2.
 // You can use this software according to the terms and conditions of the Mulan PSL v2.
 // You may obtain a copy of Mulan PSL v2 at:
 //             http://license.coscl.org.cn/MulanPSL2
@@ -10,9 +10,9 @@
 
 `include "apb4_if.sv"
 `include "axi4_if.sv"
-`include "vga_define.sv"
+`include "vgalcd_define.sv"
 
-module axi4_vga_tb ();
+module axi4_vgalcd_tb ();
   localparam CLK_PEROID = 10;
   logic rst_n_i, clk_i;
 
@@ -47,16 +47,16 @@ module axi4_vga_tb ();
       rst_n_i
   );
 
-  vga_if u_vga_if ();
+  vgalcd_if u_vgalcd_if ();
 
   test_top u_test_top (
-      .apb4(u_apb4_if.master),
-      .vga (u_vga_if.tb)
+      .apb4  (u_apb4_if.master),
+      .vgalcd(u_vgalcd_if.tb)
   );
-  axi4_vga u_axi4_vga (
-      .apb4(u_apb4_if.slave),
-      .axi4(u_axi4_if.master),
-      .vga (u_vga_if.dut)
+  axi4_vgalcd u_axi4_vgalcd (
+      .apb4  (u_apb4_if.slave),
+      .axi4  (u_axi4_if.master),
+      .vgalcd(u_vgalcd_if.dut)
   );
 
   axi4_mem_model #(

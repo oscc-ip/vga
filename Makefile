@@ -14,15 +14,15 @@ SIM_OPTIONS  := -full64 -debug_acc+all  +v2k -sverilog -timescale=1ns/10ps \
                 -kdb \
 
 SRC_FILE ?=
-SRC_FILE += ../rtl/vga_cnt.sv
-SRC_FILE += ../rtl/vga_timgen.sv
-SRC_FILE += ../rtl/vga_core.sv
-SRC_FILE += ../rtl/axi4_vga.sv
+SRC_FILE += ../rtl/vgalcd_cnt.sv
+SRC_FILE += ../rtl/vgalcd_timgen.sv
+SRC_FILE += ../rtl/vgalcd_core.sv
+SRC_FILE += ../rtl/axi4_vgalcd.sv
 SRC_FILE += ../model/axi4_mem_model.sv
 
-SRC_FILE += ../tb/vga_test.sv
+SRC_FILE += ../tb/vgalcd_test.sv
 SRC_FILE += ../tb/test_top.sv
-SRC_FILE += ../tb/axi4_vga_tb.sv
+SRC_FILE += ../tb/axi4_vgalcd_tb.sv
 
 SIM_INC ?=
 SIM_INC += +incdir+../rtl/
@@ -32,7 +32,7 @@ SIM_INC += +incdir+../../common/rtl/tech
 SIM_INC += +incdir+../../common/rtl/verif
 SIM_INC += +incdir+../../common/rtl/interface
 
-SIM_APP  ?= axi4_vga
+SIM_APP  ?= axi4_vgalcd
 SIM_TOP  := $(SIM_APP)_tb
 
 WAVE_CFG ?= # WAVE_ON

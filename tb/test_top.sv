@@ -10,11 +10,11 @@
 
 `include "apb4_if.sv"
 `include "helper.sv"
-`include "vga_define.sv"
+`include "vgalcd_define.sv"
 
 program automatic test_top (
     apb4_if.master apb4,
-    vga_if.tb   vga
+    vgalcd_if.tb   vgalcd
 );
 
   string wave_name = "default.fsdb";
@@ -27,21 +27,21 @@ program automatic test_top (
     end
   endtask
 
-  VGATest vga_hdl;
+  VGALCDTest vgalcd_hdl;
 
   initial begin
     Helper::start_banner();
     sim_config();
     @(posedge apb4.presetn);
     Helper::print("tb init done");
-    vga_hdl = new("vga_test", apb4, vga);
-    vga_hdl.init();
-    vga_hdl.test_reset_reg();
-    vga_hdl.test_wr_rd_reg();
-    vga_hdl.test_clk_div();
-    vga_hdl.test_tm_mode();
-    vga_hdl.test_rd_fb();
-    // vga_hdl.test_irq();
+    vgalcd_hdl = new("vgalcd_test", apb4, vgalcd);
+    vgalcd_hdl.init();
+    vgalcd_hdl.test_reset_reg();
+    vgalcd_hdl.test_wr_rd_reg();
+    vgalcd_hdl.test_clk_div();
+    vgalcd_hdl.test_tm_mode();
+    vgalcd_hdl.test_rd_fb();
+    // vgalcd_hdl.test_irq();
 
     Helper::end_banner();
     #20000 $finish;
