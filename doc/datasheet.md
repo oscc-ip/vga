@@ -1,7 +1,7 @@
 ## Datasheet
 
 ### Overview
-The `vga` IP is a fully parameterised soft IP recording the SoC architecture and ASIC backend informations. The IP features an APB4 slave register interface, fully compliant with the AMBA APB Protocol Specification v2.0 and. In addition, the IP features an AXI4 master interface, support memory-map read operation.
+The `vgalcd` IP is a fully parameterised soft IP recording the SoC architecture and ASIC backend informations. The IP features an APB4 slave register interface, fully compliant with the AMBA APB Protocol Specification v2.0 and. In addition, the IP features an AXI4 master interface, support memory-map read operation.
 
 ### Feature
 * VGA and LCD mode support
@@ -17,15 +17,15 @@ The `vga` IP is a fully parameterised soft IP recording the SoC architecture and
 |:--------- |:------------|:---------------------|
 | apb4      | interface   | apb4 slave interface |
 | axi4      | interface   | axi4 master interface |
-| vga ->| interface | vga slave interface |
-| `vga.vga_r_o[4:0]` | output | vga red data output |
-| `vga.vga_g_o[5:0]` | output | vga green data output |
-| `vga.vga_b_o[4:0]` | output | vga blue data output |
-| `vga.vga_hsync_o` | output | vga horizon sync output |
-| `vga.vga_vsync_o` | output | vga vertical sync output |
-| `vga.vga_de_o` | output | vga data enable output |
-| `vga.vga_pclk_o` | output | vga pixel clock output |
-| `vga.irq_o` | output | vga interrupt output |
+| vgalcd ->| interface | vgalcd interface |
+| `vgalcd.vgalcd_r_o[4:0]` | output | vgalcd red data output |
+| `vgalcd.vgalcd_g_o[5:0]` | output | vgalcd green data output |
+| `vgalcd.vgalcd_b_o[4:0]` | output | vgalcd blue data output |
+| `vgalcd.vgalcd_hsync_o` | output | vgalcd horizon sync output |
+| `vgalcd.vgalcd_vsync_o` | output | vgalcd vertical sync output |
+| `vgalcd.vgalcd_de_o` | output | vgalcd data enable output |
+| `vgalcd.vgalcd_pclk_o` | output | vgalcd pixel clock output |
+| `vgalcd.irq_o` | output | vgalcd interrupt output |
 
 
 ### Register
@@ -196,20 +196,20 @@ reset value: `0x0000_0000`
 ### Program Guide
 Config registers can be accessed by 4-byte aligned read and write. C-like pseudocode init operation:
 ```c
-vga.CTRL         = (uint32_t)0
-vga.HVVL.HVLEN   = HOR_VIS_16_bit - 1 // set horizon visible length
-vga.HVVL.VVLEN   = VER_VIS_16_bit - 1 // set vertical visible length
-vga.HTIM.HBPSIZE = HBP_16_bit - 1     // set hori timing params
-vga.HTIM.HSNSIZE = HSN_16_bit - 1     // set hori timing params
-vga.HTIM.HFPSIZE = HFP_16_bit - 1     // set hori timing params
-vga.VTIM.HBPSIZE = VBP_16_bit - 1     // set vert timing params
-vga.VTIM.HSNSIZE = VSN_16_bit - 1     // set vert timing params
-vga.VTIM.HFPSIZE = VFP_16_bit - 1     // set vert timing params
-vga.FBBA1        = FB1_ADDRESS_32_bit
-vga.FBBA2        = FB2_ADDRESS_32_bit
-vga.CTRL.DIV     = (uint32_t)2        // div 4
-vga.CTRL.MODE    = (uint32_t)1        // rgb444 mode
-vga.CTRL.BURLEN  = (uint32_t)63       // 64 burst len
+vgalcd.CTRL         = (uint32_t)0
+vgalcd.HVVL.HVLEN   = HOR_VIS_16_bit - 1 // set horizon visible length
+vgalcd.HVVL.VVLEN   = VER_VIS_16_bit - 1 // set vertical visible length
+vgalcd.HTIM.HBPSIZE = HBP_16_bit - 1     // set hori timing params
+vgalcd.HTIM.HSNSIZE = HSN_16_bit - 1     // set hori timing params
+vgalcd.HTIM.HFPSIZE = HFP_16_bit - 1     // set hori timing params
+vgalcd.VTIM.HBPSIZE = VBP_16_bit - 1     // set vert timing params
+vgalcd.VTIM.HSNSIZE = VSN_16_bit - 1     // set vert timing params
+vgalcd.VTIM.HFPSIZE = VFP_16_bit - 1     // set vert timing params
+vgalcd.FBBA1        = FB1_ADDRESS_32_bit
+vgalcd.FBBA2        = FB2_ADDRESS_32_bit
+vgalcd.CTRL.DIV     = (uint32_t)2        // div 4
+vgalcd.CTRL.MODE    = (uint32_t)1        // rgb444 mode
+vgalcd.CTRL.BURLEN  = (uint32_t)63       // 64 burst len
 ```
 
 normal operation:
@@ -226,11 +226,11 @@ void fill_fb(uint32_t block) {
 
 fill_fb(0)
 fill_fb(1)
-vga.CTRL.[VBSE, VBSIE, EN] = 1         // irq, core en
+vgalcd.CTRL.[VBSE, VBSIE, EN] = 1         // irq, core en
 while(1) {
-    if(vga.STAT.VBSIF) {
-        vga.STAT.VBSIF = (uint32_t) 0; // clear irq flag
-        fill_fb(~vga.STAT.CFB)
+    if(vgalcd.STAT.VBSIF) {
+        vgalcd.STAT.VBSIF = (uint32_t) 0; // clear irq flag
+        fill_fb(~vgalcd.STAT.CFB)
     }
 }
 
