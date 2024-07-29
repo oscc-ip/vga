@@ -36,6 +36,7 @@ module vgalcd_cnt (
   assign end_o    = s_vgalcd_fsm_q == `VGALCD_TIMFSM_SYNC && cnt_done;
 
   always_comb begin
+    s_vgalcd_fsm_d = `VGALCD_TIMFSM_BACKPORCH;
     unique case (s_vgalcd_fsm_q)
       `VGALCD_TIMFSM_BACKPORCH:  if (en_i && cnt_done) s_vgalcd_fsm_d = `VGALCD_TIMFSM_VISIBLE;
       `VGALCD_TIMFSM_VISIBLE:    if (en_i && cnt_done) s_vgalcd_fsm_d = `VGALCD_TIMFSM_FRONTPORCH;
