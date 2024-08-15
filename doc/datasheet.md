@@ -207,7 +207,7 @@ vgalcd.VTIM.HSNSIZE = VSN_16_bit - 1     // set vert timing params
 vgalcd.VTIM.HFPSIZE = VFP_16_bit - 1     // set vert timing params
 vgalcd.FBBA1        = FB1_ADDRESS_32_bit
 vgalcd.FBBA2        = FB2_ADDRESS_32_bit
-vgalcd.CTRL.DIV     = (uint32_t)2        // div 4
+vgalcd.CTRL.DIV     = (uint32_t)3        // div 4
 vgalcd.CTRL.MODE    = (uint32_t)1        // rgb444 mode
 vgalcd.CTRL.BURLEN  = (uint32_t)63       // 64 burst len
 ```
