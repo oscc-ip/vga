@@ -75,11 +75,11 @@ endtask
 
 task automatic VGALCDTest::test_clk_div(input bit [31:0] run_times = 10);
   $display("=== [test vgalcd clk div] ===");
-  // div 2
+  // div 1
   this.write(`VGALCD_CTRL_ADDR, '0 & {`VGALCD_CTRL_WIDTH{1'b1}});
   repeat (50) @(posedge this.apb4.pclk);
-  // div 4
-  this.write(`VGALCD_CTRL_ADDR, 32'h02_00 & {`VGALCD_CTRL_WIDTH{1'b1}});
+  // div 2
+  this.write(`VGALCD_CTRL_ADDR, 32'h01_00 & {`VGALCD_CTRL_WIDTH{1'b1}});
   repeat (50) @(posedge this.apb4.pclk);
 endtask
 
@@ -93,7 +93,7 @@ task automatic VGALCDTest::test_tm_mode(input bit [31:0] run_times = 10);
   // ((33-1) << 20) | ((2-1) << 10) | (10-1)
   this.write(`VGALCD_VTIM_ADDR, 32'h200_0409 & {`VGALCD_VTIM_WIDTH{1'b1}});
   // div 4, test, en, rgb444
-  this.write(`VGALCD_CTRL_ADDR, 32'h11_00_01 & {`VGALCD_CTRL_WIDTH{1'b1}});
+  this.write(`VGALCD_CTRL_ADDR, 32'h11_01_01 & {`VGALCD_CTRL_WIDTH{1'b1}});
   repeat (800 * 525 * 4) @(posedge this.apb4.pclk);
 endtask
 

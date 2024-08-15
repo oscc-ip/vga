@@ -9,6 +9,7 @@
 // See the Mulan PSL v2 for more details.
 
 `include "register.sv"
+`include "clk_int_div.sv"
 `include "vgalcd_define.sv"
 
 module vgalcd_core (
@@ -16,6 +17,8 @@ module vgalcd_core (
     input  logic                         rst_n_i,
     input  logic                         en_i,
     input  logic [`VGALCD_DIV_WIDTH-1:0] div_i,
+    input  logic                         div_valid_i,
+    output logic                         div_done_o,
     input  logic                         test_i,
     input  logic [                  1:0] mode_i,
     input  logic [ `VGALCD_TB_WIDTH-1:0] hbpsize_i,
@@ -41,25 +44,28 @@ module vgalcd_core (
 );
 
   logic [`VGALCD_TIMCNT_WIDTH-1:0] s_pos_x;
-  logic [`VGALCD_DIV_WIDTH-1:0] s_pclk_cnt_d, s_pclk_cnt_q, s_pclk_div;
   logic s_pclk_d, s_pclk_q;
   logic [15:0] s_tm_data_d, s_tm_data_q, s_fb_data, s_pixel_data;
   logic [1:0] s_fetch_cnt_d, s_fetch_cnt_q;
   logic [63:0] s_fetch_data_d, s_fetch_data_q;
-  logic s_norm_mode;
+  logic s_norm_mode, s_pclk_trg;
 
-  // gen pclk
-  assign pclk_o       = s_pclk_q;
-  assign s_pclk_div   = (|div_i) ? div_i : 8'b1;
-  assign s_pclk_cnt_d = s_pclk_cnt_q == s_pclk_div - 1 ? '0 : s_pclk_cnt_q + 1'b1;
-  dffr #(`VGALCD_DIV_WIDTH) u_pclk_cnt_dffr (
-      clk_i,
-      rst_n_i,
-      s_pclk_cnt_d,
-      s_pclk_cnt_q
+  clk_int_div_simple #(
+      .DIV_VALUE_WIDTH (`VGALCD_DIV_WIDTH),
+      .DONE_DELAY_WIDTH(3)
+  ) u_gen_pclk (
+      .clk_i      (clk_i),
+      .rst_n_i    (rst_n_i),
+      .div_i      (div_i),
+      .div_valid_i(div_valid_i),
+      .div_ready_o(),
+      .div_done_o (div_done_o),
+      .clk_trg_o  (s_pclk_trg)
   );
 
-  assign s_pclk_d = s_pclk_cnt_q == s_pclk_div - 1 ? ~s_pclk_q : s_pclk_q;
+  // gen pclk
+  assign pclk_o   = s_pclk_q;
+  assign s_pclk_d = s_pclk_trg ? ~s_pclk_q : s_pclk_q;
   dffr #(1) u_pclk_dffr (
       clk_i,
       rst_n_i,
@@ -71,7 +77,7 @@ module vgalcd_core (
       .clk_i    (clk_i),
       .rst_n_i  (rst_n_i),
       .en_i     (en_i),
-      .pclk_en_i(s_pclk_cnt_q == '0),
+      .pclk_en_i(s_pclk_trg),
       .hbpsize_i(hbpsize_i),
       .hsnsize_i(hsnsize_i),
       .hfpsize_i(hfpsize_i),

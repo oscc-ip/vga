@@ -94,6 +94,7 @@ module axi4_vgalcd #(
   logic [`VGALCD_TB_WIDTH-1:0] s_bit_vfpsize, s_bit_vsnsize, s_bit_vbpsize;
   // ctrl signal
   logic s_hsync, s_vsync;
+  logic s_div_valid, s_div_done;
   // fifo signal
   logic s_tx_push_valid, s_tx_push_ready, s_tx_empty, s_tx_full, s_tx_pop_valid, s_tx_pop_ready;
   logic [63:0] s_tx_push_data, s_tx_pop_data;
@@ -421,12 +422,15 @@ module axi4_vgalcd #(
       .dat_o  (s_tx_pop_data)
   );
 
+  assign s_div_valid = s_vgalcd_ctrl_en && s_div_done;
   // gen sync and rgb signals
   vgalcd_core u_vgalcd_core (
       .clk_i        (axi4.aclk),
       .rst_n_i      (axi4.aresetn),
       .en_i         (s_bit_en),
       .div_i        (s_bit_div),
+      .div_valid_i  (s_div_valid),
+      .div_done_o   (s_div_done),
       .test_i       (s_bit_test),
       .mode_i       (s_bit_mode),
       .hbpsize_i    (s_bit_hbpsize),
