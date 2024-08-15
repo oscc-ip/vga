@@ -18,9 +18,10 @@ class VGALCDTest extends APB4Master;
   string                 name;
   int                    wr_val;
   virtual apb4_if.master apb4;
-  virtual vgalcd_if.tb      vgalcd;
+  virtual vgalcd_if.tb   vgalcd;
 
-  extern function new(string name = "vgalcd_test", virtual apb4_if.master apb4, virtual vgalcd_if.tb vgalcd);
+  extern function new(string name = "vgalcd_test", virtual apb4_if.master apb4,
+                      virtual vgalcd_if.tb vgalcd);
   extern task automatic test_reset_reg();
   extern task automatic test_wr_rd_reg(input bit [31:0] run_times = 1000);
   extern task automatic test_clk_div(input bit [31:0] run_times = 10);
@@ -34,7 +35,7 @@ function VGALCDTest::new(string name, virtual apb4_if.master apb4, virtual vgalc
   this.name   = name;
   this.wr_val = 0;
   this.apb4   = apb4;
-  this.vgalcd    = vgalcd;
+  this.vgalcd = vgalcd;
 endfunction
 
 task automatic VGALCDTest::test_reset_reg();
@@ -92,13 +93,13 @@ task automatic VGALCDTest::test_tm_mode(input bit [31:0] run_times = 10);
   // ((33-1) << 20) | ((2-1) << 10) | (10-1)
   this.write(`VGALCD_VTIM_ADDR, 32'h200_0409 & {`VGALCD_VTIM_WIDTH{1'b1}});
   // div 4, test, en, rgb444
-  this.write(`VGALCD_CTRL_ADDR, 32'h11_02_01 & {`VGALCD_CTRL_WIDTH{1'b1}});
+  this.write(`VGALCD_CTRL_ADDR, 32'h11_00_01 & {`VGALCD_CTRL_WIDTH{1'b1}});
   repeat (800 * 525 * 4) @(posedge this.apb4.pclk);
 endtask
 
 task automatic VGALCDTest::test_rd_fb(input bit [31:0] run_times = 10);
   bit [31:0] ctrl_val = '0;
-  bit [3:0] switch_cnt = '0;
+  bit [ 3:0] switch_cnt = '0;
   $display("=== [test vgalcd rd fb] ===");
   repeat (800 * 525 * 4) @(posedge this.apb4.pclk);
   this.write(`VGALCD_CTRL_ADDR, 32'b0 & {`VGALCD_CTRL_WIDTH{1'b1}});

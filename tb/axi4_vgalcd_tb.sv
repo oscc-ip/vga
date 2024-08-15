@@ -13,7 +13,7 @@
 `include "vgalcd_define.sv"
 
 module axi4_vgalcd_tb ();
-  localparam CLK_PEROID = 10;
+  localparam CLK_PEROID = 20;
   logic rst_n_i, clk_i;
 
   initial begin

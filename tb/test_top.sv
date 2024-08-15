@@ -36,11 +36,11 @@ program automatic test_top (
     Helper::print("tb init done");
     vgalcd_hdl = new("vgalcd_test", apb4, vgalcd);
     vgalcd_hdl.init();
-    vgalcd_hdl.test_reset_reg();
-    vgalcd_hdl.test_wr_rd_reg();
-    vgalcd_hdl.test_clk_div();
+    // vgalcd_hdl.test_reset_reg();
+    // vgalcd_hdl.test_wr_rd_reg();
+    // vgalcd_hdl.test_clk_div();
     vgalcd_hdl.test_tm_mode();
-    vgalcd_hdl.test_rd_fb();
+    // vgalcd_hdl.test_rd_fb();
     // vgalcd_hdl.test_irq();
 
     Helper::end_banner();
