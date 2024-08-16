@@ -44,7 +44,6 @@ module vgalcd_core (
 );
 
   logic [`VGALCD_TIMCNT_WIDTH-1:0] s_pos_x;
-  logic s_pclk_d, s_pclk_q;
   logic [15:0] s_tm_data_d, s_tm_data_q, s_fb_data, s_pixel_data;
   logic [1:0] s_fetch_cnt_d, s_fetch_cnt_q;
   logic [63:0] s_fetch_data_d, s_fetch_data_q;
@@ -60,17 +59,8 @@ module vgalcd_core (
       .div_valid_i(div_valid_i),
       .div_ready_o(),
       .div_done_o (div_done_o),
-      .clk_trg_o  (s_pclk_trg)
-  );
-
-  // gen pclk
-  assign pclk_o   = s_pclk_q;
-  assign s_pclk_d = s_pclk_trg ? ~s_pclk_q : s_pclk_q;
-  dffr #(1) u_pclk_dffr (
-      clk_i,
-      rst_n_i,
-      s_pclk_d,
-      s_pclk_q
+      .clk_trg_o  (s_pclk_trg),
+      .clk_o      (pclk_o)
   );
 
   vgalcd_timgen u_vgalcd_timgen (

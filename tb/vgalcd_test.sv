@@ -92,7 +92,7 @@ task automatic VGALCDTest::test_tm_mode(input bit [31:0] run_times = 10);
   this.write(`VGALCD_HTIM_ADDR, 32'h2F1_7C0F & {`VGALCD_HTIM_WIDTH{1'b1}});
   // ((33-1) << 20) | ((2-1) << 10) | (10-1)
   this.write(`VGALCD_VTIM_ADDR, 32'h200_0409 & {`VGALCD_VTIM_WIDTH{1'b1}});
-  // div 4, test, en, rgb444
+  // div 2, test, en, rgb444
   this.write(`VGALCD_CTRL_ADDR, 32'h11_01_01 & {`VGALCD_CTRL_WIDTH{1'b1}});
   repeat (800 * 525 * 4) @(posedge this.apb4.pclk);
 endtask
@@ -113,11 +113,11 @@ task automatic VGALCDTest::test_rd_fb(input bit [31:0] run_times = 10);
   this.write(`VGALCD_FBBA1_ADDR, 32'h8000_0000);  // 0x9_6000
   this.write(`VGALCD_FBBA2_ADDR, 32'h8010_0000);
   this.write(`VGALCD_THOLD_ADDR, 32'd256);
-  // div 4, test, en, rgb444
+  // burlen 64, div 2, two frame switch, en, rgb444
   ctrl_val[0]     = 1'd1;
   ctrl_val[3]     = 1'd1;
-  ctrl_val[4]     = 1'd1;
-  ctrl_val[15:8]  = 8'd2;
+  ctrl_val[4]     = 1'd0;
+  ctrl_val[15:8]  = 8'd0;
   ctrl_val[18:17] = 2'd1;
   ctrl_val[26:19] = 8'd63;
   this.write(`VGALCD_CTRL_ADDR, ctrl_val & {`VGALCD_CTRL_WIDTH{1'b1}});

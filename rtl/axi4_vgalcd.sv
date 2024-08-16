@@ -314,7 +314,7 @@ module axi4_vgalcd #(
       s_axi4_arlen_d     = s_axi4_arlen_q;
       s_pixel_cnt_d      = s_pixel_cnt_q;
       s_cfb_d            = s_cfb_q;
-      axi4.arlen         = s_axi4_addr_q;
+      axi4.arlen         = s_bit_burlen;
       s_vbsirq           = '0;
       unique case (s_axi4_mst_state_q)
         `VGALCD_AXI_MST_FSM_AR: begin
