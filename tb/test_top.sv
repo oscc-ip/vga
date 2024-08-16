@@ -39,8 +39,8 @@ program automatic test_top (
     // vgalcd_hdl.test_reset_reg();
     // vgalcd_hdl.test_wr_rd_reg();
     // vgalcd_hdl.test_clk_div();
-    vgalcd_hdl.test_tm_mode();
-    // vgalcd_hdl.test_rd_fb();
+    // vgalcd_hdl.test_tm_mode();
+    vgalcd_hdl.test_rd_fb();
     // vgalcd_hdl.test_irq();
 
     Helper::end_banner();

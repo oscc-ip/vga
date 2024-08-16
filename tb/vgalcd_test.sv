@@ -117,7 +117,7 @@ task automatic VGALCDTest::test_rd_fb(input bit [31:0] run_times = 10);
   ctrl_val[0]     = 1'd1;
   ctrl_val[3]     = 1'd1;
   ctrl_val[4]     = 1'd0;
-  ctrl_val[15:8]  = 8'd0;
+  ctrl_val[15:8]  = 8'd1;
   ctrl_val[18:17] = 2'd1;
   ctrl_val[26:19] = 8'd63;
   this.write(`VGALCD_CTRL_ADDR, ctrl_val & {`VGALCD_CTRL_WIDTH{1'b1}});
