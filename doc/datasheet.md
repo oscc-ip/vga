@@ -235,6 +235,7 @@ while(1) {
 }
 
 ```
+complete driver and test codes in [driver](../driver/) dir.
 
 ### Resoureces
 ### References
