@@ -9,10 +9,13 @@
 
 with open("sim.mem", "w+", encoding='utf-8') as f:
     f.write("@80000000\n")
-    for i in range(2097152): # 640x480
+    fb_len = (int)(640 * 480 / 8 + 10)
+    wr_val = 0
+    for i in range(fb_len):
         for k in range(8):
             txt = "{:x} "
-            f.write(txt.format((i >> (8 * k)) & 0xFF))
+            f.write(txt.format(wr_val & 0xFF))
+            wr_val = wr_val + 1
         f.write("\n")
 
 # with open("color_matrix.mem", "w+") as f:

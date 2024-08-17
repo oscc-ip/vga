@@ -115,7 +115,7 @@ task automatic VGALCDTest::test_rd_fb(input bit [31:0] run_times = 10);
   this.write(`VGALCD_THOLD_ADDR, 32'd256);
   // burlen 64, div 2, two frame switch, en, rgb444
   ctrl_val[0]     = 1'd1;
-  ctrl_val[3]     = 1'd1;
+  ctrl_val[3]     = 1'd0;
   ctrl_val[4]     = 1'd0;
   ctrl_val[15:8]  = 8'd1;
   ctrl_val[18:17] = 2'd1;
