@@ -59,6 +59,7 @@ module vgalcd_core (
       .div_valid_i(div_valid_i),
       .div_ready_o(),
       .div_done_o (div_done_o),
+      .clk_cnt_o  (),
       .clk_trg_o  (s_pclk_trg),
       .clk_o      (pclk_o)
   );
@@ -85,18 +86,19 @@ module vgalcd_core (
   );
 
   assign s_norm_mode   = en_i && ~test_i;
-  assign pixel_ready_o = s_norm_mode && (s_fetch_cnt_q == '0);
+  assign pixel_ready_o = s_norm_mode && (s_fetch_cnt_q == '0) && de_o;  // TODO: right
 
   always_comb begin
-    s_fetch_cnt_d = s_fetch_cnt_q;
-    if (s_norm_mode) begin
+    if (~s_norm_mode) begin
+      s_fetch_cnt_d = '0;
+    end else begin
       s_fetch_cnt_d = s_fetch_cnt_q == '1 ? '0 : s_fetch_cnt_q + 1'b1;
     end
   end
   dffer #(2) u_fetch_cnt_dffer (
       clk_i,
       rst_n_i,
-      s_norm_mode,
+      s_norm_mode && de_o,
       s_fetch_cnt_d,
       s_fetch_cnt_q
   );

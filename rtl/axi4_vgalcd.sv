@@ -406,7 +406,7 @@ module axi4_vgalcd #(
   assign s_tx_push_ready = ~s_tx_full;
   assign s_tx_pop_valid  = ~s_tx_empty;
   // verilog_format: on
-  stream_fifo #(
+  fifo #(
       .DATA_WIDTH  (64),
       .BUFFER_DEPTH(FIFO_DEPTH)
   ) u_tx_fifo (
