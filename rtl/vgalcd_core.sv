@@ -53,15 +53,17 @@ module vgalcd_core (
       .DIV_VALUE_WIDTH (`VGALCD_DIV_WIDTH),
       .DONE_DELAY_WIDTH(3)
   ) u_gen_pclk (
-      .clk_i      (clk_i),
-      .rst_n_i    (rst_n_i),
-      .div_i      (div_i),
-      .div_valid_i(div_valid_i),
-      .div_ready_o(),
-      .div_done_o (div_done_o),
-      .clk_cnt_o  (),
-      .clk_trg_o  (s_pclk_trg),
-      .clk_o      (pclk_o)
+      .clk_i        (clk_i),
+      .rst_n_i      (rst_n_i),
+      .div_i        (div_i),
+      .clk_init_i   (1'b0),
+      .div_valid_i  (div_valid_i),
+      .div_ready_o  (),
+      .div_done_o   (div_done_o),
+      .clk_cnt_o    (),
+      .clk_fir_trg_o(),
+      .clk_sec_trg_o(s_pclk_trg),
+      .clk_o        (pclk_o)
   );
 
   vgalcd_timgen u_vgalcd_timgen (
